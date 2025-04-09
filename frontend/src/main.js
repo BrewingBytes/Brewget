@@ -1,12 +1,12 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
-
-// PrimeVue styles
-import 'primevue/resources/themes/lara-light-blue/theme.css'
-import 'primevue/resources/primevue.min.css'
-import 'primeicons/primeicons.css'
+import Lara from '@primeuix/themes/lara'
 
 const app = createApp(App)
-app.use(PrimeVue)
+app.use(PrimeVue, {
+    theme: {
+        preset: Lara
+    }
+})
 app.mount('#app')
