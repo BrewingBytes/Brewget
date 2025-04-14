@@ -24,6 +24,6 @@
     "vite": "^6.2.5",
     "vitest": "^1.0.0",
     "@commitlint/cli": "^17.0.0",
-    "@commitlint/config-conventional": "^17.0.0"
+    "@commitlint/config-conventional": "^19.8.0"
   }
 }
