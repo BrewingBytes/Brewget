@@ -1,0 +1,55 @@
+services:
+  auth-service:
+    depends_on:
+      - db
+    container_name: auth-service
+    image: auth-service
+    environment:
+      - PG_URL=db
+      - PG_USERNAME=user-name
+      - PG_PASSWORD=strong-password
+      - PG_DATABASE=brewget
+      - CORS_URL=http://localhost
+      - JWT_SECRET=secret
+      - JWT_EXPIRES_IN=86400
+      - JWT_MAX_AGE=86400
+    networks:
+      - db
+  db:
+    image: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user-name
+      POSTGRES_PASSWORD: strong-password
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - db
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    container_name: pgadmin4
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+      PGADMIN_DEFAULT_PASSWORD: strong-password
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - db
+
+networks:
+  db:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+
+volumes:
+  db:
+  pgadmin:

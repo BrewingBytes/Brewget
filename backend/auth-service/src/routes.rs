@@ -14,6 +14,7 @@ use axum::{
     middleware,
     routing::{get, post},
 };
+use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 
 use crate::{
@@ -28,7 +29,18 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let config = Config::init();
 
     let cors = HeaderValue::from_str(&config.cors_url)?;
-    let state = Arc::new(AppState { config });
+    let postgres_url = format!(
+        "postgres://{}:{}@{}/{}",
+        config.pg_username, config.pg_password, config.pg_url, config.pg_database
+    );
+
+    println!("{postgres_url}");
+
+    let db = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&postgres_url)
+        .await?;
+    let state = Arc::new(AppState { config, db: db });
 
     let cors = CorsLayer::new()
         .allow_origin(cors)
