@@ -1,0 +1,11 @@
+'Workflow':
+- changed-files:
+  - any-glob-to-any-file: '.github/workflows/**'
+
+'Frontend':
+- changed-files:
+  - any-glob-to-any-file: 'frontend/**'
+
+'AuthService':
+- changed-files:
+  - any-glob-to-any-file: 'backend/auth-service/**'
