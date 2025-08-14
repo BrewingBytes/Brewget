@@ -6,19 +6,26 @@ use axum::{
     middleware::Next,
     response::IntoResponse,
 };
+use diesel::{
+    ExpressionMethods, SelectableHelper,
+    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
+};
+use diesel_async::RunQueryDsl;
 use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
     AppState,
-    models::{error::Error, token_claim::TokenClaim, user::User},
+    models::{error::Error, token::Token, token_claim::TokenClaim},
+    schema::tokens::dsl::*,
 };
 
+#[allow(clippy::get_first)]
 pub async fn auth_guard(
     State(state): State<Arc<AppState>>,
     mut req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Error> {
-    let token = req
+    let received_token = req
         .headers()
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok())
@@ -28,20 +35,27 @@ pub async fn auth_guard(
             "You are not logged in, please provide token",
         ))?;
 
-    let token = decode::<TokenClaim>(
-        token,
+    let decoded_token = decode::<TokenClaim>(
+        received_token,
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
     )?;
 
-    // TODO: Check JWT is in DB
-    // let user = state.db.select(("user", token.claims.sub)).await?;
-    let user = Some(User {
-        email: token.claims.sub,
-    });
+    let token_res = tokens
+        .filter(token.eq(received_token))
+        .limit(1)
+        .select(Token::as_select())
+        .load(&mut state.db.get().await?)
+        .await?;
 
-    let user = user.ok_or((StatusCode::UNAUTHORIZED, "No user matches this token"))?;
-    req.extensions_mut().insert(user);
+    if token_res.len() != 1 || token_res.get(0).unwrap().is_expired() {
+        return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
+    }
 
+    if token_res.get(0).unwrap().get_uuid().to_string() != decoded_token.claims.sub {
+        return Err((StatusCode::UNAUTHORIZED, "Token is invalid").into());
+    }
+
+    req.extensions_mut().insert(decoded_token.claims.sub);
     Ok(next.run(req).await)
 }

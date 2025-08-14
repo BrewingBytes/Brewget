@@ -3,6 +3,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use deadpool::managed::PoolError;
 
 use crate::models::dto::message::Message;
 
@@ -34,6 +35,18 @@ impl From<(StatusCode, &str)> for Error {
 
 impl From<jsonwebtoken::errors::Error> for Error {
     fn from(value: jsonwebtoken::errors::Error) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    }
+}
+
+impl From<PoolError<diesel_async::pooled_connection::PoolError>> for Error {
+    fn from(value: PoolError<diesel_async::pooled_connection::PoolError>) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    }
+}
+
+impl From<diesel::result::Error> for Error {
+    fn from(value: diesel::result::Error) -> Self {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
     }
 }

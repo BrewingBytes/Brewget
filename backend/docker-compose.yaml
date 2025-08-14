@@ -13,6 +13,7 @@ services:
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=86400
       - JWT_MAX_AGE=86400
+      - SALT_STR=powerfulsalt
     networks:
       - db
   db:
@@ -26,21 +27,6 @@ services:
       POSTGRES_PASSWORD: strong-password
     volumes:
       - db:/var/lib/postgresql/data
-    networks:
-      - db
-  pgadmin:
-    image: dpage/pgadmin4
-    depends_on:
-      - db
-    container_name: pgadmin4
-    restart: always
-    ports:
-      - "8888:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
-      PGADMIN_DEFAULT_PASSWORD: strong-password
-    volumes:
-      - pgadmin:/var/lib/pgadmin
     networks:
       - db
 

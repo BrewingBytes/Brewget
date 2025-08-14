@@ -10,6 +10,7 @@ pub struct Config {
     pub jwt_secret: String,
     pub jwt_expires_in: u32,
     pub jwt_max_age: u32,
+    pub salt_str: String,
 }
 
 impl Config {
@@ -28,6 +29,7 @@ impl Config {
             .map(|max_age| max_age.parse::<u32>())
             .expect("JWT_MAX_AGE must be provided.")
             .expect("JWT_MAX_AGE must be an u32.");
+        let salt_str = var("SALT_STR").expect("SALT_STR must be provided.");
 
         Self {
             pg_url,
@@ -38,6 +40,7 @@ impl Config {
             jwt_secret,
             jwt_expires_in,
             jwt_max_age,
+            salt_str,
         }
     }
 }

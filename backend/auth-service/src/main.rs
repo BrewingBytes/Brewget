@@ -2,6 +2,8 @@ mod app_state;
 mod config;
 mod models;
 mod routes;
+mod schema;
+mod utils;
 
 pub use app_state::AppState;
 pub use config::Config;

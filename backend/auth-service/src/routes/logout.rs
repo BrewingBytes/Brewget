@@ -1,11 +1,23 @@
-use axum::{Extension, Json, response::IntoResponse};
+use std::sync::Arc;
 
-use crate::models::{dto::message::Message, user::User};
+use axum::{Extension, Json, extract::State, response::IntoResponse};
+use diesel_async::RunQueryDsl;
 
-pub async fn logout_handler(Extension(user): Extension<User>) -> impl IntoResponse {
-    println!("User {} has been logged out.", user.email);
+use crate::{
+    AppState,
+    models::{dto::message::Message, error::Error},
+    schema::tokens::{self},
+};
 
-    // Remove the token from the DB
+pub async fn logout_handler(
+    State(state): State<Arc<AppState>>,
+    Extension(user_uuid): Extension<String>,
+) -> Result<impl IntoResponse, Error> {
+    println!("User {} has been logged out.", user_uuid);
 
-    Json(Message::new("Ok"))
+    diesel::delete(tokens::table)
+        .execute(&mut state.db.get().await?)
+        .await?;
+
+    Ok(Json(Message::new("Ok")))
 }
