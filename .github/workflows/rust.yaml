@@ -1,0 +1,97 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+name: Rust Checker
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    name: Rust Lint
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: changes
+        name: Changes
+        with:
+          filters: |
+            backend:
+              - '.github/workflows/rust.yaml'
+              - 'backend/**'
+      - name: Cache
+        if: steps.changes.outputs.backend == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Clippy
+        if: steps.changes.outputs.backend == 'true'
+        run: cargo clippy --all-features --workspace -- -D warnings
+      - name: Format
+        if: steps.changes.outputs.backend == 'true'
+        run: cargo fmt --all --check
+
+  tester:
+    runs-on: ubuntu-latest
+    name: Rust Test
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: changes
+        name: Changes
+        with:
+          filters: |
+            backend:
+              - '.github/workflows/rust.yaml'
+              - 'backend/**'
+      - name: Cache
+        if: steps.changes.outputs.backend == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Test
+        if: steps.changes.outputs.backend == 'true'
+        run: cargo test
+
+  builder:
+    runs-on: ubuntu-latest
+    name: Rust Build
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: changes
+        name: Changes
+        with:
+          filters: |
+            backend:
+              - '.github/workflows/rust.yaml'
+              - 'backend/**'
+      - name: Cache
+        if: steps.changes.outputs.backend == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build
+        if: steps.changes.outputs.backend == 'true'
+        run: cargo build

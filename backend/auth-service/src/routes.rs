@@ -40,7 +40,7 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
         .max_connections(5)
         .connect(&postgres_url)
         .await?;
-    let state = Arc::new(AppState { config, db: db });
+    let state = Arc::new(AppState { config, db });
 
     let cors = CorsLayer::new()
         .allow_origin(cors)
