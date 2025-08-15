@@ -95,7 +95,7 @@ impl NewUser {
     /// * `Ok(NewUser)` - A new `NewUser` instance ready for database insertion
     /// * `Err(())` - If the `NewUser` could not be created
     pub fn new(username: &str, password: &str, email: &str) -> Result<Self, ()> {
-        let hash = hash_password(&password)?;
+        let hash = hash_password(password)?;
 
         Ok(Self {
             username: username.to_string(),
