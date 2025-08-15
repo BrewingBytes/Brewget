@@ -6,17 +6,11 @@ use axum::{
     middleware::Next,
     response::IntoResponse,
 };
-use diesel::{
-    ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
 use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
-    AppState,
-    models::{response::error::Error, token::Token, token_claim::TokenClaim},
-    schema::tokens::dsl::*,
+    AppState, database,
+    models::{response::error::Error, token_claim::TokenClaim},
 };
 
 /// Authentication middleware guard for protected routes
@@ -45,7 +39,6 @@ use crate::{
 ///   - Token is invalid/expired
 ///   - Token not found in database
 ///   - Token user mismatch
-#[allow(clippy::get_first)]
 pub async fn auth_guard(
     State(state): State<Arc<AppState>>,
     mut req: Request,
@@ -70,20 +63,17 @@ pub async fn auth_guard(
     )?;
 
     // Check if token exists in database
-    let token_res = tokens
-        .filter(token.eq(received_token))
-        .limit(1)
-        .select(Token::as_select())
-        .load(&mut state.db.get().await?)
-        .await?;
+    let conn = &mut state.get_database_connection().await?;
+    let token_res = database::tokens::find(received_token, conn).await?;
 
     // Verify token is not expired
-    if token_res.len() != 1 || token_res.get(0).unwrap().is_expired() {
+    if token_res.is_expired() {
+        database::tokens::delete_by_token(token_res.get_token(), conn).await?;
         return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
     }
 
     // Verify token belongs to correct user
-    if token_res.get(0).unwrap().get_uuid().to_string() != *decoded_token.claims.sub {
+    if token_res.get_uuid().to_string() != *decoded_token.claims.sub {
         return Err((StatusCode::UNAUTHORIZED, "Token is invalid").into());
     }
 

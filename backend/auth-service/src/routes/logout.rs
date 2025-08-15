@@ -1,14 +1,11 @@
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    AppState,
+    AppState, database,
     models::response::{error::Error, message::Message},
-    schema::tokens::dsl::*,
 };
 use axum::{Extension, Json, extract::State, response::IntoResponse};
-use diesel_async::RunQueryDsl;
 
-use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Handles user logout requests
@@ -42,10 +39,8 @@ pub async fn logout_handler(
     println!("User {} has been logged out.", user_uuid);
 
     // Delete all tokens for the user
-    diesel::delete(tokens)
-        .filter(user_id.eq(Uuid::from_str(&user_uuid).unwrap()))
-        .execute(&mut state.db.get().await?)
-        .await?;
+    let conn = &mut state.get_database_connection().await?;
+    database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, conn).await?;
 
     // Return success message
     Ok(Json(Message {

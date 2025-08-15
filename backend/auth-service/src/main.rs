@@ -1,5 +1,6 @@
 mod app_state;
 mod config;
+mod database;
 mod models;
 mod routes;
 mod schema;

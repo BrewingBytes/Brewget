@@ -1,20 +1,14 @@
 use std::sync::Arc;
 
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
-use diesel::{
-    BoolExpressionMethods, ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
 
 use crate::{
-    AppState,
+    AppState, database,
     models::{
         request::register_info::RegisterInfo,
         response::{error::Error, message::Message},
-        user::{NewUser, User},
+        user::NewUser,
     },
-    schema::users::dsl::*,
 };
 
 /// Handles new user registration requests
@@ -80,18 +74,11 @@ pub async fn register_handler(
     }
 
     // Check for existing username or email
-    let user_res: Vec<User> = users
-        .filter(
-            username
-                .eq(body.username.clone())
-                .or(email.eq(body.email.clone())),
-        )
-        .limit(1)
-        .select(User::as_select())
-        .load(&mut state.db.get().await?)
-        .await?;
-
-    if user_res.len() == 1 {
+    let conn = &mut state.get_database_connection().await?;
+    if database::users::filter_by_username_or_email(&body.username, &body.email, conn)
+        .await
+        .is_ok()
+    {
         return Err((
             StatusCode::BAD_REQUEST,
             "Username or email is already used.",
@@ -109,10 +96,7 @@ pub async fn register_handler(
                 .into()
         })?;
 
-    diesel::insert_into(users)
-        .values(new_user)
-        .execute(&mut state.db.get().await?)
-        .await?;
+    database::users::insert(new_user, conn).await?;
 
     // Return success message
     Ok(Json(Message {
