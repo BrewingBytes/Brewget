@@ -17,7 +17,7 @@ diesel-async = { version = "0.6.1", features = [
 dotenv = "0.15.0"
 email_address = "0.2.9"
 jsonwebtoken = "9.3.1"
-serde = { version = "1.0.219", features = ["derive"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 tokio = { version = "1.47.1", features = ["full"] }
 tower-http = { version = "0.6.6", features = ["cors"] }
 uuid = { version = "1.18.0", features = ["serde"] }

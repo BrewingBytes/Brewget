@@ -12,8 +12,8 @@ use jsonwebtoken::{EncodingKey, Header, encode};
 use crate::{
     AppState,
     models::{
-        dto::{login_info::LoginInfo, token_response::TokenResponse},
-        error::Error,
+        request::login_info::LoginInfo,
+        response::{error::Error, token::Token},
         token::NewToken,
         token_claim::TokenClaim,
         user::User,
@@ -44,7 +44,7 @@ pub async fn login_handler(
     let exp = (now + Duration::seconds(state.config.jwt_max_age.into())).timestamp() as usize;
 
     let claims = TokenClaim {
-        sub: user.get_uuid().to_string(),
+        sub: user.get_uuid().to_string().into(),
         exp,
         iat,
     };
@@ -60,5 +60,7 @@ pub async fn login_handler(
         .execute(&mut state.db.get().await?)
         .await?;
 
-    Ok(Json(TokenResponse::new(&token)))
+    Ok(Json(Token {
+        token: token.into(),
+    }))
 }

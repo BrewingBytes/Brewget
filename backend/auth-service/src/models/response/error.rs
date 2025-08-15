@@ -5,7 +5,7 @@ use axum::{
 };
 use deadpool::managed::PoolError;
 
-use crate::models::dto::message::Message;
+use crate::models::response::message::Message;
 
 pub struct Error {
     code: StatusCode,
@@ -16,7 +16,9 @@ impl Error {
     pub fn new(code: StatusCode, message: &str) -> Self {
         Self {
             code,
-            body: Json(Message::new(message)),
+            body: Json(Message {
+                message: message.into(),
+            }),
         }
     }
 }

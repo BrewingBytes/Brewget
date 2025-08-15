@@ -5,7 +5,7 @@ use diesel_async::RunQueryDsl;
 
 use crate::{
     AppState,
-    models::{dto::message::Message, error::Error},
+    models::response::{error::Error, message::Message},
     schema::tokens::{self},
 };
 
@@ -19,5 +19,7 @@ pub async fn logout_handler(
         .execute(&mut state.db.get().await?)
         .await?;
 
-    Ok(Json(Message::new("Ok")))
+    Ok(Json(Message {
+        message: "Ok".into(),
+    }))
 }

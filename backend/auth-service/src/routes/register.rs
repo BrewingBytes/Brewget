@@ -10,8 +10,8 @@ use diesel_async::RunQueryDsl;
 use crate::{
     AppState,
     models::{
-        dto::{message::Message, register_info::RegisterInfo},
-        error::Error,
+        request::register_info::RegisterInfo,
+        response::{error::Error, message::Message},
         user::{NewUser, User},
     },
     schema::users::dsl::*,
@@ -70,5 +70,7 @@ pub async fn register_handler(
         .execute(&mut state.db.get().await?)
         .await?;
 
-    Ok(Json(Message::new("Account has been created.")))
+    Ok(Json(Message {
+        message: "Account has been created.".into(),
+    }))
 }

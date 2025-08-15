@@ -15,7 +15,7 @@ use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
     AppState,
-    models::{error::Error, token::Token, token_claim::TokenClaim},
+    models::{response::error::Error, token::Token, token_claim::TokenClaim},
     schema::tokens::dsl::*,
 };
 
@@ -52,10 +52,11 @@ pub async fn auth_guard(
         return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
     }
 
-    if token_res.get(0).unwrap().get_uuid().to_string() != decoded_token.claims.sub {
+    if token_res.get(0).unwrap().get_uuid().to_string() != *decoded_token.claims.sub {
         return Err((StatusCode::UNAUTHORIZED, "Token is invalid").into());
     }
 
-    req.extensions_mut().insert(decoded_token.claims.sub);
+    req.extensions_mut()
+        .insert(decoded_token.claims.sub.to_string());
     Ok(next.run(req).await)
 }
