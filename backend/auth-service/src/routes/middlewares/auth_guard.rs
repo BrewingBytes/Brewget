@@ -6,17 +6,11 @@ use axum::{
     middleware::Next,
     response::IntoResponse,
 };
-use diesel::{
-    ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
 use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
     AppState, database,
-    models::{response::error::Error, token::Token, token_claim::TokenClaim},
-    schema::tokens::dsl::*,
+    models::{response::error::Error, token_claim::TokenClaim},
 };
 
 /// Authentication middleware guard for protected routes
