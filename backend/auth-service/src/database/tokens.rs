@@ -1,9 +1,16 @@
-use diesel::ExpressionMethods;
+use axum::http::StatusCode;
+use diesel::{
+    ExpressionMethods, SelectableHelper,
+    query_dsl::methods::{FilterDsl, SelectDsl},
+};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
 use crate::{
-    models::{response::error::Error, token::NewToken},
+    models::{
+        response::error::Error,
+        token::{NewToken, Token},
+    },
     schema::tokens::dsl::*,
 };
 
@@ -52,4 +59,41 @@ pub async fn delete_by_uuid(
         .filter(user_id.eq(uuid))
         .execute(conn)
         .await?)
+}
+
+pub async fn delete_by_token(
+    tkn: &str,
+    conn: &mut deadpool::managed::Object<
+        diesel_async::pooled_connection::AsyncDieselConnectionManager<
+            diesel_async::AsyncPgConnection,
+        >,
+    >,
+) -> Result<usize, Error> {
+    Ok(diesel::delete(tokens)
+        .filter(token.eq(tkn))
+        .execute(conn)
+        .await?)
+}
+
+pub async fn find(
+    find_token: &str,
+    conn: &mut deadpool::managed::Object<
+        diesel_async::pooled_connection::AsyncDieselConnectionManager<
+            diesel_async::AsyncPgConnection,
+        >,
+    >,
+) -> Result<Token, Error> {
+    tokens
+        .filter(token.eq(find_token))
+        .select(Token::as_select())
+        .first(conn)
+        .await
+        .map_err(|e: diesel::result::Error| -> Error {
+            match e {
+                diesel::result::Error::NotFound => {
+                    (StatusCode::UNAUTHORIZED, "Token has expired.").into()
+                }
+                _ => e.into(),
+            }
+        })
 }

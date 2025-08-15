@@ -34,6 +34,11 @@ impl Token {
         self.user_id
     }
 
+    /// Returns the JWT
+    pub fn get_token(&self) -> &str {
+        &self.token
+    }
+
     /// Checks if the token has expired
     ///
     /// # Returns

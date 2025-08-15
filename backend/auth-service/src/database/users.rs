@@ -54,7 +54,7 @@ pub async fn filter_by_username(
         >,
     >,
 ) -> Result<User, Error> {
-    Ok(users::table
+    users::table
         .filter(username.eq(find_username))
         .select(User::as_select())
         .first(conn)
@@ -66,7 +66,7 @@ pub async fn filter_by_username(
                 }
                 _ => e.into(),
             }
-        })?)
+        })
 }
 
 /// Search for a user by username or email
@@ -88,9 +88,17 @@ pub async fn filter_by_username_or_email(
         >,
     >,
 ) -> Result<User, Error> {
-    Ok(users::table
+    users::table
         .filter(username.eq(find_username).or(email.eq(find_email)))
         .select(User::as_select())
         .first(conn)
-        .await?)
+        .await
+        .map_err(|e: diesel::result::Error| -> Error {
+            match e {
+                diesel::result::Error::NotFound => {
+                    (StatusCode::BAD_REQUEST, "Username or email not found.").into()
+                }
+                _ => e.into(),
+            }
+        })
 }

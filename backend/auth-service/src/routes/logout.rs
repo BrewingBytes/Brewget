@@ -3,12 +3,9 @@ use std::{str::FromStr, sync::Arc};
 use crate::{
     AppState, database,
     models::response::{error::Error, message::Message},
-    schema::tokens::dsl::*,
 };
 use axum::{Extension, Json, extract::State, response::IntoResponse};
-use diesel_async::RunQueryDsl;
 
-use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Handles user logout requests

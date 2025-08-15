@@ -1,20 +1,14 @@
 use std::sync::Arc;
 
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
-use diesel::{
-    BoolExpressionMethods, ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
 
 use crate::{
     AppState, database,
     models::{
         request::register_info::RegisterInfo,
         response::{error::Error, message::Message},
-        user::{NewUser, User},
+        user::NewUser,
     },
-    schema::users::dsl::*,
 };
 
 /// Handles new user registration requests

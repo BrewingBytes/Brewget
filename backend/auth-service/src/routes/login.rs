@@ -2,11 +2,6 @@ use std::sync::Arc;
 
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use chrono::{Duration, Utc};
-use diesel::{
-    ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, LimitDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
 use jsonwebtoken::{EncodingKey, Header, encode};
 
 use crate::{
@@ -16,9 +11,7 @@ use crate::{
         response::{error::Error, token::Token},
         token::NewToken,
         token_claim::TokenClaim,
-        user::User,
     },
-    schema::{tokens, users::dsl::*},
 };
 
 /// Handles user login requests
@@ -53,7 +46,6 @@ use crate::{
 ///     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 /// }
 /// ```
-#[allow(clippy::get_first)]
 pub async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
