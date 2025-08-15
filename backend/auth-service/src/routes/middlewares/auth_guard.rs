@@ -74,7 +74,7 @@ pub async fn auth_guard(
         .filter(token.eq(received_token))
         .limit(1)
         .select(Token::as_select())
-        .load(&mut state.db.get().await?)
+        .load(&mut state.get_database_connection().await?)
         .await?;
 
     // Verify token is not expired

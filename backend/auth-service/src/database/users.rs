@@ -1,3 +1,4 @@
+use axum::http::StatusCode;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, SelectableHelper,
     query_dsl::methods::{FilterDsl, SelectDsl},
@@ -57,7 +58,15 @@ pub async fn filter_by_username(
         .filter(username.eq(find_username))
         .select(User::as_select())
         .first(conn)
-        .await?)
+        .await
+        .map_err(|e: diesel::result::Error| -> Error {
+            match e {
+                diesel::result::Error::NotFound => {
+                    (StatusCode::BAD_REQUEST, "Username not found.").into()
+                }
+                _ => e.into(),
+            }
+        })?)
 }
 
 /// Search for a user by username or email

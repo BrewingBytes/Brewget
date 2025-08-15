@@ -25,3 +25,31 @@ pub struct AppState {
     pub config: Config,
     pub db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
 }
+
+impl AppState {
+    /// Gets a connection from the database pool
+    ///
+    /// # Returns
+    /// * `Ok(Object)` - A connection from the pool
+    /// * `Err(PoolError)` - If connection acquisition fails
+    ///
+    /// # Example
+    /// ```rust
+    /// let conn = state.get_database_connection().await?;
+    /// // Use connection for database operations
+    /// ```
+    ///
+    /// # Errors
+    /// Returns error if:
+    /// * Pool is exhausted (too many connections)
+    /// * Connection establishment fails
+    /// * Database is unreachable
+    pub async fn get_database_connection(
+        &self,
+    ) -> Result<
+        deadpool::managed::Object<AsyncDieselConnectionManager<AsyncPgConnection>>,
+        deadpool::managed::PoolError<diesel_async::pooled_connection::PoolError>,
+    > {
+        self.db.get().await
+    }
+}

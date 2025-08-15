@@ -59,7 +59,7 @@ pub async fn login_handler(
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     // Query database for user with matching username
-    let conn = &mut state.db.get().await?;
+    let conn = &mut state.get_database_connection().await?;
     let user = database::users::filter_by_username(&body.username, conn).await?;
 
     // Validate user exists and password matches

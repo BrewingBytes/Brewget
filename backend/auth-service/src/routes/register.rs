@@ -80,7 +80,7 @@ pub async fn register_handler(
     }
 
     // Check for existing username or email
-    let conn = &mut state.db.get().await?;
+    let conn = &mut state.get_database_connection().await?;
     if database::users::filter_by_username_or_email(&body.username, &body.email, conn)
         .await
         .is_ok()

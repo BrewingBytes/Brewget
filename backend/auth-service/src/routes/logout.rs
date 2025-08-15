@@ -42,7 +42,7 @@ pub async fn logout_handler(
     println!("User {} has been logged out.", user_uuid);
 
     // Delete all tokens for the user
-    let conn = &mut state.db.get().await?;
+    let conn = &mut state.get_database_connection().await?;
     database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, conn).await?;
 
     // Return success message
