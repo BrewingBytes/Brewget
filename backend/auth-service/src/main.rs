@@ -2,6 +2,8 @@ mod app_state;
 mod config;
 mod models;
 mod routes;
+mod schema;
+mod utils;
 
 pub use app_state::AppState;
 pub use config::Config;
@@ -18,7 +20,6 @@ async fn main() {
         .expect("Could not bind TcpListener.");
 
     println!("🚀 Server started successfully");
-
     axum::serve(listener, app)
         .await
         .expect("Could not serve axum server.");

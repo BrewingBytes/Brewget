@@ -4,15 +4,20 @@ version = "0.0.1"
 edition = "2024"
 
 [dependencies]
+argon2 = { version = "0.5.3", features = ["std"] }
 axum = "0.8.4"
 chrono = "0.4.41"
-dotenv = "0.15.0"
-jsonwebtoken = "9.3.1"
-serde = { version = "1.0.219", features = ["derive"] }
-sqlx = { version = "0.8.6", features = [
-    "runtime-tokio",
-    "tls-native-tls",
+deadpool = "0.12.2"
+diesel = { version = "2.2.12", features = ["uuid", "chrono"] }
+diesel-async = { version = "0.6.1", features = [
+    "deadpool",
+    "pool",
     "postgres",
 ] }
+dotenv = "0.15.0"
+email_address = "0.2.9"
+jsonwebtoken = "9.3.1"
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 tokio = { version = "1.47.1", features = ["full"] }
 tower-http = { version = "0.6.6", features = ["cors"] }
+uuid = { version = "1.18.0", features = ["serde"] }
