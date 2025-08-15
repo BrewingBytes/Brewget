@@ -100,19 +100,14 @@ pub async fn register_handler(
     }
 
     // Create new user record
-    let new_user = NewUser::new(
-        body.username,
-        body.password,
-        body.email,
-        &state.config.salt_str,
-    )
-    .map_err(|_| -> Error {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not create account.",
-        )
-            .into()
-    })?;
+    let new_user =
+        NewUser::new(&body.username, &body.password, &body.email).map_err(|_| -> Error {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not create account.",
+            )
+                .into()
+        })?;
 
     diesel::insert_into(users)
         .values(new_user)

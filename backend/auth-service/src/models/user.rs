@@ -94,18 +94,13 @@ impl NewUser {
     /// # Returns
     /// * `Ok(NewUser)` - A new `NewUser` instance ready for database insertion
     /// * `Err(())` - If the `NewUser` could not be created
-    pub fn new(
-        username: String,
-        password: String,
-        email: String,
-        salt_str: &str,
-    ) -> Result<Self, ()> {
-        let hash = hash_password(&password, salt_str)?;
+    pub fn new(username: &str, password: &str, email: &str) -> Result<Self, ()> {
+        let hash = hash_password(&password)?;
 
         Ok(Self {
-            username,
+            username: username.to_string(),
             password: hash,
-            email,
+            email: email.to_string(),
         })
     }
 }

@@ -13,7 +13,6 @@ services:
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=86400
       - JWT_MAX_AGE=86400
-      - SALT_STR=powerfulsalt
     networks:
       - db
   db:

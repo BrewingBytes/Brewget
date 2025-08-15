@@ -1,4 +1,7 @@
-use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::Salt};
+use argon2::{
+    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
+};
 
 /// Hashes a password using Argon2 with the provided salt
 ///
@@ -9,12 +12,12 @@ use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_ha
 /// # Returns
 /// * `Ok(String) - The password hashed`
 /// * `Err(()) - If the hashing fails`
-pub fn hash_password(password: &str, salt_str: &str) -> Result<String, ()> {
-    let salt: Salt = salt_str.try_into().unwrap();
+pub fn hash_password(password: &str) -> Result<String, ()> {
+    let salt = SaltString::generate(&mut OsRng);
 
     let argon2 = Argon2::default();
     let hash = argon2
-        .hash_password(password.as_bytes(), salt)
+        .hash_password(password.as_bytes(), &salt)
         .map_err(|_| ())?;
 
     Ok(hash.to_string())
