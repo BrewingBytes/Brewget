@@ -92,14 +92,20 @@ impl NewUser {
     /// * `salt_str` - Salt string used for password hashing
     ///
     /// # Returns
-    /// A new `NewUser` instance ready for database insertion
-    pub fn new(username: String, password: String, email: String, salt_str: &str) -> Self {
-        let hash = hash_password(&password, salt_str);
+    /// * `Ok(NewUser)` - A new `NewUser` instance ready for database insertion
+    /// * `Err(())` - If the `NewUser` could not be created
+    pub fn new(
+        username: String,
+        password: String,
+        email: String,
+        salt_str: &str,
+    ) -> Result<Self, ()> {
+        let hash = hash_password(&password, salt_str)?;
 
-        Self {
+        Ok(Self {
             username,
             password: hash,
             email,
-        }
+        })
     }
 }

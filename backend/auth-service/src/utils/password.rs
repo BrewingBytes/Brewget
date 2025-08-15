@@ -7,19 +7,17 @@ use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_ha
 /// * `salt_str` - Salt string to use in hashing
 ///
 /// # Returns
-/// Returns the hashed password as a string
-///
-/// # Panics
-/// Panics if:
-/// * Salt string is invalid
-/// * Password hashing fails
-pub fn hash_password(password: &str, salt_str: &str) -> String {
+/// * `Ok(String) - The password hashed`
+/// * `Err(()) - If the hashing fails`
+pub fn hash_password(password: &str, salt_str: &str) -> Result<String, ()> {
     let salt: Salt = salt_str.try_into().unwrap();
 
     let argon2 = Argon2::default();
-    let hash = argon2.hash_password(password.as_bytes(), salt).unwrap();
+    let hash = argon2
+        .hash_password(password.as_bytes(), salt)
+        .map_err(|_| ())?;
 
-    hash.to_string()
+    Ok(hash.to_string())
 }
 
 /// Verifies a password against a hash using Argon2
