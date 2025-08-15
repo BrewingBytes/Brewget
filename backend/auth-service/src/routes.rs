@@ -12,8 +12,6 @@ use axum::{
         HeaderValue, Method,
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     },
-    middleware,
-    routing::{get, post},
 };
 use diesel_async::{
     AsyncPgConnection,
@@ -21,13 +19,7 @@ use diesel_async::{
 };
 use tower_http::cors::CorsLayer;
 
-use crate::{
-    AppState, Config,
-    routes::{
-        health::health_checker_handler, login::login_handler, logout::logout_handler,
-        middlewares::auth_guard::auth_guard, register::register_handler,
-    },
-};
+use crate::{AppState, Config};
 
 pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let config = Config::init();
@@ -52,14 +44,10 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
 
     let router = Router::new()
-        .route("/", get(health_checker_handler))
-        .route("/register", post(register_handler))
-        .route("/login", post(login_handler))
-        .route(
-            "/logout",
-            get(logout_handler)
-                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
-        )
+        .nest("/health", health::get_router(state.clone()))
+        .nest("/register", register::get_router(state.clone()))
+        .nest("/login", login::get_router(state.clone()))
+        .nest("/logout", logout::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)

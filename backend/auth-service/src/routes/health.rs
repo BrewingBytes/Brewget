@@ -1,22 +1,47 @@
-use axum::{Json, response::IntoResponse};
+use std::sync::Arc;
 
-use crate::models::response::message::Message;
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::get};
+
+use crate::{AppState, models::response::health::Health};
+
+/// Creates a router for the login routes
+pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", get(health_checker_handler))
+        .with_state(state)
+}
 
 /// Health check endpoint handler
 ///
-/// Returns a simple message indicating the service is operational
+/// Returns a health message indicating the service is operational
 ///
 /// # Returns
-/// JSON response with message "Auth-Service is working."
+/// JSON response with a health message
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Auth-Service is working."
+///     "status": "healthy",
+///     "database": "connected",
+///     "version": "0.0.1"
 /// }
 /// ```
-pub async fn health_checker_handler() -> impl IntoResponse {
-    Json(Message {
-        message: "Auth-Service is working.".into(),
-    })
+async fn health_checker_handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    match state.get_database_connection().await {
+        Ok(_) => Json(Health {
+            status: "healthy".into(),
+            database: "connected".into(),
+            version: env!("CARGO_PKG_VERSION").into(),
+        })
+        .into_response(),
+        Err(_) => (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(Health {
+                status: "unhealthy".into(),
+                database: "disconnected".into(),
+                version: env!("CARGO_PKG_VERSION").into(),
+            }),
+        )
+            .into_response(),
+    }
 }

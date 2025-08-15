@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 
@@ -13,6 +13,13 @@ use crate::{
         token_claim::TokenClaim,
     },
 };
+
+/// Creates a router for the login routes
+pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", post(login_handler))
+        .with_state(state)
+}
 
 /// Handles user login requests
 ///
@@ -46,7 +53,7 @@ use crate::{
 ///     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 /// }
 /// ```
-pub async fn login_handler(
+async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
@@ -83,7 +90,5 @@ pub async fn login_handler(
     database::tokens::insert(new_token, conn).await?;
 
     // Return token to client
-    Ok(Json(Token {
-        token: token.into(),
-    }))
+    Ok(Json(Token { token }))
 }

@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use serde::Serialize;
 
 /// A JWT response structure
@@ -17,5 +15,5 @@ use serde::Serialize;
 /// ```
 #[derive(Serialize)]
 pub struct Token {
-    pub token: Arc<str>,
+    pub token: String,
 }
