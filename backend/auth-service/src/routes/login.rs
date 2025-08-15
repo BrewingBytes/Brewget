@@ -67,7 +67,7 @@ pub async fn login_handler(
         .await?;
 
     // Validate user exists and password matches
-    if user_res.len() != 1 || user_res.get(0).unwrap().is_password_valid(&body.password) {
+    if user_res.len() != 1 || !user_res.get(0).unwrap().is_password_valid(&body.password) {
         return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
     }
 
