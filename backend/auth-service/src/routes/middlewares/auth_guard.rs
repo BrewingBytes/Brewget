@@ -19,12 +19,39 @@ use crate::{
     schema::tokens::dsl::*,
 };
 
+/// Authentication middleware guard for protected routes
+///
+/// Validates JWT tokens and ensures they exist in the database
+///
+/// # Flow
+/// 1. Extracts Bearer token from Authorization header
+/// 2. Decodes and validates the JWT
+/// 3. Checks if token exists in database and is not expired
+/// 4. Verifies token belongs to correct user
+/// 5. Adds user ID to request extensions
+///
+/// # Arguments
+/// * `state` - Application state containing config and DB connection
+/// * `req` - The incoming HTTP request
+/// * `next` - Next middleware in chain
+///
+/// # Returns
+/// * `Ok(Response)` - If authentication succeeds
+/// * `Err(Error)` - If any validation step fails
+///
+/// # Errors
+/// * Returns 401 Unauthorized if:
+///   - No token provided
+///   - Token is invalid/expired
+///   - Token not found in database
+///   - Token user mismatch
 #[allow(clippy::get_first)]
 pub async fn auth_guard(
     State(state): State<Arc<AppState>>,
     mut req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Error> {
+    // Extract Bearer token from Authorization header
     let received_token = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -35,12 +62,14 @@ pub async fn auth_guard(
             "You are not logged in, please provide token",
         ))?;
 
+    // Decode and validate JWT token
     let decoded_token = decode::<TokenClaim>(
         received_token,
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
     )?;
 
+    // Check if token exists in database
     let token_res = tokens
         .filter(token.eq(received_token))
         .limit(1)
@@ -48,14 +77,17 @@ pub async fn auth_guard(
         .load(&mut state.db.get().await?)
         .await?;
 
+    // Verify token is not expired
     if token_res.len() != 1 || token_res.get(0).unwrap().is_expired() {
         return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
     }
 
+    // Verify token belongs to correct user
     if token_res.get(0).unwrap().get_uuid().to_string() != *decoded_token.claims.sub {
         return Err((StatusCode::UNAUTHORIZED, "Token is invalid").into());
     }
 
+    // Add user ID to request extensions and continue
     req.extensions_mut()
         .insert(decoded_token.claims.sub.to_string());
     Ok(next.run(req).await)

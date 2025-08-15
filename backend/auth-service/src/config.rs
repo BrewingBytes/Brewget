@@ -1,5 +1,17 @@
 use std::env::var;
 
+/// Application configuration loaded from environment variables
+///
+/// # Fields
+/// * `pg_url` - PostgreSQL server URL
+/// * `pg_username` - Database username
+/// * `pg_password` - Database password
+/// * `pg_database` - Database name
+/// * `cors_url` - Allowed CORS origin URL
+/// * `jwt_secret` - Secret key for JWT signing
+/// * `jwt_expires_in` - JWT token expiration time in seconds
+/// * `jwt_max_age` - Maximum age for JWT refresh tokens in seconds
+/// * `salt_str` - Salt string for password hashing
 #[derive(Clone)]
 pub struct Config {
     pub pg_url: String,
@@ -14,6 +26,13 @@ pub struct Config {
 }
 
 impl Config {
+    // Initializes configuration from environment variables
+    ///
+    /// # Panics
+    /// Panics if any required environment variable is missing or invalid
+    ///
+    /// # Returns
+    /// Returns a new Config instance with values from environment
     pub fn init() -> Self {
         let pg_url = var("PG_URL").expect("PG_URL must be provided");
         let pg_username = var("PG_USERNAME").expect("PG_USERNAME must be provided.");
