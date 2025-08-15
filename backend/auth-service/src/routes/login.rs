@@ -10,7 +10,7 @@ use diesel_async::RunQueryDsl;
 use jsonwebtoken::{EncodingKey, Header, encode};
 
 use crate::{
-    AppState,
+    AppState, database,
     models::{
         request::login_info::LoginInfo,
         response::{error::Error, token::Token},
@@ -59,19 +59,13 @@ pub async fn login_handler(
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     // Query database for user with matching username
-    let user_res: Vec<User> = users
-        .filter(username.eq(body.username))
-        .limit(1)
-        .select(User::as_select())
-        .load(&mut state.db.get().await?)
-        .await?;
+    let conn = &mut state.db.get().await?;
+    let user = database::users::filter_by_username(&body.username, conn).await?;
 
     // Validate user exists and password matches
-    if user_res.len() != 1 || !user_res.get(0).unwrap().is_password_valid(&body.password) {
+    if !user.is_password_valid(&body.password) {
         return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
     }
-
-    let user = user_res.get(0).unwrap();
 
     // Generate token timestamps
     let now = Utc::now();
@@ -93,10 +87,8 @@ pub async fn login_handler(
     )?;
 
     // Store token into database
-    diesel::insert_into(tokens::table)
-        .values(NewToken::new(user, &token, None, None))
-        .execute(&mut state.db.get().await?)
-        .await?;
+    let new_token = NewToken::new(&user, &token, None, None);
+    database::tokens::insert(new_token, conn).await?;
 
     // Return token to client
     Ok(Json(Token {

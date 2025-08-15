@@ -76,3 +76,10 @@ impl From<diesel::result::Error> for Error {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
     }
 }
+
+/// Converts Uuid errors into the application Error type
+impl From<uuid::Error> for Error {
+    fn from(value: uuid::Error) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    }
+}
