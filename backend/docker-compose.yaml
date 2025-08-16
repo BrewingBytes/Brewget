@@ -3,7 +3,7 @@ services:
     depends_on:
       - db
     container_name: auth-service
-    image: auth-service
+    image: auth-service:latest
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -13,6 +13,17 @@ services:
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=86400
       - JWT_MAX_AGE=86400
+    networks:
+      - db
+  email-service:
+    container_name: email-service:latest
+    image: email-service:latest
+    environment:
+      - SMTP_EMAIL=noreply@brewingbytes.com
+      - SMTP_NAME=BrewGet
+      - SMTP_RELAY=smtp.example.com
+      - SMTP_USERNAME=smtp-user
+      - SMTP_PASSWORD=smtp-password
     networks:
       - db
   db:

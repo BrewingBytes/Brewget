@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package email_service;
+
+service EmailService {
+    rpc send_activate_account(ActivateAccountRequest) returns (ActivateAccountResponse);
+}
+
+message ActivateAccountRequest {
+    string username = 1;
+    string email = 2;
+    string link = 3;
+}
+
+message ActivateAccountResponse {
+    bool success = 1;
+}
