@@ -9,3 +9,7 @@
 'AuthService':
 - changed-files:
   - any-glob-to-any-file: 'backend/auth-service/**'
+
+'EmailService':
+- changed-files:
+  - any-glob-to-any-file: 'backend/email-service/**'
