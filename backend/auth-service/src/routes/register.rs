@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
 
 use crate::{
     AppState, database,
@@ -9,7 +9,15 @@ use crate::{
         response::{error::Error, message::Message},
         user::NewUser,
     },
+    utils::password::validate_password,
 };
+
+/// Creates a router for the login routes
+pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+    Router::new()
+        .route("/", post(register_handler))
+        .with_state(state)
+}
 
 /// Handles new user registration requests
 ///
@@ -46,7 +54,7 @@ use crate::{
 ///     "message": "Account has been created."
 /// }
 /// ```
-pub async fn register_handler(
+async fn register_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
@@ -60,13 +68,7 @@ pub async fn register_handler(
     }
 
     // Validate password length
-    if body.password.len() <= 7 {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Password length cannot be less or equal to 7 characters.",
-        )
-            .into());
-    }
+    validate_password(&body.password)?;
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {

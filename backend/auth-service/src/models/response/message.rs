@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use serde::Serialize;
 
 /// A generic message response structure
@@ -17,5 +15,5 @@ use serde::Serialize;
 /// ```
 #[derive(Serialize)]
 pub struct Message {
-    pub message: Arc<str>,
+    pub message: String,
 }

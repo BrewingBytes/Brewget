@@ -3,10 +3,24 @@ use std::{str::FromStr, sync::Arc};
 use crate::{
     AppState, database,
     models::response::{error::Error, message::Message},
+    routes::middlewares::auth_guard::auth_guard,
 };
-use axum::{Extension, Json, extract::State, response::IntoResponse};
+use axum::{
+    Extension, Json, Router, extract::State, middleware, response::IntoResponse, routing::get,
+};
 
 use uuid::Uuid;
+
+/// Creates a router for the login routes
+pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
+    Router::new()
+        .route(
+            "/",
+            get(logout_handler)
+                .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard)),
+        )
+        .with_state(state)
+}
 
 /// Handles user logout requests
 ///
@@ -31,7 +45,7 @@ use uuid::Uuid;
 ///     "message": "Ok"
 /// }
 /// ```
-pub async fn logout_handler(
+async fn logout_handler(
     State(state): State<Arc<AppState>>,
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
