@@ -1,3 +1,4 @@
+mod activate;
 mod health;
 mod login;
 mod logout;
@@ -19,7 +20,9 @@ use diesel_async::{
 };
 use tower_http::cors::CorsLayer;
 
-use crate::{AppState, Config};
+use crate::{
+    AppState, Config, grpc::email_service::service::email_service_client::EmailServiceClient,
+};
 
 pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let config = Config::init();
@@ -35,7 +38,10 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
         .build()
         .expect("Unable to create new db pool");
 
-    let state = Arc::new(AppState { config, db });
+    // Create all the GRPCs Clients
+    let email_service = EmailServiceClient::connect("http://[::1]:8082").await?;
+
+    let state = Arc::new(AppState::new(config, db, email_service));
 
     let cors = CorsLayer::new()
         .allow_origin(cors)
@@ -46,6 +52,7 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let router = Router::new()
         .nest("/health", health::get_router(state.clone()))
         .nest("/register", register::get_router(state.clone()))
+        .nest("/activate", activate::get_router(state.clone()))
         .nest("/login", login::get_router(state.clone()))
         .nest("/logout", logout::get_router(state.clone()))
         .with_state(state)

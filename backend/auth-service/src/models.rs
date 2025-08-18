@@ -1,3 +1,4 @@
+pub mod activation_link;
 pub mod request;
 pub mod response;
 pub mod token;

@@ -4,7 +4,9 @@ use axum::{Json, Router, extract::State, http::StatusCode, response::IntoRespons
 
 use crate::{
     AppState, database,
+    grpc::email_service::service::ActivateAccountRequest,
     models::{
+        activation_link::NewActivationLink,
         request::register_info::RegisterInfo,
         response::{error::Error, message::Message},
         user::NewUser,
@@ -12,7 +14,7 @@ use crate::{
     utils::password::validate_password,
 };
 
-/// Creates a router for the login routes
+/// Creates a router for the register routes
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/", post(register_handler))
@@ -98,7 +100,22 @@ async fn register_handler(
                 .into()
         })?;
 
+    // Create new activation link
+    let new_activation_link = NewActivationLink::new(new_user.get_uuid());
+    let link = new_activation_link.get_link();
+
     database::users::insert(new_user, conn).await?;
+    database::activation_links::insert(new_activation_link, conn).await?;
+
+    // Send confirmation email
+    let request = ActivateAccountRequest {
+        username: body.username,
+        email: body.email,
+        link,
+    };
+    if let Err(status) = state.send_activate_account(request).await {
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into());
+    }
 
     // Return success message
     Ok(Json(Message {

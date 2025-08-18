@@ -18,14 +18,10 @@ use crate::models::user::User;
 #[derive(Queryable, Selectable, Clone)]
 #[diesel(table_name = crate::schema::tokens)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-#[allow(dead_code)]
 pub struct Token {
-    id: Uuid,
     user_id: Uuid,
     token: String,
-    token_type: String,
     expires_at: DateTime<Utc>,
-    created_at: DateTime<Utc>,
 }
 
 impl Token {
