@@ -1,3 +1,3 @@
-pub mod email_service {
+pub mod service {
     tonic::include_proto!("email_service");
 }

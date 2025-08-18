@@ -20,7 +20,7 @@ use diesel_async::{
 use tower_http::cors::CorsLayer;
 
 use crate::{
-    AppState, Config, grpc::email_service::email_service::email_service_client::EmailServiceClient,
+    AppState, Config, grpc::email_service::service::email_service_client::EmailServiceClient,
 };
 
 pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {

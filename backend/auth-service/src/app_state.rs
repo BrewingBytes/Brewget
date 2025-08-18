@@ -5,7 +5,7 @@ use tonic::{Response, Status, transport::Channel};
 
 use crate::{
     Config,
-    grpc::email_service::email_service::{
+    grpc::email_service::service::{
         ActivateAccountRequest, ActivateAccountResponse, email_service_client::EmailServiceClient,
     },
 };
