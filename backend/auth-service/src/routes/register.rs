@@ -4,6 +4,7 @@ use axum::{Json, Router, extract::State, http::StatusCode, response::IntoRespons
 
 use crate::{
     AppState, database,
+    grpc::email_service::email_service::ActivateAccountRequest,
     models::{
         request::register_info::RegisterInfo,
         response::{error::Error, message::Message},
@@ -99,6 +100,17 @@ async fn register_handler(
         })?;
 
     database::users::insert(new_user, conn).await?;
+
+    // Send confirmation email
+    let request = ActivateAccountRequest {
+        username: body.username,
+        email: body.email,
+        link: "".into(),
+    };
+    match state.send_activate_account(request).await {
+        Err(status) => return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into()),
+        Ok(_) => (),
+    }
 
     // Return success message
     Ok(Json(Message {

@@ -1,7 +1,14 @@
 use deadpool::managed::Pool;
 use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
+use tokio::sync::Mutex;
+use tonic::{Response, Status, transport::Channel};
 
-use crate::Config;
+use crate::{
+    Config,
+    grpc::email_service::email_service::{
+        ActivateAccountRequest, ActivateAccountResponse, email_service_client::EmailServiceClient,
+    },
+};
 
 /// Application state shared across all routes
 ///
@@ -11,6 +18,7 @@ use crate::Config;
 /// # Fields
 /// * `config` - Application configuration settings
 /// * `db` - PostgreSQL connection pool for async database operations
+/// * `email_service` - A mutex for the EmailServiceClient GRPC
 ///
 /// # Usage
 /// ```rust
@@ -23,10 +31,27 @@ use crate::Config;
 /// ```
 pub struct AppState {
     pub config: Config,
-    pub db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
+    db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
+    email_service: Mutex<EmailServiceClient<Channel>>,
 }
 
 impl AppState {
+    /// Creates a new AppState
+    ///
+    /// # Returns
+    /// * `AppState` - the AppState that contains all the necessary configs
+    pub fn new(
+        config: Config,
+        db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
+        email_service: EmailServiceClient<Channel>,
+    ) -> Self {
+        Self {
+            config,
+            db,
+            email_service: Mutex::new(email_service),
+        }
+    }
+
     /// Gets a connection from the database pool
     ///
     /// # Returns
@@ -51,5 +76,16 @@ impl AppState {
         deadpool::managed::PoolError<diesel_async::pooled_connection::PoolError>,
     > {
         self.db.get().await
+    }
+
+    pub async fn send_activate_account(
+        &self,
+        request: ActivateAccountRequest,
+    ) -> Result<Response<ActivateAccountResponse>, Status> {
+        self.email_service
+            .lock()
+            .await
+            .send_activate_account(request)
+            .await
     }
 }

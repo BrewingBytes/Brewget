@@ -107,8 +107,12 @@ dependencies = [
  "dotenv",
  "email_address",
  "jsonwebtoken",
+ "prost",
  "serde",
  "tokio",
+ "tonic",
+ "tonic-prost",
+ "tonic-prost-build",
  "tower-http",
  "uuid",
 ]
