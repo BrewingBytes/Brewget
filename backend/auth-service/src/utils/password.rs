@@ -2,9 +2,6 @@ use argon2::{
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
-use axum::http::StatusCode;
-
-use crate::models::response::error::Error;
 
 /// Hashes a password using Argon2 with the provided salt
 ///
@@ -43,29 +40,25 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), ()> {
         .map_err(|_| ())
 }
 
-pub fn validate_password(password: &str) -> Result<(), Error> {
+/// Validates a password with some basic rules
+///
+/// # Arguments
+/// * `password` - Plain text password to validate
+///
+/// # Returns
+/// * `Ok(())` - If the password is valid
+/// * `Err(String)` - If the password is not valid and an error message
+pub fn validate_password(password: &str) -> Result<(), String> {
     if password.len() < 8 {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Password must be at least 8 characters long",
-        )
-            .into());
+        return Err("Password must be at least 8 characters long".into());
     }
 
     if !password.chars().any(|c| c.is_uppercase()) {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Password must contain at least one uppercase letter",
-        )
-            .into());
+        return Err("Password must contain at least one uppercase letter".into());
     }
 
     if !password.chars().any(|c| c.is_numeric()) {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Password must contain at least one number",
-        )
-            .into());
+        return Err("Password must contain at least one number".into());
     }
 
     Ok(())

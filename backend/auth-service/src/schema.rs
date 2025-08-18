@@ -9,6 +9,15 @@ diesel::table! {
 }
 
 diesel::table! {
+    forgot_password_links (id, user_id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        expires_at -> Timestamptz,
+        created_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     tokens (id) {
         id -> Uuid,
         user_id -> Uuid,
@@ -39,6 +48,12 @@ diesel::table! {
 }
 
 diesel::joinable!(activation_links -> users (user_id));
+diesel::joinable!(forgot_password_links -> users (user_id));
 diesel::joinable!(tokens -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(activation_links, tokens, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    activation_links,
+    forgot_password_links,
+    tokens,
+    users,
+);

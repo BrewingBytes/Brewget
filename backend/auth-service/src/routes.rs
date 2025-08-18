@@ -1,4 +1,6 @@
 mod activate;
+mod change_password;
+mod forgot_password;
 mod health;
 mod login;
 mod logout;
@@ -53,6 +55,14 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
         .nest("/health", health::get_router(state.clone()))
         .nest("/register", register::get_router(state.clone()))
         .nest("/activate", activate::get_router(state.clone()))
+        .nest(
+            "/change-password",
+            change_password::get_router(state.clone()),
+        )
+        .nest(
+            "/forgot-password",
+            forgot_password::get_router(state.clone()),
+        )
         .nest("/login", login::get_router(state.clone()))
         .nest("/logout", logout::get_router(state.clone()))
         .with_state(state)

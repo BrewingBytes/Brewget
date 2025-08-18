@@ -6,7 +6,8 @@ use tonic::{Response, Status, transport::Channel};
 use crate::{
     Config,
     grpc::email_service::service::{
-        ActivateAccountRequest, ActivateAccountResponse, email_service_client::EmailServiceClient,
+        ActivateAccountRequest, ActivateAccountResponse, ForgotPasswordRequest,
+        ForgotPasswordResponse, email_service_client::EmailServiceClient,
     },
 };
 
@@ -78,6 +79,14 @@ impl AppState {
         self.db.get().await
     }
 
+    /// Call the send_activate_account GRPC from the email-service
+    ///
+    /// # Arguments
+    /// * `ActivateAccountRequest` - A request of type `ActivateAccountRequest`
+    ///
+    /// # Returns
+    /// * `Ok(Response<ActivateAccountResponse>)` - A response of type `ActivateAccountResponse`
+    /// * `Err(Status)` - A GRPC status
     pub async fn send_activate_account(
         &self,
         request: ActivateAccountRequest,
@@ -86,6 +95,25 @@ impl AppState {
             .lock()
             .await
             .send_activate_account(request)
+            .await
+    }
+
+    /// Call the send_forgot_password GRPC from the email-service
+    ///
+    /// # Arguments
+    /// * `ForgotPasswordRequest` - A request of type `ForgotPasswordRequest`
+    ///
+    /// # Returns
+    /// * `Ok(Response<ForgotPasswordResponse>)` - A response of type `ForgotPasswordResponse`
+    /// * `Err(Status)` - A GRPC status
+    pub async fn send_forgot_password(
+        &self,
+        request: ForgotPasswordRequest,
+    ) -> Result<Response<ForgotPasswordResponse>, Status> {
+        self.email_service
+            .lock()
+            .await
+            .send_forgot_password(request)
             .await
     }
 }

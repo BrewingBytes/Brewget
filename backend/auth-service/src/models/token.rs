@@ -9,12 +9,9 @@ use crate::models::user::User;
 /// This struct maps to the tokens table and contains authentication token information
 ///
 /// # Fields
-/// * `id` - Unique identifier for the token
 /// * `user_id` - ID of the user this token belongs to
 /// * `token` - The actual token string
-/// * `token_type` - Type of token (e.g., "refresh", "access")
 /// * `expires_at` - Timestamp when the token expires
-/// * `created_at` - Timestamp when the token was created
 #[derive(Queryable, Selectable, Clone)]
 #[diesel(table_name = crate::schema::tokens)]
 #[diesel(check_for_backend(diesel::pg::Pg))]

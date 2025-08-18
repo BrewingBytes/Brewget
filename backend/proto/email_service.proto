@@ -4,6 +4,7 @@ package email_service;
 
 service EmailService {
     rpc send_activate_account(ActivateAccountRequest) returns (ActivateAccountResponse);
+    rpc send_forgot_password(ForgotPasswordRequest) returns (ForgotPasswordResponse);
 }
 
 message ActivateAccountRequest {
@@ -13,5 +14,15 @@ message ActivateAccountRequest {
 }
 
 message ActivateAccountResponse {
+    bool success = 1;
+}
+
+message ForgotPasswordRequest {
+    string username = 1;
+    string email = 2;
+    string link = 3;
+}
+
+message ForgotPasswordResponse {
     bool success = 1;
 }
