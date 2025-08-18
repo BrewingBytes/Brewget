@@ -41,8 +41,4 @@ diesel::table! {
 diesel::joinable!(activation_links -> users (user_id));
 diesel::joinable!(tokens -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    activation_links,
-    tokens,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(activation_links, tokens, users,);

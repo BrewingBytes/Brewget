@@ -26,13 +26,13 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Activates the account if the id is valid
 ///
 /// # Returns
-/// * JSON response with message "Account has been activated." if sucessfull
+/// * JSON response with message "Account has been verified." if sucessfull
 /// * JSON response with message "Account link is invalid." if unsucessfull
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Account has been activated."
+///     "message": "Account has been verified."
 /// }
 /// ```
 async fn activate_account_handler(
