@@ -9,9 +9,7 @@ use uuid::Uuid;
 /// This struct maps to the activation links table
 ///
 /// # Fields
-/// * `id` - Unique identifier for the activation link
 /// * `user_id` - ID of the user this activation link belongs to
-/// * `created_at` - Timestamp when the link was created
 #[derive(Queryable, Selectable, Clone)]
 #[diesel(table_name = crate::schema::activation_links)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -35,7 +33,7 @@ impl ActivationLink {
 ///
 /// # Fields
 /// * `id` - UUIDv4 for the activation link
-/// * `token` - The user account uuid it is generated for
+/// * `user_id` - The user account uuid it is generated for
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::activation_links)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -48,7 +46,6 @@ impl NewActivationLink {
     /// Creates a new activation link record
     ///
     /// # Arguments
-    /// * `id` - New UUIDv4 for the activation link
     /// * `user_id` - The user account uuid it is generated for
     ///
     /// # Returns

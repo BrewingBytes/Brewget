@@ -6,7 +6,8 @@ use tonic::{Response, Status, transport::Channel};
 use crate::{
     Config,
     grpc::email_service::service::{
-        ActivateAccountRequest, ActivateAccountResponse, email_service_client::EmailServiceClient,
+        ActivateAccountRequest, ActivateAccountResponse, ForgotPasswordRequest,
+        ForgotPasswordResponse, email_service_client::EmailServiceClient,
     },
 };
 
@@ -86,6 +87,17 @@ impl AppState {
             .lock()
             .await
             .send_activate_account(request)
+            .await
+    }
+
+    pub async fn send_forgot_password(
+        &self,
+        request: ForgotPasswordRequest,
+    ) -> Result<Response<ForgotPasswordResponse>, Status> {
+        self.email_service
+            .lock()
+            .await
+            .send_forgot_password(request)
             .await
     }
 }

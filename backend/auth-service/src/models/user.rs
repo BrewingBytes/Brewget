@@ -13,11 +13,7 @@ use crate::utils::password::{hash_password, verify_password};
 /// * `password` - Hashed password string
 /// * `email` - User's email address
 /// * `is_verified` - Email verification status
-/// * `role` - User's role/permissions level
 /// * `is_active` - Account active status
-/// * `created_at` - Account creation timestamp
-/// * `updated_at` - Last update timestamp
-/// * `last_login_at` - Most recent login timestamp
 #[derive(Queryable, Selectable, Clone)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -82,6 +78,7 @@ impl User {
 /// This struct is used for creating new user accounts
 ///
 /// # Fields
+/// * `id` - Given UUID for the new account
 /// * `username` - Chosen username for the new account
 /// * `password` - Password that will be hashed before storage
 /// * `email` - Email address for the account
@@ -102,7 +99,6 @@ impl NewUser {
     /// * `username` - Chosen username
     /// * `password` - Plain text password that will be hashed
     /// * `email` - Email address
-    /// * `salt_str` - Salt string used for password hashing
     ///
     /// # Returns
     /// * `Ok(NewUser)` - A new `NewUser` instance ready for database insertion
