@@ -2,6 +2,7 @@ services:
   auth-service:
     depends_on:
       - db
+      - email-service
     container_name: auth-service
     image: auth-service:latest
     environment:
@@ -16,7 +17,7 @@ services:
     networks:
       - db
   email-service:
-    container_name: email-service:latest
+    container_name: email-service
     image: email-service:latest
     environment:
       - SMTP_EMAIL=noreply@brewingbytes.com

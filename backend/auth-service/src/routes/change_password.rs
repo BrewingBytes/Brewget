@@ -44,7 +44,8 @@ async fn change_password_handler(
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password)?;
+    validate_password(&body.password)
+        .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
     let new_hashed_password = hash_password(&body.password).map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,

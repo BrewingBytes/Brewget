@@ -70,7 +70,8 @@ async fn register_handler(
     }
 
     // Validate password length
-    validate_password(&body.password)?;
+    validate_password(&body.password)
+        .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {

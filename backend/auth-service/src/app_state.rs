@@ -79,6 +79,14 @@ impl AppState {
         self.db.get().await
     }
 
+    /// Call the send_activate_account GRPC from the email-service
+    ///
+    /// # Arguments
+    /// * `ActivateAccountRequest` - A request of type `ActivateAccountRequest`
+    ///
+    /// # Returns
+    /// * `Ok(Response<ActivateAccountResponse>)` - A response of type `ActivateAccountResponse`
+    /// * `Err(Status)` - A GRPC status
     pub async fn send_activate_account(
         &self,
         request: ActivateAccountRequest,
@@ -90,6 +98,14 @@ impl AppState {
             .await
     }
 
+    /// Call the send_forgot_password GRPC from the email-service
+    ///
+    /// # Arguments
+    /// * `ForgotPasswordRequest` - A request of type `ForgotPasswordRequest`
+    ///
+    /// # Returns
+    /// * `Ok(Response<ForgotPasswordResponse>)` - A response of type `ForgotPasswordResponse`
+    /// * `Err(Status)` - A GRPC status
     pub async fn send_forgot_password(
         &self,
         request: ForgotPasswordRequest,
