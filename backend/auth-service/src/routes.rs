@@ -1,3 +1,4 @@
+mod activate;
 mod health;
 mod login;
 mod logout;
@@ -51,6 +52,7 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
     let router = Router::new()
         .nest("/health", health::get_router(state.clone()))
         .nest("/register", register::get_router(state.clone()))
+        .nest("/activate", activate::get_router(state.clone()))
         .nest("/login", login::get_router(state.clone()))
         .nest("/logout", logout::get_router(state.clone()))
         .with_state(state)

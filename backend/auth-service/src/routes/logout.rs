@@ -11,7 +11,7 @@ use axum::{
 
 use uuid::Uuid;
 
-/// Creates a router for the login routes
+/// Creates a router for the logout routes
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route(

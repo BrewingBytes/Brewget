@@ -66,6 +66,24 @@ async fn login_handler(
         return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
     }
 
+    // Check if user has activated his account
+    if !user.is_account_verified() {
+        return Err((
+            StatusCode::UNAUTHORIZED,
+            "Email has not been verified, please check your inbox.",
+        )
+            .into());
+    }
+
+    // Check if the account is deleted temporarily
+    if !user.is_account_active() {
+        return Err((
+            StatusCode::UNAUTHORIZED,
+            "Account has been deleted temporarily",
+        )
+            .into());
+    }
+
     // Generate token timestamps
     let now = Utc::now();
     let iat = now.timestamp() as usize;

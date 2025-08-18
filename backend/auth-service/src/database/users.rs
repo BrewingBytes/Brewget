@@ -4,6 +4,7 @@ use diesel::{
     query_dsl::methods::{FilterDsl, SelectDsl},
 };
 use diesel_async::RunQueryDsl;
+use uuid::Uuid;
 
 use crate::{
     models::{
@@ -100,5 +101,36 @@ pub async fn filter_by_username_or_email(
                 }
                 _ => e.into(),
             }
+        })
+}
+
+/// Set the email for a user as verified
+///
+/// # Arguments
+/// * `find_uuid` - The user account to find
+/// * `conn` - Database connection from the pool
+///
+/// # Returns
+/// * `Ok(usize)` - The amount of users set as verified, 1 means successfull
+/// * `Err(Error)` - Database operation error
+pub async fn set_verified(
+    find_uuid: Uuid,
+    conn: &mut deadpool::managed::Object<
+        diesel_async::pooled_connection::AsyncDieselConnectionManager<
+            diesel_async::AsyncPgConnection,
+        >,
+    >,
+) -> Result<usize, Error> {
+    diesel::update(users)
+        .filter(id.eq(find_uuid))
+        .set(is_verified.eq(true))
+        .execute(conn)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Could not verify account.",
+            )
+                .into()
         })
 }

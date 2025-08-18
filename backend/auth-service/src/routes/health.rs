@@ -4,7 +4,7 @@ use axum::{Json, Router, extract::State, http::StatusCode, response::IntoRespons
 
 use crate::{AppState, models::response::health::Health};
 
-/// Creates a router for the login routes
+/// Creates a router for the health routes
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/", get(health_checker_handler))
