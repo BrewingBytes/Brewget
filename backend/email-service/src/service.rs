@@ -11,11 +11,13 @@ use tonic::{Request, Response, Result, Status};
 use crate::{
     config::Config,
     service::email_service::{
-        ActivateAccountRequest, ActivateAccountResponse, email_service_server::EmailService,
+        ActivateAccountRequest, ActivateAccountResponse, ForgotPasswordRequest,
+        ForgotPasswordResponse, email_service_server::EmailService,
     },
 };
 
 const ACTIVATE_ACCOUNT_TEMPLATE: &str = include_str!("../emails/activate_account_template.html");
+const FORGOT_PASSWORD_TEMPLATE: &str = include_str!("../emails/forgot_password_template.html");
 
 pub mod email_service {
     tonic::include_proto!("email_service");
@@ -67,6 +69,37 @@ impl Service {
             .map_err(|_| ())
     }
 
+    async fn create_forgot_password_mail(
+        &self,
+        request: &ForgotPasswordRequest,
+    ) -> Result<Message, ()> {
+        let m = Message::builder()
+            .from(
+                format!("{} <{}>", self.config.smtp_name, self.config.smtp_email)
+                    .parse()
+                    .map_err(|_| ())?,
+            )
+            .to(format!("{} <{}>", request.username, request.email)
+                .parse()
+                .map_err(|_| ())?)
+            .subject("Reset your password");
+
+        let plain = format!(
+            "Use the following link to reset your password: {}",
+            request.link
+        );
+
+        let html = Handlebars::new()
+            .render_template(
+                FORGOT_PASSWORD_TEMPLATE,
+                &json!({"forgot_password_link": request.link}),
+            )
+            .map_err(|_| ())?;
+
+        m.multipart(MultiPart::alternative_plain_html(plain, html))
+            .map_err(|_| ())
+    }
+
     fn send_email(&self, message: Message) -> Result<(), ()> {
         self.mailer.send(&message).map_err(|_| ()).map(|_| ())
     }
@@ -87,6 +120,22 @@ impl EmailService for Service {
             .map_err(|_| Status::internal("Could not send email."))?;
 
         let reply = ActivateAccountResponse { success: true };
+        Ok(Response::new(reply))
+    }
+
+    async fn send_forgot_password(
+        &self,
+        request: Request<ForgotPasswordRequest>,
+    ) -> Result<Response<ForgotPasswordResponse>, Status> {
+        let message = self
+            .create_forgot_password_mail(&request.into_inner())
+            .await
+            .map_err(|_| Status::internal("Could not create email."))?;
+
+        self.send_email(message)
+            .map_err(|_| Status::internal("Could not send email."))?;
+
+        let reply = ForgotPasswordResponse { success: true };
         Ok(Response::new(reply))
     }
 }
