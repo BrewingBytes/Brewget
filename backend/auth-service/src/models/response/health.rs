@@ -17,7 +17,21 @@ use serde::Serialize;
 /// ```
 #[derive(Serialize)]
 pub struct Health {
-    pub status: String,
-    pub database: String,
+    pub status: HealthStatus,
+    pub database: DatabaseConnection,
     pub version: String,
+}
+
+/// The enum for the Health Status
+#[derive(Serialize)]
+pub enum HealthStatus {
+    Healthy,
+    Unhealthy,
+}
+
+/// The enum for the Database Connection Status
+#[derive(Serialize)]
+pub enum DatabaseConnection {
+    Connected,
+    Disconnected,
 }

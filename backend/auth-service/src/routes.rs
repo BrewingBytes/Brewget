@@ -26,9 +26,7 @@ use crate::{
     AppState, Config, grpc::email_service::service::email_service_client::EmailServiceClient,
 };
 
-pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
-    let config = Config::init();
-
+pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Error>> {
     let cors = HeaderValue::from_str(&config.cors_url)?;
     let postgres_url = format!(
         "postgres://{}:{}@{}/{}",
@@ -41,7 +39,11 @@ pub async fn make_app() -> Result<Router, Box<dyn std::error::Error>> {
         .expect("Unable to create new db pool");
 
     // Create all the GRPCs Clients
-    let email_service = EmailServiceClient::connect("http://[::1]:8082").await?;
+    let email_service = EmailServiceClient::connect(format!(
+        "{}:{}",
+        config.email_hostname, config.email_grpc_port
+    ))
+    .await?;
 
     let state = Arc::new(AppState::new(config, db, email_service));
 

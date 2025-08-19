@@ -103,7 +103,7 @@ async fn register_handler(
 
     // Create new activation link
     let new_activation_link = NewActivationLink::new(new_user.get_uuid());
-    let link = new_activation_link.get_link();
+    let link = new_activation_link.get_link(&state.config);
 
     database::users::insert(new_user, conn).await?;
     database::activation_links::insert(new_activation_link, conn).await?;

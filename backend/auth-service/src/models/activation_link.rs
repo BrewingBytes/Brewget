@@ -4,6 +4,8 @@ use diesel::{
 };
 use uuid::Uuid;
 
+use crate::Config;
+
 /// Represents an activation link stored in the database
 ///
 /// This struct maps to the activation links table
@@ -69,10 +71,7 @@ impl NewActivationLink {
     ///
     /// # Returns
     /// * `String` - The activation link
-    pub fn get_link(&self) -> String {
-        format!(
-            "https://brewget.brewingbytes.com/activate/{}",
-            self.get_id()
-        )
+    pub fn get_link(&self, config: &Config) -> String {
+        format!("{}/activate/{}", config.frontend_hostname, self.get_id())
     }
 }

@@ -5,6 +5,8 @@ use diesel::{
 };
 use uuid::Uuid;
 
+use crate::Config;
+
 /// Represents an forgot password link stored in the database
 ///
 /// This struct maps to the forgot password links table
@@ -85,9 +87,10 @@ impl NewForgotPasswordLink {
     ///
     /// # Returns
     /// * `String` - The forgot password link
-    pub fn get_link(&self) -> String {
+    pub fn get_link(&self, config: &Config) -> String {
         format!(
-            "https://brewget.brewingbytes.com/forgot-password/{}",
+            "{}/forgot-password/{}",
+            config.frontend_hostname,
             self.get_id()
         )
     }

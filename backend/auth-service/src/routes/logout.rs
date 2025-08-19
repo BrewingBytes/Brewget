@@ -49,9 +49,6 @@ async fn logout_handler(
     State(state): State<Arc<AppState>>,
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
-    // Log logout action
-    println!("User {} has been logged out.", user_uuid);
-
     // Delete all tokens for the user
     let conn = &mut state.get_database_connection().await?;
     database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, conn).await?;
