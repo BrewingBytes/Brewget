@@ -42,7 +42,7 @@ async fn forgot_password_handler(
         let request = ForgotPasswordRequest {
             username: user.get_username(),
             email: user.get_email(),
-            link: new_forgot_password_link.get_link(),
+            link: new_forgot_password_link.get_link(&state.config),
         };
 
         // Send the email and save the link into the database

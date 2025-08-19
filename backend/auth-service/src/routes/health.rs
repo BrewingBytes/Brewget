@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::get};
 
-use crate::{AppState, models::response::health::Health};
+use crate::{
+    AppState,
+    models::response::health::{DatabaseConnection, Health, HealthStatus},
+};
 
 /// Creates a router for the health routes
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
@@ -29,16 +32,16 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 async fn health_checker_handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     match state.get_database_connection().await {
         Ok(_) => Json(Health {
-            status: "healthy".into(),
-            database: "connected".into(),
+            status: HealthStatus::Healthy,
+            database: DatabaseConnection::Connected,
             version: env!("CARGO_PKG_VERSION").into(),
         })
         .into_response(),
         Err(_) => (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(Health {
-                status: "unhealthy".into(),
-                database: "disconnected".into(),
+                status: HealthStatus::Unhealthy,
+                database: DatabaseConnection::Disconnected,
                 version: env!("CARGO_PKG_VERSION").into(),
             }),
         )

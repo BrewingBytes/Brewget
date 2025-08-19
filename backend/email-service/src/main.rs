@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     let config = Config::init();
 
-    let addr = "[::1]:8082".parse()?;
+    let addr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
     let service = Service::new(config.into())?;
 
     println!("Server listening on {}", addr);

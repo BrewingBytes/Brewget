@@ -16,10 +16,12 @@ use crate::routes::make_app;
 async fn main() {
     dotenv::dotenv().ok();
 
-    let app = make_app().await.expect("Could not create app.");
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8081")
+    let config = Config::init();
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.auth_http_port))
         .await
         .expect("Could not bind TcpListener.");
+
+    let app = make_app(config).await.expect("Could not create app.");
 
     println!("🚀 Server started successfully");
     axum::serve(listener, app)
