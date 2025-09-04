@@ -6,13 +6,23 @@
 version: 2
 updates:
   - package-ecosystem: "cargo"
-    directory: "/backend/auth-service"
+    directories: ["/backend/auth-service", "/backend/email-service"]
     schedule:
       interval: "weekly"
     groups:
       deps:
         patterns:
           - "*"
+
+  - package-ecosystem: "bun"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    groups:
+      bun-deps:
+        patterns:
+          - "*"
+
 
   - package-ecosystem: "github-actions"
     directory: "/"
