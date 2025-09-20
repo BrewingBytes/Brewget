@@ -24,7 +24,7 @@ export default [
       "semi": "error",
       "comma-dangle": ["error", "always-multiline"],
       "no-restricted-imports": ["error", {
-        "patterns": [".*"],
+        "patterns": ["../*"],
       }],
       "no-console": [
         "warn",{

@@ -21,7 +21,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  if (useAuthStore().isAuthenticated && to.name !== "login") {
+  if (!useAuthStore().isAuthenticated && to.name !== "login") {
     return { name: "login" };
   }
 });
