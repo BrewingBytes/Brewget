@@ -86,6 +86,3 @@ jobs:
           run: |
             docker push ghcr.io/brewingbytes/brewget-email-service:${{ steps.get_version.outputs.email_version }}
             docker push ghcr.io/brewingbytes/brewget-email-service:latest
-
-          
-          
