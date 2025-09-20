@@ -26,7 +26,7 @@ jobs:
               - 'frontend/**'
       - name: Setup Bun
         if: steps.changes.outputs.frontend == 'true'
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install dependencies
