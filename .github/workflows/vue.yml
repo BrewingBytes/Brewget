@@ -1,0 +1,43 @@
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches:
+      - main
+
+name: Vue
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    name: Checker
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: changes
+        name: Changes
+        with:
+          filters: |
+            frontend:
+              - '.github/workflows/vue.yaml'
+              - 'frontend/**'
+      - name: Setup Bun
+        if: steps.changes.outputs.frontend == 'true'
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        if: steps.changes.outputs.frontend == 'true'
+        run: bun install
+      - name: Run linting
+        if: steps.changes.outputs.frontend == 'true'
+        run: bun lint
+      - name: Type check
+        if: steps.changes.outputs.frontend == 'true'
+        run: bun type-check
+      - name: Build
+        if: steps.changes.outputs.frontend == 'true'
+        run: bun build-only
