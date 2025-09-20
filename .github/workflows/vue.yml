@@ -6,11 +6,11 @@ on:
     branches:
       - main
 
-name: Vue Checker
+name: Vue
 jobs:
   linter:
     runs-on: ubuntu-latest
-    name: Vue Lint
+    name: Checker
     defaults:
       run:
         working-directory: ./frontend

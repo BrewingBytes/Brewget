@@ -28,4 +28,5 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 
 # Start nginx
+LABEL org.opencontainers.image.source=https://github.com/BrewingBytes/BrewGet
 CMD ["nginx", "-g", "daemon off;"]

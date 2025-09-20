@@ -1,5 +1,4 @@
 on:
-  pull_request:
   push:
     branches:
       - main
@@ -25,7 +24,7 @@ jobs:
           with:
             filters: |
               frontend:
-                - 'frontend/packages.json'
+                - 'frontend/package.json'
         - name: Get frontend version
           id: get_version
           run: |
