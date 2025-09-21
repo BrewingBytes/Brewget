@@ -1,3 +1,4 @@
 .env
 **/target
 app.css
+.DS_Store
