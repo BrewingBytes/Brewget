@@ -27,6 +27,8 @@ jobs:
                 - 'backend/auth-service/Cargo.toml'
               email:
                 - 'backend/email-service/Cargo.toml'
+              base-image:
+                - 'backend/Dockerfile'
         - name: Cache
           uses: actions/cache@v4
           with:
@@ -52,7 +54,7 @@ jobs:
             password: ${{ secrets.DOCKER_PASSWORD }}
         - name: Build auth-service image
           id: auth_service
-          if: steps.changes.outputs.auth == 'true'
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.base-image == 'true'
           run: |
             if docker manifest inspect ghcr.io/brewingbytes/brewget-auth-service:${{ steps.get_version.outputs.auth_version }}; then
               echo "Tag already exists."
@@ -65,7 +67,7 @@ jobs:
             fi
         - name: Build email-service image
           id: email_service
-          if: steps.changes.outputs.email == 'true'
+          if: steps.changes.outputs.email == 'true' || steps.changes.outputs.base-image == 'true'
           run: |
             if docker manifest inspect ghcr.io/brewingbytes/brewget-email-service:${{ steps.get_version.outputs.email_version }}; then
               echo "Tag already exists."
@@ -77,12 +79,12 @@ jobs:
               echo "build=true" >> "$GITHUB_OUTPUT"
             fi
         - name: Push auth-service
-          if: steps.changes.outputs.auth == 'true' && steps.auth_service.outputs.build == 'true'
+          if: steps.auth_service.outputs.build == 'true'
           run: |
             docker push ghcr.io/brewingbytes/brewget-auth-service:${{ steps.get_version.outputs.auth_version }}
             docker push ghcr.io/brewingbytes/brewget-auth-service:latest
         - name: Push email-service
-          if: steps.changes.outputs.email == 'true' && steps.email_service.outputs.build == 'true'
+          if: steps.email_service.outputs.build == 'true'
           run: |
             docker push ghcr.io/brewingbytes/brewget-email-service:${{ steps.get_version.outputs.email_version }}
             docker push ghcr.io/brewingbytes/brewget-email-service:latest
