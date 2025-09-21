@@ -4,7 +4,7 @@ services:
       - db
       - email-service
     container_name: auth-service
-    image: auth-service:latest
+    image: "ghcr.io/brewingbytes/brewget-auth-service:latest"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -14,17 +14,24 @@ services:
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=86400
       - JWT_MAX_AGE=86400
+      - AUTH_HTTP_PORT=8000
+      - EMAIL_HOSTNAME=http://email-service
+      - EMAIL_GRPC_PORT=9001
+      - FRONTEND_HOSTNAME=http://localhost
     networks:
       - db
+    ports:
+      - 8000:8000
   email-service:
     container_name: email-service
-    image: email-service:latest
+    image: "ghcr.io/brewingbytes/brewget-email-service:latest"
     environment:
       - SMTP_EMAIL=noreply@brewingbytes.com
       - SMTP_NAME=BrewGet
       - SMTP_RELAY=smtp.example.com
       - SMTP_USERNAME=smtp-user
       - SMTP_PASSWORD=smtp-password
+      - EMAIL_GRPC_PORT=9001
     networks:
       - db
   db:
