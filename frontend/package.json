@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@primeuix/themes": "^1.2.3",
+    "axios": "^1.12.2",
     "eslint-plugin-import": "^2.32.0",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.5.0",

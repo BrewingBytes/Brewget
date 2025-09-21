@@ -1,10 +1,24 @@
 <script setup lang="ts">
+import { useAuthStore } from "@/stores/auth";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps(["changePasswordId"]);
+const router = useRouter();
 
 const password = ref("");
-function buttonAction() { console.error(props); }
+function buttonAction() {
+    try {
+        useAuthStore().changePassword({
+            id: props.changePasswordId as string,
+            password: password.value
+        });
+
+        router.push("/");
+    } catch (error) {
+        console.log(error);
+    }
+}
 </script>
 
 <template>
