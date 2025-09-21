@@ -18,9 +18,9 @@ services:
     depends_on:
       - auth-service
     container_name: frontend
-    image: "ghcr.io/brewingbytes/brewget-frontend:latest"
+    image: "ghcr.io/brewingbytes/brewget-frontend:0.0.3"
     environment:
-      - VITE_API_ENDPOINT=http://localhost/api/
+      - VITE_API_ENDPOINT=http://localhost
     networks:
       - brewget
     expose:
@@ -31,7 +31,7 @@ services:
       - db
       - email-service
     container_name: auth-service
-    image: "ghcr.io/brewingbytes/brewget-auth-service:latest"
+    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.5"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -53,7 +53,7 @@ services:
 
   email-service:
     container_name: email-service
-    image: "ghcr.io/brewingbytes/brewget-email-service:latest"
+    image: "ghcr.io/brewingbytes/brewget-email-service:0.0.4"
     environment:
       - SMTP_EMAIL=noreply@brewingbytes.com
       - SMTP_NAME=BrewGet

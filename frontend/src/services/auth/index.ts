@@ -5,7 +5,7 @@ import type { AxiosError } from "axios";
 import axios from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 
-const URL_PATH = import.meta.env.PROD ? "/auth" : "";
+const URL_PATH = import.meta.env.PROD ? "/api/auth" : "";
 
 async function activate(values: { id: string }): Promise<ServerResponse<ActivateResponse>> {
     try {
