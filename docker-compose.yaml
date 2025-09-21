@@ -1,4 +1,29 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    depends_on:
+      - frontend
+      - auth-service
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - brewget
+
+  frontend:
+    depends_on:
+      - auth-service
+    container_name: frontend
+    image: "ghcr.io/brewingbytes/brewget-frontend:latest"
+    networks:
+      - brewget
+    expose:
+      - 80
+
   auth-service:
     depends_on:
       - db
@@ -20,8 +45,10 @@ services:
       - FRONTEND_HOSTNAME=http://localhost
     networks:
       - db
-    ports:
-      - 8000:8000
+      - brewget
+    expose:
+      - 8000
+
   email-service:
     container_name: email-service
     image: "ghcr.io/brewingbytes/brewget-email-service:latest"
@@ -34,6 +61,10 @@ services:
       - EMAIL_GRPC_PORT=9001
     networks:
       - db
+      - brewget
+    expose:
+      - 9001
+
   db:
     image: postgres
     container_name: postgres
@@ -49,6 +80,10 @@ services:
       - db
 
 networks:
+  brewget:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
   db:
     driver: bridge
     driver_opts:
