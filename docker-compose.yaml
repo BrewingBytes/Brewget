@@ -19,6 +19,8 @@ services:
       - auth-service
     container_name: frontend
     image: "ghcr.io/brewingbytes/brewget-frontend:latest"
+    environment:
+      - VITE_API_ENDPOINT=http://localhost/api/
     networks:
       - brewget
     expose:

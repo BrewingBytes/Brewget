@@ -50,7 +50,7 @@ impl ForgotPasswordLink {
 /// * `id` - UUIDv4 for the forgot password link
 /// * `user_id` - The user account uuid it is generated for
 /// * `expires_at` - Timestamp of the moment the forgot password link expires
-#[derive(Insertable)]
+#[derive(Insertable, Clone)]
 #[diesel(table_name = crate::schema::forgot_password_links)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewForgotPasswordLink {

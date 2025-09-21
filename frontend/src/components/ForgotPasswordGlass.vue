@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import { useAuthStore } from "@/stores/auth";
+
 const props = defineProps(["changePasswordId"]);
 
 const password = ref("");
-function buttonAction() { console.error(props); }
+function buttonAction() {
+    useAuthStore().changePassword({
+        id: props.changePasswordId as string,
+        password: password.value,
+    });
+}
 </script>
 
 <template>

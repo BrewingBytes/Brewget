@@ -50,22 +50,36 @@ function switchLoginRegister() {
     return shownPage.value = ShownPage.Login;
 }
 
-function buttonAction() {
+function resetToLogin() {
+    email.value = "";
+    username.value = "";
+    password.value = "";
+
+    shownPage.value = ShownPage.Login;
+}
+
+async function buttonAction() {
     if (isLogin.value) {
-        return useAuthStore().login({
+        await useAuthStore().login({
             username: username.value,
             password: password.value,
         });
     } else if (isRegister.value) {
-        return useAuthStore().register({
-            email: email.value,
-            username: username.value,
-            password: password.value,
-        });
+        if (
+            await useAuthStore().register({
+                email: email.value,
+                username: username.value,
+                password: password.value,
+            })) {
+            resetToLogin();
+        }
     } else if (isForgotPassword.value) {
-        return useAuthStore().forgotPassword({
-            email: email.value,
-        });
+        if (
+            await useAuthStore().forgotPassword({
+                email: email.value,
+            })) {
+            resetToLogin();
+        }
     }
 }
 </script>

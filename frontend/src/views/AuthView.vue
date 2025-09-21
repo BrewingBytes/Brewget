@@ -4,10 +4,18 @@ import { useRoute } from "vue-router";
 
 import AuthGlass from "@/components/AuthGlass.vue";
 import ForgotPasswordGlass from "@/components/ForgotPasswordGlass.vue";
+import { useAuthStore } from "@/stores/auth";
 
 
 const route = useRoute();
+
 const isAuth = computed(() => route.name === "login");
+
+if (route.name === "activate") {
+    useAuthStore().activate({
+        id: route.params.id as string,
+    });
+}
 </script>
 
 <template>

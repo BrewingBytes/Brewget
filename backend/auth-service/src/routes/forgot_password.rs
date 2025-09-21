@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{Json, Router, extract::State, response::IntoResponse, routing::post};
 
 use crate::{
     AppState, database,
@@ -34,24 +34,32 @@ async fn forgot_password_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<ForgotPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
-    // Get the user based on the email
-    let mut conn = state.get_database_connection().await?;
-    if let Ok(user) = database::users::filter_by_email(&body.email, &mut conn).await {
-        // Generate a new forgot password link
-        let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
-        let request = ForgotPasswordRequest {
-            username: user.get_username(),
-            email: user.get_email(),
-            link: new_forgot_password_link.get_link(&state.config),
-        };
+    // Clone necessary data for the async processing
+    let email = body.email.clone();
+    let state_clone = state.clone();
 
-        // Send the email and save the link into the database
-        if let Err(status) = state.send_forgot_password(request).await {
-            return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into());
+    tokio::spawn(async move {
+        if let Ok(mut conn) = state_clone.get_database_connection().await
+            && let Ok(user) = database::users::filter_by_email(&email, &mut conn).await
+        {
+            let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
+            if database::forgot_password_links::insert(new_forgot_password_link.clone(), &mut conn)
+                .await
+                .is_ok()
+            {
+                // Prepare and send email
+                let request = ForgotPasswordRequest {
+                    username: user.get_username(),
+                    email: user.get_email(),
+                    link: new_forgot_password_link.get_link(&state_clone.config),
+                };
+
+                if let Err(e) = state_clone.send_forgot_password(request).await {
+                    println!("Failed to send forgot password email: {}", e);
+                }
+            }
         }
-
-        database::forgot_password_links::insert(new_forgot_password_link, &mut conn).await?;
-    };
+    });
 
     Ok(Json(Message {
         message: "Forgot password link sent to the email, if an account is registered and verified with that email.".into(),
