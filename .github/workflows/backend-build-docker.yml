@@ -30,6 +30,7 @@ jobs:
               base-image:
                 - 'backend/Dockerfile'
         - name: Cache
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.base-image == 'true'
           uses: actions/cache@v4
           with:
             path: |
@@ -38,8 +39,10 @@ jobs:
               target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         - name: Build base-image
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.base-image == 'true'
           run: docker build -t base-image .
         - name: Get services version
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.base-image == 'true'
           id: get_version
           run: |
             VERSION=$(grep '^version = ' ./auth-service/Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p')
