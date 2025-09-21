@@ -39,25 +39,23 @@ async fn forgot_password_handler(
     let state_clone = state.clone();
 
     tokio::spawn(async move {
-        if let Ok(mut conn) = state_clone.get_database_connection().await {
-            if let Ok(user) = database::users::filter_by_email(&email, &mut conn).await {
-                let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
-                if let Ok(_) = database::forgot_password_links::insert(
-                    new_forgot_password_link.clone(),
-                    &mut conn,
-                )
+        if let Ok(mut conn) = state_clone.get_database_connection().await
+            && let Ok(user) = database::users::filter_by_email(&email, &mut conn).await
+        {
+            let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
+            if database::forgot_password_links::insert(new_forgot_password_link.clone(), &mut conn)
                 .await
-                {
-                    // Prepare and send email
-                    let request = ForgotPasswordRequest {
-                        username: user.get_username(),
-                        email: user.get_email(),
-                        link: new_forgot_password_link.get_link(&state_clone.config),
-                    };
+                .is_ok()
+            {
+                // Prepare and send email
+                let request = ForgotPasswordRequest {
+                    username: user.get_username(),
+                    email: user.get_email(),
+                    link: new_forgot_password_link.get_link(&state_clone.config),
+                };
 
-                    if let Err(e) = state_clone.send_forgot_password(request).await {
-                        println!("Failed to send forgot password email: {}", e);
-                    }
+                if let Err(e) = state_clone.send_forgot_password(request).await {
+                    println!("Failed to send forgot password email: {}", e);
                 }
             }
         }
