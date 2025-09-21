@@ -3,6 +3,7 @@ import "@/assets/main.css";
 import Aura from "@primeuix/themes/aura";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import { ToastService } from "primevue";
 import PrimeVue from "primevue/config";
 import { createApp } from "vue";
 
@@ -16,6 +17,7 @@ pinia.use(piniaPluginPersistedstate);
 
 app.use(pinia);
 app.use(router);
+app.use(ToastService);
 app.use(PrimeVue, {
   theme: {
     preset: Aura,

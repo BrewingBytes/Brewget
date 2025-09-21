@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 import AuthGlass from "@/components/AuthGlass.vue";
 import ForgotPasswordGlass from "@/components/ForgotPasswordGlass.vue";
@@ -13,7 +13,7 @@ const isAuth = computed(() => route.name === "login");
 
 if (route.name === "activate") {
     useAuthStore().activate({
-        id: route.params.id as string
+        id: route.params.id as string,
     });
 }
 </script>

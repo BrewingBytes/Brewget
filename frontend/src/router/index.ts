@@ -25,8 +25,8 @@ const router = createRouter({
     {
       path: "/activate/:id",
       name: "activate",
-      component: AuthView
-    }
+      component: AuthView,
+    },
   ],
 });
 

@@ -1,9 +1,9 @@
 import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse } from "./types";
-import type { Error, ErrorResponse, ServerResponse } from "@/services/types";
+import type { ErrorResponse, ServerResponse } from "@/services/types";
+import type { AxiosError } from "axios";
 
 import axios from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
-import type { AxiosError } from "axios";
 
 const URL_PATH = import.meta.env.PROD ? "/auth" : "";
 

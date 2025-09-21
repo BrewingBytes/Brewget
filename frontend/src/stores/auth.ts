@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+
+import { useToastStore } from "./toast";
 
 import { authService } from "@/services/auth";
-import { ServerStatus } from "@/services/types";
-import { useRouter } from "vue-router";
+import { type ErrorResponse, ServerStatus } from "@/services/types";
 
 export const useAuthStore = defineStore("auth", () => {
   const token = ref("");
@@ -20,7 +22,12 @@ export const useAuthStore = defineStore("auth", () => {
   const bearerToken = computed(() => `Bearer ${token.value}`);
 
   async function activate(values: { id: string }): Promise<void> {
-    await authService.activate(values);
+    const response = await authService.activate(values);
+
+    if (response.status !== ServerStatus.NO_ERROR) {
+      useToastStore().showError("Activation link is invalid.");
+    }
+
     router.push("/login");
   }
 
@@ -29,7 +36,8 @@ export const useAuthStore = defineStore("auth", () => {
 
     // If error fail
     if (response.status !== ServerStatus.NO_ERROR) {
-      console.error("Failed to login");
+      useToastStore().showError("Username or password is invalid.");
+      return;
     }
 
     // Set bearer token
@@ -38,16 +46,36 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function register(values: { email: string, username: string, password: string }): Promise<boolean> {
-    return (await authService.register(values)).status === ServerStatus.NO_ERROR;
+    const response = await authService.register(values);
+    if (response.status !== ServerStatus.NO_ERROR) {
+      useToastStore().showError((response as ErrorResponse).data.message);
+      return false;
+    }
+
+    return true;
   }
 
   async function forgotPassword(values: { email: string }): Promise<boolean> {
-    return (await authService.forgotPassword(values)).status === ServerStatus.NO_ERROR;
+    const response = await authService.forgotPassword(values);
+    if (response.status !== ServerStatus.NO_ERROR) {
+      useToastStore().showError((response as ErrorResponse).data.message);
+      return false;
+    }
+
+    useToastStore().showInfo(response.data.message);
+    return true;
   }
 
   async function changePassword(values: { id: string, password: string }): Promise<void> {
-    await authService.changePassword(values);
+    const response = await authService.changePassword(values);
+    if (response.status === ServerStatus.UNPROCESSABLE_CONTENT) {
+      useToastStore().showError("Activation link is invalid.");
+    } else if (response.status === ServerStatus.BAD_REQUEST) {
+      useToastStore().showError((response as ErrorResponse).data.message);
+      return;
+    }
 
+    useToastStore().showInfo("Account password has been changed.");
     router.push("/login");
   }
 
@@ -60,5 +88,5 @@ export const useAuthStore = defineStore("auth", () => {
 
   return { token, activate, bearerToken, changePassword, isAuthenticated, login, register, forgotPassword, logout };
 }, {
-  persist: true
+  persist: true,
 });

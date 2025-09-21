@@ -4,4 +4,5 @@ import { RouterView } from "vue-router";
 
 <template>
   <RouterView style="width: 100vw; height: 100vh;" />
+  <Toast position="bottom-center" />
 </template>
