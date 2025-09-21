@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AuthGlass: typeof import('./src/components/AuthGlass.vue')['default']
     Button: typeof import('primevue/button')['default']
+    ForgotPasswordGlass: typeof import('./src/components/ForgotPasswordGlass.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
