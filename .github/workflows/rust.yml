@@ -22,8 +22,13 @@ jobs:
         with:
           filters: |
             backend:
-              - '.github/workflows/rust.yaml'
-              - 'backend/**'
+              - '.github/workflows/rust.yml'
+              - 'backend/auth-service/**'
+              - 'backend/email-service/**'
+              - 'backend/proto/**'
+              - 'backend/Cargo.lock'
+              - 'backend/Cargo'
+              - 'backend/rust-toolchain.toml'
       - name: Cache
         if: steps.changes.outputs.backend == 'true'
         uses: actions/cache@v4
@@ -59,8 +64,13 @@ jobs:
         with:
           filters: |
             backend:
-              - '.github/workflows/rust.yaml'
-              - 'backend/**'
+              - '.github/workflows/rust.yml'
+              - 'backend/auth-service/**'
+              - 'backend/email-service/**'
+              - 'backend/proto/**'
+              - 'backend/Cargo.lock'
+              - 'backend/Cargo'
+              - 'backend/rust-toolchain.toml'
       - name: Cache
         if: steps.changes.outputs.backend == 'true'
         uses: actions/cache@v4
@@ -93,8 +103,13 @@ jobs:
         with:
           filters: |
             backend:
-              - '.github/workflows/rust.yaml'
-              - 'backend/**'
+              - '.github/workflows/rust.yml'
+              - 'backend/auth-service/**'
+              - 'backend/email-service/**'
+              - 'backend/proto/**'
+              - 'backend/Cargo.lock'
+              - 'backend/Cargo'
+              - 'backend/rust-toolchain.toml'
       - name: Cache
         if: steps.changes.outputs.backend == 'true'
         uses: actions/cache@v4
