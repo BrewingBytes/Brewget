@@ -58,7 +58,7 @@ export const useAuthStore = defineStore("auth", () => {
     router.push("/login");
   }
 
-  return { activate, bearerToken, changePassword, isAuthenticated, login, register, forgotPassword, logout };
+  return { token, activate, bearerToken, changePassword, isAuthenticated, login, register, forgotPassword, logout };
 }, {
-  persist: true,
+  persist: true
 });
