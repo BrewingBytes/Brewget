@@ -50,6 +50,7 @@ jobs:
             VERSION=$(grep '^version = ' ./email-service/Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p')
             echo "email_version=$VERSION" >> "$GITHUB_OUTPUT"
         - name: Log in to Docker Hub
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.base-image == 'true'
           uses: docker/login-action@v3
           with:
             registry: ghcr.io
