@@ -13,6 +13,26 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: "/wallets",
+      name: "wallets",
+      component: HomeView,
+    },
+    {
+      path: "/add",
+      name: "add",
+      component: HomeView,
+    },
+    {
+      path: "/analytics",
+      name: "analytics",
+      component: HomeView,
+    },
+    {
+      path: "/settings",
+      name: "settings",
+      component: HomeView,
+    },
+    {
       path: "/login",
       name: "login",
       component: AuthView,
@@ -36,7 +56,7 @@ router.beforeEach((to) => {
   }
 });
 
-function isAuthRoute(name: RouteRecordNameGeneric) {
+export function isAuthRoute(name: RouteRecordNameGeneric) {
   switch (name) {
     case "activate":
     case "forgot-password":
@@ -44,7 +64,7 @@ function isAuthRoute(name: RouteRecordNameGeneric) {
       return false;
     default:
       return true;
-  }
-}
+  };
+};
 
 export default router;
