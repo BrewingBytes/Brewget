@@ -5,4 +5,5 @@ import { useAuthStore } from "@/stores/auth";
 
 <template>
   <Button @click="useAuthStore().logout()" label="logout" />
+  a
 </template>

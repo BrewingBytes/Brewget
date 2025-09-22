@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import { computed } from "vue";
+import { RouterView, useRoute } from "vue-router";
+
+import FloatingNavbar from "./components/FloatingNavbar.vue";
+import { isAuthRoute } from "./router";
+
+const route = useRoute();
+const shouldShowNavbar = computed(() => isAuthRoute(route.name));
 </script>
 
 <template>
   <RouterView style="width: 100vw; height: 100vh;" />
+  <FloatingNavbar v-if="shouldShowNavbar" />
   <Toast position="bottom-center" />
 </template>
