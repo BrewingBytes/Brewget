@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package settings_service;
+
+service SettingsService {
+    rpc get_user_settings(UserSettingsRequest) returns (UserSettingsResponse);
+}
+
+message UserSettingsRequest {
+    string uuid = 1;
+    bool protected = 2;
+}
+
+message AlarmSetting {
+    repeated int32 days = 1;
+    int32 hour = 2;
+    int32 minute = 3;
+}
+
+message UserSettingsResponse {
+    string uuid = 1;
+    bool protected = 2;
+    string username = 3;
+    string email = 4;
+    string language_uuid = 5;
+    string main_currency_uuid = 6;
+    AlarmSetting alarm = 7;
+    bool night_mode = 8;
+}
