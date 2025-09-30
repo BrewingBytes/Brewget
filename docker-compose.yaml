@@ -1,71 +1,81 @@
 services:
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    depends_on:
-      - frontend
-      - auth-service
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    networks:
-      - brewget
+ nginx:
+   image: nginx:alpine
+   container_name: nginx
+   depends_on:
+     - frontend
+     - auth-service
+   ports:
+     - "80:80"
+     - "443:443"
+   volumes:
+     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+     - ./nginx/conf.d:/etc/nginx/conf.d:ro
+   networks:
+     - brewget
 
-  frontend:
-    depends_on:
-      - auth-service
-    container_name: frontend
-    image: "ghcr.io/brewingbytes/brewget-frontend:0.0.3"
-    environment:
-      - VITE_API_ENDPOINT=http://localhost
-    networks:
-      - brewget
-    expose:
-      - 80
+ frontend:
+   depends_on:
+     - auth-service
+   container_name: frontend
+   image: "ghcr.io/brewingbytes/brewget-frontend:0.0.3"
+   environment:
+     - VITE_API_ENDPOINT=http://localhost
+   networks:
+     - brewget
+   expose:
+     - 80
 
-  auth-service:
-    depends_on:
-      - db
-      - email-service
-    container_name: auth-service
-    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.5"
+ auth-service:
+   depends_on:
+     - db
+     - email-service
+   container_name: auth-service
+   image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.5"
+   environment:
+     - PG_URL=db
+     - PG_USERNAME=user-name
+     - PG_PASSWORD=strong-password
+     - PG_DATABASE=brewget
+     - CORS_URL=http://localhost
+     - JWT_SECRET=secret
+     - JWT_EXPIRES_IN=86400
+     - JWT_MAX_AGE=86400
+     - AUTH_HTTP_PORT=8000
+     - EMAIL_HOSTNAME=http://email-service
+     - EMAIL_GRPC_PORT=9001
+     - FRONTEND_HOSTNAME=http://localhost
+   networks:
+     - db
+     - brewget
+   expose:
+     - 8000
+
+ email-service:
+   container_name: email-service
+   image: "ghcr.io/brewingbytes/brewget-email-service:0.0.4"
+   environment:
+     - SMTP_EMAIL=noreply@brewingbytes.com
+     - SMTP_NAME=BrewGet
+     - SMTP_RELAY=smtp.example.com
+     - SMTP_USERNAME=smtp-user
+     - SMTP_PASSWORD=smtp-password
+     - EMAIL_GRPC_PORT=9001
+   networks:
+     - db
+     - brewget
+   expose:
+     - 9001
+
+  settings-service:
+    container_name: settings-service
+    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.1"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
       - PG_PASSWORD=strong-password
       - PG_DATABASE=brewget
       - CORS_URL=http://localhost
-      - JWT_SECRET=secret
-      - JWT_EXPIRES_IN=86400
-      - JWT_MAX_AGE=86400
-      - AUTH_HTTP_PORT=8000
-      - EMAIL_HOSTNAME=http://email-service
-      - EMAIL_GRPC_PORT=9001
-      - FRONTEND_HOSTNAME=http://localhost
-    networks:
-      - db
-      - brewget
-    expose:
-      - 8000
-
-  email-service:
-    container_name: email-service
-    image: "ghcr.io/brewingbytes/brewget-email-service:0.0.4"
-    environment:
-      - SMTP_EMAIL=noreply@brewingbytes.com
-      - SMTP_NAME=BrewGet
-      - SMTP_RELAY=smtp.example.com
-      - SMTP_USERNAME=smtp-user
-      - SMTP_PASSWORD=smtp-password
-      - EMAIL_GRPC_PORT=9001
-    networks:
-      - db
-      - brewget
-    expose:
-      - 9001
 
   db:
     image: postgres
