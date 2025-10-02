@@ -6,4 +6,4 @@ file = "src/schema.rs"
 custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
 
 [migrations_directory]
-dir = "/home/andrei.serban@celadodc-rswl.com/oother/Brewget/backend/settings-service/migrations"
+dir = "/Users/andrei/BrewingBytes/BrewGet/backend/settings-service/migrations"
