@@ -6,7 +6,7 @@ publish = ["crates-io"]
 
 [dependencies]
 axum = "0.8.4"
-chrono = "0.4.41"
+chrono = { version = "0.4.41", features = ["serde"] }
 deadpool = "0.12.2"
 diesel = { version = "2.2.12", features = ["uuid", "chrono"] }
 diesel-async = { version = "0.6.1", features = [

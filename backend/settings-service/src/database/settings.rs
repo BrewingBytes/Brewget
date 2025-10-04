@@ -1,4 +1,3 @@
-use axum::http::StatusCode;
 use diesel::{
     ExpressionMethods, SelectableHelper,
     query_dsl::methods::{FilterDsl, SelectDsl},
@@ -9,7 +8,7 @@ use uuid::Uuid;
 use crate::{
     models::{
         response::error::Error,
-        settings::{NewSettings, Settings},
+        settings::{NewSettings, Settings, UpdateSettings},
     },
     schema::user_settings::dsl::*,
 };
@@ -53,4 +52,19 @@ pub async fn find_by_uuid(
     }
 
     Ok(result?)
+}
+
+pub async fn update(
+    uuid: Uuid,
+    update_settings: UpdateSettings,
+    conn: &mut deadpool::managed::Object<
+        diesel_async::pooled_connection::AsyncDieselConnectionManager<
+            diesel_async::AsyncPgConnection,
+        >,
+    >,
+) -> Result<usize, Error> {
+    Ok(diesel::update(user_settings.filter(user_id.eq(uuid)))
+        .set(&update_settings)
+        .execute(conn)
+        .await?)
 }

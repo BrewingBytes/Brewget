@@ -1,4 +1,5 @@
 mod health;
+mod user;
 
 use std::sync::Arc;
 
@@ -42,6 +43,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
 
     let router = Router::new()
         .nest("/health", health::get_router(state.clone()))
+        .nest("/user", user::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)
