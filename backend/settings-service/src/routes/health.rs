@@ -4,7 +4,7 @@ use axum::{Json, Router, extract::State, http::StatusCode, response::IntoRespons
 
 use crate::{
     AppState,
-    models::response::health::{DatabaseConnection, Health, HealthStatus},
+    models::response::{DatabaseConnection, Health, HealthStatus},
 };
 
 /// Creates a router for the health routes

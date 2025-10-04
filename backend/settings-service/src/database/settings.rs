@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 use crate::{
     models::{
-        response::error::Error,
+        response::Error,
         settings::{NewSettings, Settings, UpdateSettings},
     },
     schema::user_settings::dsl::*,

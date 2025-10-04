@@ -8,7 +8,7 @@ use crate::{
     models::{
         forgot_password_link::NewForgotPasswordLink,
         request::forgot_password_info::ForgotPasswordInfo,
-        response::{error::Error, message::Message},
+        response::{Error, Message},
     },
 };
 

@@ -6,7 +6,7 @@ use crate::{
     AppState, database,
     models::{
         request::reset_password_info::ResetPasswordInfo,
-        response::{error::Error, message::Message},
+        response::{Error, Message},
     },
     utils::password::{hash_password, validate_password},
 };

@@ -5,9 +5,9 @@ use axum::{
 };
 use deadpool::managed::PoolError;
 
-use crate::models::response::message::Message;
+use crate::response::Message;
 
-/// Custom error type for handling API errors
+/// Custom error type for handling API errors across all services
 ///
 /// Combines an HTTP status code with a JSON message response
 ///
@@ -80,6 +80,20 @@ impl From<diesel::result::Error> for Error {
 /// Converts Uuid errors into the application Error type
 impl From<uuid::Error> for Error {
     fn from(value: uuid::Error) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    }
+}
+
+/// Converts tonic gRPC errors into the application Error type
+impl From<tonic::Status> for Error {
+    fn from(value: tonic::Status) -> Self {
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.message().to_string())
+    }
+}
+
+/// Converts general std::error::Error into the application Error type
+impl From<Box<dyn std::error::Error>> for Error {
+    fn from(value: Box<dyn std::error::Error>) -> Self {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
     }
 }

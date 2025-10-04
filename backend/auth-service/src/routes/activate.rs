@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::{
     AppState, database,
-    models::response::{error::Error, message::Message},
+    models::response::{Error, Message},
 };
 
 /// Creates a router for the activate routes
