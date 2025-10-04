@@ -3,16 +3,26 @@ use std::env::var;
 /// Application configuration loaded from environment variables
 ///
 /// # Fields
-/// * `auth_http_port` - Auth Service HTTP port
-/// * `pg_url` - PostgreSQL server URL
-/// * `pg_username` - Database username
-/// * `pg_password` - Database password
-/// * `pg_database` - Database name
-/// * `cors_url` - Allowed CORS origin URL
-/// * `jwt_secret` - Secret key for JWT signing
-/// * `jwt_expires_in` - JWT token expiration time in seconds
+///
+/// ## Server Configuration
+/// * `auth_http_port` - Port number for the HTTP server to listen on
+///
+/// ## Database Configuration
+/// * `pg_url` - PostgreSQL server hostname or IP address
+/// * `pg_username` - Database username for authentication
+/// * `pg_password` - Database password for authentication
+/// * `pg_database` - Name of the database to connect to
+///
+/// ## Security Configuration
+/// * `cors_url` - Allowed CORS origin URL for frontend integration
+/// * `jwt_secret` - Secret key used for signing and verifying JWT tokens
+/// * `jwt_expires_in` - JWT access token expiration time in seconds
 /// * `jwt_max_age` - Maximum age for JWT refresh tokens in seconds
-/// * `email_grpc_port` - Email Service GRPC port
+///
+/// ## Service Integration
+/// * `email_hostname` - Hostname of the email service for gRPC communication
+/// * `email_grpc_port` - Port number for the email service gRPC server
+/// * `frontend_hostname` - Hostname of the frontend application for URL generation
 #[derive(Clone)]
 pub struct Config {
     pub auth_http_port: u32,
@@ -30,13 +40,47 @@ pub struct Config {
 }
 
 impl Config {
-    // Initializes configuration from environment variables
+    /// Initializes configuration from environment variables
+    ///
+    /// This method loads all required configuration values from environment variables.
+    /// It performs validation to ensure all required variables are present and properly formatted.
+    ///
+    /// # Environment Variables
+    ///
+    /// The following environment variables must be set:
+    /// - `AUTH_HTTP_PORT` - Must be a valid u32 port number
+    /// - `PG_URL` - PostgreSQL server URL
+    /// - `PG_USERNAME` - Database username
+    /// - `PG_PASSWORD` - Database password
+    /// - `PG_DATABASE` - Database name
+    /// - `CORS_URL` - Allowed CORS origin URL
+    /// - `JWT_SECRET` - Secret key for JWT signing
+    /// - `JWT_EXPIRES_IN` - Must be a valid u32 (seconds)
+    /// - `JWT_MAX_AGE` - Must be a valid u32 (seconds)
+    /// - `EMAIL_HOSTNAME` - Email service hostname
+    /// - `EMAIL_GRPC_PORT` - Must be a valid u32 port number
+    /// - `FRONTEND_HOSTNAME` - Frontend application hostname
     ///
     /// # Panics
-    /// Panics if any required environment variable is missing or invalid
+    ///
+    /// This method will panic if:
+    /// - Any required environment variable is missing
+    /// - `AUTH_HTTP_PORT`, `JWT_EXPIRES_IN`, `JWT_MAX_AGE`, or `EMAIL_GRPC_PORT`
+    ///   cannot be parsed as u32
     ///
     /// # Returns
-    /// Returns a new Config instance with values from environment
+    ///
+    /// Returns a new `Config` instance with all values loaded from environment variables.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use auth_service::Config;
+    ///
+    /// // Ensure environment variables are set before calling
+    /// let config = Config::init();
+    /// println!("Server will run on port: {}", config.auth_http_port);
+    /// ```
     pub fn init() -> Self {
         let auth_http_port = var("AUTH_HTTP_PORT")
             .map(|port| port.parse::<u32>())
