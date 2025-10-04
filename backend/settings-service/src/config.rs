@@ -1,5 +1,24 @@
 use std::env::var;
 
+/// Application configuration loaded from environment variables
+///
+/// This struct contains all the configuration parameters needed to run the Settings Service.
+/// All values are loaded from environment variables at startup and are used throughout
+/// the application lifecycle.
+///
+/// # Fields
+///
+/// ## Server Configuration
+/// * `settings_http_port` - Port number for the HTTP server to listen on
+///
+/// ## Database Configuration
+/// * `pg_url` - PostgreSQL server hostname or IP address
+/// * `pg_username` - Database username for authentication
+/// * `pg_password` - Database password for authentication
+/// * `pg_database` - Name of the database to connect to
+///
+/// ## Security Configuration
+/// * `cors_url` - Allowed CORS origin URL for frontend integration
 #[derive(Clone)]
 pub struct Config {
     pub settings_http_port: u32,
@@ -11,13 +30,40 @@ pub struct Config {
 }
 
 impl Config {
-    // Initializes configuration from environment variables
+    /// Initializes configuration from environment variables
+    ///
+    /// This method loads all required configuration values from environment variables.
+    /// It performs validation to ensure all required variables are present and properly formatted.
+    ///
+    /// # Environment Variables
+    ///
+    /// The following environment variables must be set:
+    /// - `SETTINGS_HTTP_PORT` - Must be a valid u32 port number
+    /// - `PG_URL` - PostgreSQL server URL
+    /// - `PG_USERNAME` - Database username
+    /// - `PG_PASSWORD` - Database password
+    /// - `PG_DATABASE` - Database name
+    /// - `CORS_URL` - Allowed CORS origin URL
     ///
     /// # Panics
-    /// Panics if any required environment variable is missing or invalid
+    ///
+    /// This method will panic if:
+    /// - Any required environment variable is missing
+    /// - `SETTINGS_HTTP_PORT` cannot be parsed as u32
     ///
     /// # Returns
-    /// Returns a new Config instance with values from environment
+    ///
+    /// Returns a new `Config` instance with all values loaded from environment variables.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use settings_service::Config;
+    ///
+    /// // Ensure environment variables are set before calling
+    /// let config = Config::init();
+    /// println!("Server will run on port: {}", config.settings_http_port);
+    /// ```
     pub fn init() -> Self {
         let settings_http_port = var("SETTINGS_HTTP_PORT")
             .map(|val| val.parse::<u32>())
