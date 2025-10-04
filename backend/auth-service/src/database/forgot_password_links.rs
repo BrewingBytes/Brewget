@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     models::{
         forgot_password_link::{ForgotPasswordLink, NewForgotPasswordLink},
-        response::error::Error,
+        response::Error,
     },
     schema::forgot_password_links::{self, id},
 };

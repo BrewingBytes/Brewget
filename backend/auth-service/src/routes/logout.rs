@@ -2,7 +2,7 @@ use std::{str::FromStr, sync::Arc};
 
 use crate::{
     AppState, database,
-    models::response::{error::Error, message::Message},
+    models::response::{Error, Message},
     routes::middlewares::auth_guard::auth_guard,
 };
 use axum::{

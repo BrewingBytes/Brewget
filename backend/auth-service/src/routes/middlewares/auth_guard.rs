@@ -10,7 +10,7 @@ use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
     AppState, database,
-    models::{response::error::Error, token_claim::TokenClaim},
+    models::{response::Error, token_claim::TokenClaim},
 };
 
 /// Authentication middleware guard for protected routes

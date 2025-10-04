@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{
     models::{
         activation_link::{ActivationLink, NewActivationLink},
-        response::error::Error,
+        response::Error,
     },
     schema::activation_links::{self, id},
 };

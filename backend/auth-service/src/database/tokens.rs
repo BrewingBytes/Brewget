@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use crate::{
     models::{
-        response::error::Error,
+        response::Error,
         token::{NewToken, Token},
     },
     schema::tokens::dsl::*,

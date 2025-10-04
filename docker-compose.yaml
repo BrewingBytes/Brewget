@@ -31,7 +31,7 @@ services:
       - db
       - email-service
     container_name: auth-service
-    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.5"
+    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.6"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -53,7 +53,7 @@ services:
 
   email-service:
     container_name: email-service
-    image: "ghcr.io/brewingbytes/brewget-email-service:0.0.4"
+    image: "ghcr.io/brewingbytes/brewget-email-service:0.0.5"
     environment:
       - SMTP_EMAIL=noreply@brewingbytes.com
       - SMTP_NAME=BrewGet
@@ -69,7 +69,7 @@ services:
 
   settings-service:
     container_name: settings-service
-    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.1"
+    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.2"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name

@@ -8,7 +8,7 @@ use crate::{
     AppState, database,
     models::{
         request::login_info::LoginInfo,
-        response::{error::Error, token::Token},
+        response::{Error, Token},
         token::NewToken,
         token_claim::TokenClaim,
     },

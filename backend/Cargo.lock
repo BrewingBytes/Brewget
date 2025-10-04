@@ -90,7 +90,7 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
 name = "auth-service"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
  "argon2",
  "axum",
@@ -103,6 +103,7 @@ dependencies = [
  "jsonwebtoken",
  "prost",
  "serde",
+ "shared-types",
  "tokio",
  "tonic",
  "tonic-prost",
@@ -517,7 +518,7 @@ dependencies = [
 
 [[package]]
 name = "email-service"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "dotenv",
  "handlebars",
@@ -1942,7 +1943,7 @@ dependencies = [
 
 [[package]]
 name = "settings-service"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "axum",
  "chrono",
@@ -1952,6 +1953,7 @@ dependencies = [
  "dotenv",
  "jsonwebtoken",
  "serde",
+ "shared-types",
  "tokio",
  "tower-http",
  "uuid",
@@ -1966,6 +1968,22 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
+]
+
+[[package]]
+name = "shared-types"
+version = "0.0.1"
+dependencies = [
+ "axum",
+ "chrono",
+ "deadpool",
+ "diesel",
+ "diesel-async",
+ "jsonwebtoken",
+ "serde",
+ "serde_json",
+ "tonic",
+ "uuid",
 ]
 
 [[package]]

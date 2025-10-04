@@ -1,4 +1,2 @@
-pub mod error;
-pub mod health;
-pub mod message;
-pub mod token;
+// Re-export shared types
+pub use shared_types::{DatabaseConnection, Error, Health, HealthStatus, Message, Token};

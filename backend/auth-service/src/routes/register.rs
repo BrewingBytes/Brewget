@@ -8,7 +8,7 @@ use crate::{
     models::{
         activation_link::NewActivationLink,
         request::register_info::RegisterInfo,
-        response::{error::Error, message::Message},
+        response::{Error, Message},
         user::NewUser,
     },
     utils::password::validate_password,

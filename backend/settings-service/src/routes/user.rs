@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::{
     AppState, database,
-    models::{response::error::Error, settings::UpdateSettings},
+    models::{response::Error, settings::UpdateSettings},
 };
 
 /// Creates a router for the user settings routes
