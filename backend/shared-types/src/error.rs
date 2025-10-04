@@ -87,7 +87,7 @@ impl From<uuid::Error> for Error {
 /// Converts tonic gRPC errors into the application Error type
 impl From<tonic::Status> for Error {
     fn from(value: tonic::Status) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.message().to_string())
+        Self::new(StatusCode::INTERNAL_SERVER_ERROR, value.message())
     }
 }
 
