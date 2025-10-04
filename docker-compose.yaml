@@ -67,6 +67,16 @@ services:
     expose:
       - 9001
 
+  settings-service:
+    container_name: settings-service
+    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.1"
+    environment:
+      - PG_URL=db
+      - PG_USERNAME=user-name
+      - PG_PASSWORD=strong-password
+      - PG_DATABASE=brewget
+      - CORS_URL=http://localhost
+
   db:
     image: postgres
     container_name: postgres
