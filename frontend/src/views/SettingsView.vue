@@ -13,35 +13,26 @@ const alarmTime = ref("");
 const alarmOffsetMinutes = ref(0);
 const nightMode = ref(false);
 
+// Sync form fields with store settings
+function syncFormFields(newSettings: typeof settingsStore.settings) {
+  if (newSettings) {
+    language.value = newSettings.language;
+    currency.value = newSettings.currency;
+    alarmSet.value = newSettings.alarm_set;
+    alarmTime.value = newSettings.alarm_time;
+    alarmOffsetMinutes.value = newSettings.alarm_offset_minutes;
+    nightMode.value = newSettings.night_mode;
+  }
+}
+
 // Load settings on mount
 onMounted(async () => {
   await settingsStore.loadSettings();
-
-  // Populate form fields with loaded settings
-  if (settingsStore.settings) {
-    language.value = settingsStore.settings.language;
-    currency.value = settingsStore.settings.currency;
-    alarmSet.value = settingsStore.settings.alarm_set;
-    alarmTime.value = settingsStore.settings.alarm_time;
-    alarmOffsetMinutes.value = settingsStore.settings.alarm_offset_minutes;
-    nightMode.value = settingsStore.settings.night_mode;
-  }
+  syncFormFields(settingsStore.settings);
 });
 
 // Watch for settings changes from store
-watch(
-  () => settingsStore.settings,
-  (newSettings) => {
-    if (newSettings) {
-      language.value = newSettings.language;
-      currency.value = newSettings.currency;
-      alarmSet.value = newSettings.alarm_set;
-      alarmTime.value = newSettings.alarm_time;
-      alarmOffsetMinutes.value = newSettings.alarm_offset_minutes;
-      nightMode.value = newSettings.night_mode;
-    }
-  },
-);
+watch(() => settingsStore.settings, syncFormFields);
 
 // Available options
 const languageOptions = [

@@ -15,14 +15,20 @@ export const useSettingsStore = defineStore("settings", () => {
   const settings = ref<Settings | null>(null);
   const loading = ref(false);
 
-  async function loadSettings(): Promise<void> {
+  function getUserId(): string | null {
     const authStore = useAuthStore();
     const userId = getUserIdFromToken(authStore.token);
 
     if (!userId) {
       useToastStore().showError("Failed to get user ID from token.");
-      return;
     }
+
+    return userId;
+  }
+
+  async function loadSettings(): Promise<void> {
+    const userId = getUserId();
+    if (!userId) {return;}
 
     loading.value = true;
     try {
@@ -40,13 +46,8 @@ export const useSettingsStore = defineStore("settings", () => {
   }
 
   async function updateSettings(updates: UpdateSettings): Promise<boolean> {
-    const authStore = useAuthStore();
-    const userId = getUserIdFromToken(authStore.token);
-
-    if (!userId) {
-      useToastStore().showError("Failed to get user ID from token.");
-      return false;
-    }
+    const userId = getUserId();
+    if (!userId) {return false;}
 
     loading.value = true;
     try {
