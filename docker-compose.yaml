@@ -45,6 +45,8 @@ services:
       - EMAIL_HOSTNAME=http://email-service
       - EMAIL_GRPC_PORT=9001
       - FRONTEND_HOSTNAME=http://localhost
+      - RP_ID=localhost
+      - RP_ORIGIN=http://localhost
     networks:
       - db
       - brewget
