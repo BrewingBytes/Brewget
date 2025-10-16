@@ -58,16 +58,25 @@ The frontend uses `@simplewebauthn/browser` to handle browser-side WebAuthn oper
 
 Add the following environment variables to your auth-service configuration:
 
+#### For Docker Deployment (using docker-compose)
 ```bash
 # WebAuthn Relying Party Configuration
 RP_ID=localhost                      # For development. Use your domain in production (e.g., "example.com")
-RP_ORIGIN=http://localhost:5173      # Frontend URL. Must match the origin making requests
+RP_ORIGIN=http://localhost           # Frontend URL through nginx (port 80)
+```
+
+#### For Local Development (services running directly)
+```bash
+# WebAuthn Relying Party Configuration
+RP_ID=localhost                      # For development. Use your domain in production (e.g., "example.com")
+RP_ORIGIN=http://localhost:5173      # Frontend dev server URL (typically Vite default port)
 ```
 
 **Important Notes:**
 - `RP_ID` should be the domain name without protocol or port
 - `RP_ORIGIN` must include the protocol and match exactly where the frontend is hosted
 - For production, use your actual domain (e.g., `RP_ID=brewget.com`, `RP_ORIGIN=https://brewget.com`)
+- The `RP_ORIGIN` must match what appears in the browser's address bar when accessing the app
 
 ### Database Migration
 
@@ -143,8 +152,10 @@ The frontend automatically detects browser support and only shows the passkey op
    - Verify browser has WebAuthn enabled
 
 2. **Registration fails with origin mismatch**
-   - Ensure `RP_ORIGIN` matches the exact URL in the browser (including port)
-   - Check that `RP_ID` matches the domain
+   - Ensure `RP_ORIGIN` matches the exact URL in the browser (including protocol and port)
+   - For Docker deployment: Use `http://localhost` (nginx proxies on port 80)
+   - For local development: Use `http://localhost:5173` (or your Vite dev server port)
+   - Check that `RP_ID` matches the domain (should be just `localhost` for local dev)
 
 3. **Authentication fails**
    - Verify the credential was registered for this user
