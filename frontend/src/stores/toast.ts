@@ -29,5 +29,14 @@ export const useToastStore = defineStore("toast", () => {
         });
     }
 
-    return { showError, showInfo };
+    function showSuccess(message: string, life: number = 5000) {
+        toast.add({
+            severity: ToastSeverity.SUCCESS,
+            life,
+            detail: message,
+            summary: "Success",
+        });
+    }
+
+    return { showError, showInfo, showSuccess };
 });

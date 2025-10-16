@@ -2,6 +2,7 @@ use deadpool::managed::Pool;
 use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
 use tokio::sync::Mutex;
 use tonic::{Response, Status, transport::Channel};
+use webauthn_rs::prelude::*;
 
 use crate::{
     Config,
@@ -20,6 +21,7 @@ use crate::{
 /// * `config` - Application configuration settings
 /// * `db` - PostgreSQL connection pool for async database operations
 /// * `email_service` - A mutex for the EmailServiceClient GRPC
+/// * `webauthn` - WebAuthn instance for passkey operations
 ///
 /// # Usage
 /// ```rust
@@ -34,6 +36,7 @@ pub struct AppState {
     pub config: Config,
     db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
     email_service: Mutex<EmailServiceClient<Channel>>,
+    pub webauthn: Webauthn,
 }
 
 impl AppState {
@@ -46,10 +49,24 @@ impl AppState {
         db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
         email_service: EmailServiceClient<Channel>,
     ) -> Self {
+        // Initialize WebAuthn with RP configuration
+        let rp_id = &config.rp_id;
+        let rp_origin = Url::parse(&config.rp_origin)
+            .expect("RP_ORIGIN must be a valid URL");
+        
+        let builder = WebauthnBuilder::new(rp_id, &rp_origin)
+            .expect("Invalid WebAuthn configuration");
+        
+        let webauthn = builder
+            .rp_name("BrewGet")
+            .build()
+            .expect("Failed to build WebAuthn instance");
+
         Self {
             config,
             db,
             email_service: Mutex::new(email_service),
+            webauthn,
         }
     }
 

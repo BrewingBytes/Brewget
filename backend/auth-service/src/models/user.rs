@@ -10,7 +10,7 @@ use crate::utils::password::{hash_password, verify_password};
 /// # Fields
 /// * `id` - Unique identifier for the user
 /// * `username` - User's chosen username
-/// * `password` - Hashed password string
+/// * `password` - Hashed password string (optional for passkey-only accounts)
 /// * `email` - User's email address
 /// * `is_verified` - Email verification status
 /// * `is_active` - Account active status
@@ -20,7 +20,7 @@ use crate::utils::password::{hash_password, verify_password};
 pub struct User {
     id: Uuid,
     username: String,
-    password: String,
+    password: Option<String>,
     email: String,
     is_verified: bool,
     is_active: bool,
@@ -42,6 +42,15 @@ impl User {
         self.email.clone()
     }
 
+    /// Checks if the user has a password set
+    ///
+    /// # Returns
+    /// * `true` if the user has a password
+    /// * `false` if the user is passkey-only
+    pub fn has_password(&self) -> bool {
+        self.password.is_some()
+    }
+
     /// Validates if the provided password matches the stored hash
     ///
     /// # Arguments
@@ -49,9 +58,12 @@ impl User {
     ///
     /// # Returns
     /// * `true` if the password matches
-    /// * `false` if the password is invalid
+    /// * `false` if the password is invalid or user has no password
     pub fn is_password_valid(&self, password: &str) -> bool {
-        verify_password(password, &self.password).is_ok()
+        match &self.password {
+            Some(hash) => verify_password(password, hash).is_ok(),
+            None => false,
+        }
     }
 
     /// Checks if the account email has been verified
@@ -80,7 +92,7 @@ impl User {
 /// # Fields
 /// * `id` - Given UUID for the new account
 /// * `username` - Chosen username for the new account
-/// * `password` - Password that will be hashed before storage
+/// * `password` - Password that will be hashed before storage (optional for passkey-only)
 /// * `email` - Email address for the account
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::users)]
@@ -88,12 +100,12 @@ impl User {
 pub struct NewUser {
     id: Uuid,
     username: String,
-    password: String,
+    password: Option<String>,
     email: String,
 }
 
 impl NewUser {
-    /// Creates a new user account
+    /// Creates a new user account with password
     ///
     /// # Arguments
     /// * `username` - Chosen username
@@ -109,9 +121,26 @@ impl NewUser {
         Ok(Self {
             id: Uuid::new_v4(),
             username: username.to_string(),
-            password: hash,
+            password: Some(hash),
             email: email.to_string(),
         })
+    }
+
+    /// Creates a new passkey-only user account (no password)
+    ///
+    /// # Arguments
+    /// * `username` - Chosen username
+    /// * `email` - Email address
+    ///
+    /// # Returns
+    /// * A new `NewUser` instance ready for database insertion
+    pub fn new_passkey_only(username: &str, email: &str) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            username: username.to_string(),
+            password: None,
+            email: email.to_string(),
+        }
     }
 
     /// Get the UUID created by the backend

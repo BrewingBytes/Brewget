@@ -6,6 +6,7 @@ import { useToastStore } from "./toast";
 
 import { authService } from "@/services/auth";
 import { type ErrorResponse, ServerStatus } from "@/services/types";
+import { registerPasskey, authenticatePasskey } from "@/utils/webauthn";
 
 export const useAuthStore = defineStore("auth", () => {
   const token = ref("");
@@ -45,7 +46,7 @@ export const useAuthStore = defineStore("auth", () => {
     router.push("/");
   }
 
-  async function register(values: { email: string, username: string, password: string }): Promise<boolean> {
+  async function register(values: { email: string, username: string, password?: string }): Promise<boolean> {
     const response = await authService.register(values);
     if (response.status !== ServerStatus.NO_ERROR) {
       useToastStore().showError((response as ErrorResponse).data.message);
@@ -53,6 +54,75 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     return true;
+  }
+
+  async function registerWithPasskey(values: { email: string, username: string }): Promise<boolean> {
+    try {
+      // Start passkey registration
+      const startResponse = await authService.passkeyRegisterStart(values);
+      if (startResponse.status !== ServerStatus.NO_ERROR) {
+        useToastStore().showError((startResponse as ErrorResponse).data.message);
+        return false;
+      }
+
+      // Get the challenge from the server
+      const challenge = startResponse.data.challenge;
+
+      // Trigger browser's passkey registration
+      const registrationResponse = await registerPasskey(challenge);
+
+      // Finish passkey registration
+      const finishResponse = await authService.passkeyRegisterFinish({
+        username: values.username,
+        email: values.email,
+        registration_response: JSON.stringify(registrationResponse),
+      });
+
+      if (finishResponse.status !== ServerStatus.NO_ERROR) {
+        useToastStore().showError((finishResponse as ErrorResponse).data.message);
+        return false;
+      }
+
+      useToastStore().showSuccess("Passkey registered successfully!");
+      return true;
+    } catch (error) {
+      useToastStore().showError("Failed to register passkey: " + (error as Error).message);
+      return false;
+    }
+  }
+
+  async function loginWithPasskey(values: { username: string }): Promise<void> {
+    try {
+      // Start passkey authentication
+      const startResponse = await authService.passkeyAuthStart(values);
+      if (startResponse.status !== ServerStatus.NO_ERROR) {
+        useToastStore().showError((startResponse as ErrorResponse).data.message);
+        return;
+      }
+
+      // Get the challenge from the server
+      const challenge = startResponse.data.challenge;
+
+      // Trigger browser's passkey authentication
+      const authenticationResponse = await authenticatePasskey(challenge);
+
+      // Finish passkey authentication
+      const finishResponse = await authService.passkeyAuthFinish({
+        username: values.username,
+        authentication_response: JSON.stringify(authenticationResponse),
+      });
+
+      if (finishResponse.status !== ServerStatus.NO_ERROR) {
+        useToastStore().showError((finishResponse as ErrorResponse).data.message);
+        return;
+      }
+
+      // Set bearer token
+      token.value = finishResponse.data.token;
+      router.push("/");
+    } catch (error) {
+      useToastStore().showError("Failed to authenticate with passkey: " + (error as Error).message);
+    }
   }
 
   async function forgotPassword(values: { email: string }): Promise<boolean> {
@@ -86,7 +156,19 @@ export const useAuthStore = defineStore("auth", () => {
     router.push("/login");
   }
 
-  return { token, activate, bearerToken, changePassword, isAuthenticated, login, register, forgotPassword, logout };
+  return { 
+    token, 
+    activate, 
+    bearerToken, 
+    changePassword, 
+    isAuthenticated, 
+    login, 
+    loginWithPasskey,
+    register, 
+    registerWithPasskey,
+    forgotPassword, 
+    logout 
+  };
 }, {
   persist: true,
 });
