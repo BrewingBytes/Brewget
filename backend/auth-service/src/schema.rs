@@ -18,6 +18,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    passkey_credentials (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        credential_id -> Bytea,
+        public_key -> Bytea,
+        counter -> Int8,
+        transports -> Nullable<Array<Text>>,
+        backup_eligible -> Bool,
+        backup_state -> Bool,
+        attestation_type -> Nullable<Text>,
+        created_at -> Timestamptz,
+        last_used_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
     tokens (id) {
         id -> Uuid,
         user_id -> Uuid,
@@ -34,7 +50,7 @@ diesel::table! {
         id -> Uuid,
         #[max_length = 50]
         username -> Varchar,
-        password -> Text,
+        password -> Nullable<Text>,
         #[max_length = 255]
         email -> Varchar,
         is_verified -> Bool,
@@ -49,11 +65,13 @@ diesel::table! {
 
 diesel::joinable!(activation_links -> users (user_id));
 diesel::joinable!(forgot_password_links -> users (user_id));
+diesel::joinable!(passkey_credentials -> users (user_id));
 diesel::joinable!(tokens -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     activation_links,
     forgot_password_links,
+    passkey_credentials,
     tokens,
     users,
 );

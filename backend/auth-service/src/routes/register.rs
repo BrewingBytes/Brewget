@@ -69,9 +69,11 @@ async fn register_handler(
             .into());
     }
 
-    // Validate password length
-    validate_password(&body.password)
-        .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
+    // Validate password if provided
+    if let Some(ref password) = body.password {
+        validate_password(password)
+            .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
+    }
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {
@@ -91,15 +93,18 @@ async fn register_handler(
             .into());
     }
 
-    // Create new user record
-    let new_user =
-        NewUser::new(&body.username, &body.password, &body.email).map_err(|_| -> Error {
+    // Create new user record (with or without password)
+    let new_user = if let Some(password) = body.password {
+        NewUser::new(&body.username, &password, &body.email).map_err(|_| -> Error {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Could not create account.",
             )
                 .into()
-        })?;
+        })?
+    } else {
+        NewUser::new_passkey_only(&body.username, &body.email)
+    };
 
     // Create new activation link
     let new_activation_link = NewActivationLink::new(new_user.get_uuid());
