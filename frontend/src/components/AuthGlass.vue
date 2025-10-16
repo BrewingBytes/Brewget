@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 
 import { useAuthStore } from "@/stores/auth";
+import { isWebAuthnSupported } from "@/utils/webauthn";
 
 enum ShownPage {
     Login,
@@ -17,6 +18,9 @@ const isForgotPassword = computed(() => shownPage.value === ShownPage.ForgotPass
 const username = ref("");
 const password = ref("");
 const email = ref("");
+const usePasskey = ref(false);
+
+const supportsPasskeys = isWebAuthnSupported();
 
 const texts = computed(() => {
     switch (shownPage.value) {
@@ -24,13 +28,13 @@ const texts = computed(() => {
             return {
                 spanText: "Don't have an account?",
                 loginRegisterText: "Sign up",
-                buttonText: "Sign In",
+                buttonText: usePasskey.value ? "Sign In with Passkey" : "Sign In",
             };
         case ShownPage.Register:
             return {
                 spanText: "Already have an account?",
                 loginRegisterText: "Sign in",
-                buttonText: "Register",
+                buttonText: usePasskey.value ? "Register with Passkey" : "Register",
             };
         case ShownPage.ForgotPassword:
         default:
@@ -43,6 +47,7 @@ const texts = computed(() => {
 });
 
 function switchLoginRegister() {
+    usePasskey.value = false;
     if (shownPage.value === ShownPage.Login) {
         return shownPage.value = ShownPage.Register;
     }
@@ -54,23 +59,38 @@ function resetToLogin() {
     email.value = "";
     username.value = "";
     password.value = "";
+    usePasskey.value = false;
 
     shownPage.value = ShownPage.Login;
 }
 
 async function buttonAction() {
     if (isLogin.value) {
-        await useAuthStore().login({
-            username: username.value,
-            password: password.value,
-        });
+        if (usePasskey.value) {
+            await useAuthStore().loginWithPasskey({
+                username: username.value,
+            });
+        } else {
+            await useAuthStore().login({
+                username: username.value,
+                password: password.value,
+            });
+        }
     } else if (isRegister.value) {
-        if (
-            await useAuthStore().register({
+        let success = false;
+        if (usePasskey.value) {
+            success = await useAuthStore().registerWithPasskey({
+                email: email.value,
+                username: username.value,
+            });
+        } else {
+            success = await useAuthStore().register({
                 email: email.value,
                 username: username.value,
                 password: password.value,
-            })) {
+            });
+        }
+        if (success) {
             resetToLogin();
         }
     } else if (isForgotPassword.value) {
@@ -112,12 +132,21 @@ async function buttonAction() {
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
                         placeholder="Username" />
                 </IconField>
-                <IconField v-if="!isForgotPassword">
+                <IconField v-if="!isForgotPassword && !usePasskey">
                     <InputIcon class="pi pi-lock text-white/70!" />
                     <InputText v-model="password" type="password"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
                         placeholder="Password" />
                 </IconField>
+                
+                <!-- Passkey Toggle -->
+                <div v-if="supportsPasskeys && !isForgotPassword" class="flex items-center gap-2">
+                    <Checkbox v-model="usePasskey" :binary="true" inputId="usePasskey"
+                        class="border-white/10!" />
+                    <label for="usePasskey" class="text-white/80 text-sm cursor-pointer">
+                        {{ isLogin ? "Sign in with passkey" : "Register with passkey only" }}
+                    </label>
+                </div>
             </div>
             <Button @click="buttonAction" :label="texts.buttonText"
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />

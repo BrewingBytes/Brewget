@@ -1,4 +1,4 @@
-import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse } from "./types";
+import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse, PasskeyRegisterStartResponse, PasskeyRegisterFinishResponse, PasskeyAuthStartResponse, PasskeyAuthFinishResponse } from "./types";
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
@@ -23,7 +23,7 @@ async function login(values: { username: string, password: string }): Promise<Se
     }
 }
 
-async function register(values: { email: string, username: string, password: string }): Promise<ServerResponse<RegisterResponse>> {
+async function register(values: { email: string, username: string, password?: string }): Promise<ServerResponse<RegisterResponse>> {
     try {
         return await axios.post(`${URL_PATH}/register`, values);
     } catch (error) {
@@ -59,4 +59,47 @@ async function logout(): Promise<ServerResponse<LogoutResponse>> {
     }
 }
 
-export const authService = { activate, changePassword, forgotPassword, login, logout, register };
+async function passkeyRegisterStart(values: { username: string, email: string }): Promise<ServerResponse<PasskeyRegisterStartResponse>> {
+    try {
+        return await axios.post(`${URL_PATH}/register/passkey/start`, values);
+    } catch (error) {
+        return (error as AxiosError).response as ErrorResponse;
+    }
+}
+
+async function passkeyRegisterFinish(values: { username: string, email: string, registration_response: string }): Promise<ServerResponse<PasskeyRegisterFinishResponse>> {
+    try {
+        return await axios.post(`${URL_PATH}/register/passkey/finish`, values);
+    } catch (error) {
+        return (error as AxiosError).response as ErrorResponse;
+    }
+}
+
+async function passkeyAuthStart(values: { username: string }): Promise<ServerResponse<PasskeyAuthStartResponse>> {
+    try {
+        return await axios.post(`${URL_PATH}/login/passkey/start`, values);
+    } catch (error) {
+        return (error as AxiosError).response as ErrorResponse;
+    }
+}
+
+async function passkeyAuthFinish(values: { username: string, authentication_response: string }): Promise<ServerResponse<PasskeyAuthFinishResponse>> {
+    try {
+        return await axios.post(`${URL_PATH}/login/passkey/finish`, values);
+    } catch (error) {
+        return (error as AxiosError).response as ErrorResponse;
+    }
+}
+
+export const authService = { 
+    activate, 
+    changePassword, 
+    forgotPassword, 
+    login, 
+    logout, 
+    register,
+    passkeyRegisterStart,
+    passkeyRegisterFinish,
+    passkeyAuthStart,
+    passkeyAuthFinish,
+};
