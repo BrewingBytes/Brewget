@@ -19,6 +19,10 @@ use std::env::var;
 ///
 /// ## Security Configuration
 /// * `cors_url` - Allowed CORS origin URL for frontend integration
+///
+/// ## Service Integration
+/// * `auth_hostname` - Hostname of the auth service for gRPC communication
+/// * `auth_grpc_port` - Port number for the auth service gRPC server
 #[derive(Clone)]
 pub struct Config {
     pub settings_http_port: u32,
@@ -27,6 +31,8 @@ pub struct Config {
     pub pg_password: String,
     pub pg_database: String,
     pub cors_url: String,
+    pub auth_hostname: String,
+    pub auth_grpc_port: u32,
 }
 
 impl Config {
@@ -44,12 +50,14 @@ impl Config {
     /// - `PG_PASSWORD` - Database password
     /// - `SETTINGS_PG_DATABASE` - Settings service database name (falls back to PG_DATABASE if not set)
     /// - `CORS_URL` - Allowed CORS origin URL
+    /// - `AUTH_HOSTNAME` - Auth service hostname
+    /// - `AUTH_GRPC_PORT` - Must be a valid u32 port number
     ///
     /// # Panics
     ///
     /// This method will panic if:
     /// - Any required environment variable is missing
-    /// - `SETTINGS_HTTP_PORT` cannot be parsed as u32
+    /// - `SETTINGS_HTTP_PORT` or `AUTH_GRPC_PORT` cannot be parsed as u32
     ///
     /// # Returns
     ///
@@ -77,6 +85,11 @@ impl Config {
             .or_else(|_| var("PG_DATABASE"))
             .expect("SETTINGS_PG_DATABASE or PG_DATABASE must be provided.");
         let cors_url = var("CORS_URL").expect("CORS_URL must be provided.");
+        let auth_hostname = var("AUTH_HOSTNAME").expect("AUTH_HOSTNAME must be provided.");
+        let auth_grpc_port = var("AUTH_GRPC_PORT")
+            .map(|val| val.parse::<u32>())
+            .expect("AUTH_GRPC_PORT must be provided.")
+            .expect("AUTH_GRPC_PORT must be a valid u32.");
 
         Self {
             settings_http_port,
@@ -85,6 +98,8 @@ impl Config {
             pg_password,
             pg_database,
             cors_url,
+            auth_hostname,
+            auth_grpc_port,
         }
     }
 }

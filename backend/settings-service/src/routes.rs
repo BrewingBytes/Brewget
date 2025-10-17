@@ -1,4 +1,5 @@
 mod health;
+mod middlewares;
 mod user;
 
 use std::sync::Arc;

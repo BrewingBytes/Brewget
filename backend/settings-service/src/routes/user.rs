@@ -3,6 +3,7 @@ use std::sync::Arc;
 use axum::{
     Json, Router,
     extract::{Path, State},
+    middleware,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -11,6 +12,7 @@ use uuid::Uuid;
 use crate::{
     AppState, database,
     models::{response::Error, settings::UpdateSettings},
+    routes::middlewares::auth_guard,
 };
 
 /// Creates a router for the user settings routes
@@ -23,16 +25,17 @@ use crate::{
 ///
 /// # Returns
 ///
-/// Returns an Axum router configured with the user settings endpoints.
+/// Returns an Axum router configured with the user settings endpoints with auth middleware.
 ///
 /// # Routes
 ///
-/// - `GET /{id}` - Retrieve user settings by user ID
-/// - `POST /update/{id}` - Update user settings by user ID
+/// - `GET /{id}` - Retrieve user settings by user ID (protected by auth middleware)
+/// - `POST /update/{id}` - Update user settings by user ID (protected by auth middleware)
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/{id}", get(get_user_settings))
         .route("/update/{id}", post(update_user_settings))
+        .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard::auth_guard))
         .with_state(state)
 }
 

@@ -6,6 +6,7 @@ use std::env::var;
 ///
 /// ## Server Configuration
 /// * `auth_http_port` - Port number for the HTTP server to listen on
+/// * `auth_grpc_port` - Port number for the gRPC server to listen on
 ///
 /// ## Database Configuration
 /// * `pg_url` - PostgreSQL server hostname or IP address
@@ -26,6 +27,7 @@ use std::env::var;
 #[derive(Clone)]
 pub struct Config {
     pub auth_http_port: u32,
+    pub auth_grpc_port: u32,
     pub pg_url: String,
     pub pg_username: String,
     pub pg_password: String,
@@ -49,6 +51,7 @@ impl Config {
     ///
     /// The following environment variables must be set:
     /// - `AUTH_HTTP_PORT` - Must be a valid u32 port number
+    /// - `AUTH_GRPC_PORT` - Must be a valid u32 port number
     /// - `PG_URL` - PostgreSQL server URL
     /// - `PG_USERNAME` - Database username
     /// - `PG_PASSWORD` - Database password
@@ -65,7 +68,7 @@ impl Config {
     ///
     /// This method will panic if:
     /// - Any required environment variable is missing
-    /// - `AUTH_HTTP_PORT`, `JWT_EXPIRES_IN`, `JWT_MAX_AGE`, or `EMAIL_GRPC_PORT`
+    /// - `AUTH_HTTP_PORT`, `AUTH_GRPC_PORT`, `JWT_EXPIRES_IN`, `JWT_MAX_AGE`, or `EMAIL_GRPC_PORT`
     ///   cannot be parsed as u32
     ///
     /// # Returns
@@ -86,6 +89,10 @@ impl Config {
             .map(|port| port.parse::<u32>())
             .expect("AUTH_HTTP_PORT must be provided.")
             .expect("AUTH_HTTP_PORT must be an u32.");
+        let auth_grpc_port = var("AUTH_GRPC_PORT")
+            .map(|port| port.parse::<u32>())
+            .expect("AUTH_GRPC_PORT must be provided.")
+            .expect("AUTH_GRPC_PORT must be an u32.");
         let pg_url = var("PG_URL").expect("PG_URL must be provided.");
         let pg_username = var("PG_USERNAME").expect("PG_USERNAME must be provided.");
         let pg_password = var("PG_PASSWORD").expect("PG_PASSWORD must be provided.");
@@ -113,6 +120,7 @@ impl Config {
 
         Self {
             auth_http_port,
+            auth_grpc_port,
             pg_url,
             pg_username,
             pg_password,
