@@ -1952,9 +1952,13 @@ dependencies = [
  "diesel-async",
  "dotenv",
  "jsonwebtoken",
+ "prost",
  "serde",
  "shared-types",
  "tokio",
+ "tonic",
+ "tonic-prost",
+ "tonic-prost-build",
  "tower-http",
  "uuid",
 ]
