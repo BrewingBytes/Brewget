@@ -3,6 +3,7 @@ use std::sync::Arc;
 use axum::{
     Json, Router,
     extract::{Path, State},
+    middleware,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -11,6 +12,7 @@ use uuid::Uuid;
 use crate::{
     AppState, database,
     models::{response::Error, settings::UpdateSettings},
+    routes::middlewares::auth_guard,
 };
 
 /// Creates a router for the user settings routes
@@ -23,16 +25,17 @@ use crate::{
 ///
 /// # Returns
 ///
-/// Returns an Axum router configured with the user settings endpoints.
+/// Returns an Axum router configured with the user settings endpoints with auth middleware.
 ///
 /// # Routes
 ///
-/// - `GET /{id}` - Retrieve user settings by user ID
-/// - `POST /update/{id}` - Update user settings by user ID
+/// - `GET /{id}` - Retrieve user settings by user ID (protected by auth middleware)
+/// - `POST /update/{id}` - Update user settings by user ID (protected by auth middleware)
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/{id}", get(get_user_settings))
         .route("/update/{id}", post(update_user_settings))
+        .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard::auth_guard))
         .with_state(state)
 }
 
@@ -74,9 +77,21 @@ async fn get_user_settings(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    tracing::info!("GET /user/{} - Fetching user settings", id);
+    
+    let conn = &mut state.get_database_connection().await.map_err(|e| {
+        tracing::error!("Failed to get database connection");
+        e
+    })?;
+    
+    tracing::debug!("Database connection acquired for user {}", id);
+    
+    let settings = database::settings::find_by_uuid(id, conn).await.map_err(|e| {
+        tracing::error!("Failed to fetch settings for user {}", id);
+        e
+    })?;
 
+    tracing::info!("Successfully fetched settings for user {}", id);
     Ok(Json(settings))
 }
 
@@ -127,10 +142,28 @@ async fn update_user_settings(
     State(state): State<Arc<AppState>>,
     Json(settings): Json<UpdateSettings>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    database::settings::update(id, settings, conn).await?;
+    tracing::info!("POST /user/update/{} - Updating user settings", id);
+    tracing::debug!("Update payload: language={:?}, currency={:?}, alarm_set={:?}, night_mode={:?}", 
+        settings.language, settings.currency, settings.alarm_set, settings.night_mode);
+    
+    let conn = &mut state.get_database_connection().await.map_err(|e| {
+        tracing::error!("Failed to get database connection");
+        e
+    })?;
+    
+    tracing::debug!("Database connection acquired for user {}", id);
+    
+    database::settings::update(id, settings, conn).await.map_err(|e| {
+        tracing::error!("Failed to update settings for user {}", id);
+        e
+    })?;
 
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    tracing::debug!("Settings updated, fetching updated record for user {}", id);
+    let settings = database::settings::find_by_uuid(id, conn).await.map_err(|e| {
+        tracing::error!("Failed to fetch updated settings for user {}", id);
+        e
+    })?;
 
+    tracing::info!("Successfully updated settings for user {}", id);
     Ok(Json(settings))
 }
