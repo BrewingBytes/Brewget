@@ -43,16 +43,23 @@ pub async fn auth_guard(
     mut req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::debug!("Auth guard: Processing request");
+
     // Extract Bearer token from Authorization header
     let received_token = req
         .headers()
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok())
         .and_then(|header| header.strip_prefix("Bearer "))
-        .ok_or((
-            StatusCode::UNAUTHORIZED,
-            "You are not logged in, please provide token",
-        ))?;
+        .ok_or_else(|| {
+            tracing::warn!("Auth guard: No Authorization token provided");
+            (
+                StatusCode::UNAUTHORIZED,
+                "You are not logged in, please provide token",
+            )
+        })?;
+
+    tracing::debug!("Auth guard: Token extracted from header");
 
     // Connect to auth service via gRPC
     let auth_service_url = format!(
@@ -60,9 +67,15 @@ pub async fn auth_guard(
         state.config.auth_hostname, state.config.auth_grpc_port
     );
     
+    tracing::debug!("Auth guard: Connecting to auth service at {}", auth_service_url);
     let mut client = AuthServiceClient::connect(auth_service_url)
         .await
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Failed to connect to auth service"))?;
+        .map_err(|e| {
+            tracing::error!("Auth guard: Failed to connect to auth service: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to connect to auth service")
+        })?;
+
+    tracing::debug!("Auth guard: Connected to auth service, calling verify_token");
 
     // Call verify_token on auth service
     let request = tonic::Request::new(VerifyTokenRequest {
@@ -72,17 +85,28 @@ pub async fn auth_guard(
     let response = client
         .verify_token(request)
         .await
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Failed to verify token"))?;
+        .map_err(|e| {
+            tracing::error!("Auth guard: Failed to verify token: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to verify token")
+        })?;
 
     // Check if token is valid (auth service returns Some(user_id) if valid)
     let user_id = response
         .into_inner()
         .user_id
-        .ok_or((StatusCode::UNAUTHORIZED, "Invalid or expired token"))?;
+        .ok_or_else(|| {
+            tracing::warn!("Auth guard: Token validation failed - invalid or expired token");
+            (StatusCode::UNAUTHORIZED, "Invalid or expired token")
+        })?;
 
     // Parse user_id as UUID
     let user_uuid = Uuid::parse_str(&user_id)
-        .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid user ID format"))?;
+        .map_err(|e| {
+            tracing::error!("Auth guard: Invalid user ID format: {}", e);
+            (StatusCode::UNAUTHORIZED, "Invalid user ID format")
+        })?;
+
+    tracing::info!("Auth guard: Token verified successfully for user: {}", user_uuid);
 
     // Add user UUID to request extensions and continue
     req.extensions_mut().insert(user_uuid);

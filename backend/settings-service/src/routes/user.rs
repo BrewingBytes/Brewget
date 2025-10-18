@@ -77,9 +77,21 @@ async fn get_user_settings(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    tracing::info!("GET /user/{} - Fetching user settings", id);
+    
+    let conn = &mut state.get_database_connection().await.map_err(|e| {
+        tracing::error!("Failed to get database connection");
+        e
+    })?;
+    
+    tracing::debug!("Database connection acquired for user {}", id);
+    
+    let settings = database::settings::find_by_uuid(id, conn).await.map_err(|e| {
+        tracing::error!("Failed to fetch settings for user {}", id);
+        e
+    })?;
 
+    tracing::info!("Successfully fetched settings for user {}", id);
     Ok(Json(settings))
 }
 
@@ -130,10 +142,28 @@ async fn update_user_settings(
     State(state): State<Arc<AppState>>,
     Json(settings): Json<UpdateSettings>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    database::settings::update(id, settings, conn).await?;
+    tracing::info!("POST /user/update/{} - Updating user settings", id);
+    tracing::debug!("Update payload: language={:?}, currency={:?}, alarm_set={:?}, night_mode={:?}", 
+        settings.language, settings.currency, settings.alarm_set, settings.night_mode);
+    
+    let conn = &mut state.get_database_connection().await.map_err(|e| {
+        tracing::error!("Failed to get database connection");
+        e
+    })?;
+    
+    tracing::debug!("Database connection acquired for user {}", id);
+    
+    database::settings::update(id, settings, conn).await.map_err(|e| {
+        tracing::error!("Failed to update settings for user {}", id);
+        e
+    })?;
 
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    tracing::debug!("Settings updated, fetching updated record for user {}", id);
+    let settings = database::settings::find_by_uuid(id, conn).await.map_err(|e| {
+        tracing::error!("Failed to fetch updated settings for user {}", id);
+        e
+    })?;
 
+    tracing::info!("Successfully updated settings for user {}", id);
     Ok(Json(settings))
 }
