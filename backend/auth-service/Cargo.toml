@@ -10,7 +10,7 @@ axum = "0.8.4"
 chrono = "0.4.41"
 deadpool = "0.12.2"
 diesel = { version = "2.2.12", features = ["uuid", "chrono"] }
-diesel-async = { version = "0.6.1", features = [
+diesel-async = { version = "0.7.3", features = [
     "deadpool",
     "pool",
     "postgres",
