@@ -21,3 +21,21 @@ export interface LogoutResponse {
 export interface ActivateResponse {
     message: string;
 };
+
+export interface PasskeyRegisterStartResponse {
+    challenge: any;
+    state: string;
+};
+
+export interface PasskeyRegisterFinishResponse {
+    message: string;
+};
+
+export interface PasskeyAuthStartResponse {
+    challenge: any;
+    state: string;
+};
+
+export interface PasskeyAuthFinishResponse {
+    token: string;
+};

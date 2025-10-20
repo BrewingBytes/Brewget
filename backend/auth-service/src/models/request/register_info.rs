@@ -7,7 +7,7 @@ use serde::Deserialize;
 /// # Fields
 /// * `username` - The user's register identifier
 /// * `email`    - The user's email
-/// * `password` - The user's password for authentication
+/// * `password` - The user's password for authentication (optional for passkey-only)
 ///
 /// # Example
 /// ```json
@@ -21,5 +21,5 @@ use serde::Deserialize;
 pub struct RegisterInfo {
     pub username: String,
     pub email: String,
-    pub password: String,
+    pub password: Option<String>,
 }

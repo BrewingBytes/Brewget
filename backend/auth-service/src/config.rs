@@ -19,6 +19,10 @@ use std::env::var;
 /// * `jwt_expires_in` - JWT access token expiration time in seconds
 /// * `jwt_max_age` - Maximum age for JWT refresh tokens in seconds
 ///
+/// ## WebAuthn Configuration
+/// * `rp_id` - Relying Party ID for WebAuthn (typically the domain)
+/// * `rp_origin` - Relying Party origin URL for WebAuthn
+///
 /// ## Service Integration
 /// * `email_hostname` - Hostname of the email service for gRPC communication
 /// * `email_grpc_port` - Port number for the email service gRPC server
@@ -34,6 +38,8 @@ pub struct Config {
     pub jwt_secret: String,
     pub jwt_expires_in: u32,
     pub jwt_max_age: u32,
+    pub rp_id: String,
+    pub rp_origin: String,
     pub email_hostname: String,
     pub email_grpc_port: u32,
     pub frontend_hostname: String,
@@ -57,6 +63,8 @@ impl Config {
     /// - `JWT_SECRET` - Secret key for JWT signing
     /// - `JWT_EXPIRES_IN` - Must be a valid u32 (seconds)
     /// - `JWT_MAX_AGE` - Must be a valid u32 (seconds)
+    /// - `RP_ID` - Relying Party ID for WebAuthn (typically the domain, e.g., "localhost" or "example.com")
+    /// - `RP_ORIGIN` - Relying Party origin URL for WebAuthn (e.g., "http://localhost:5173")
     /// - `EMAIL_HOSTNAME` - Email service hostname
     /// - `EMAIL_GRPC_PORT` - Must be a valid u32 port number
     /// - `FRONTEND_HOSTNAME` - Frontend application hostname
@@ -100,6 +108,8 @@ impl Config {
             .map(|max_age| max_age.parse::<u32>())
             .expect("JWT_MAX_AGE must be provided.")
             .expect("JWT_MAX_AGE must be an u32.");
+        let rp_id = var("RP_ID").expect("RP_ID must be provided.");
+        let rp_origin = var("RP_ORIGIN").expect("RP_ORIGIN must be provided.");
         let email_hostname = var("EMAIL_HOSTNAME").expect("EMAIL_HOSTNAME must be provided");
         let email_grpc_port = var("EMAIL_GRPC_PORT")
             .map(|port| port.parse::<u32>())
@@ -118,6 +128,8 @@ impl Config {
             jwt_secret,
             jwt_expires_in,
             jwt_max_age,
+            rp_id,
+            rp_origin,
             email_hostname,
             email_grpc_port,
             frontend_hostname,
