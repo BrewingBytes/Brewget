@@ -1,7 +1,4 @@
-use diesel::{
-    Selectable,
-    prelude::{Insertable, Queryable},
-};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::Config;
@@ -12,9 +9,7 @@ use crate::Config;
 ///
 /// # Fields
 /// * `user_id` - ID of the user this activation link belongs to
-#[derive(Queryable, Selectable, Clone)]
-#[diesel(table_name = crate::schema::activation_links)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone)]
 pub struct ActivationLink {
     user_id: Uuid,
 }
@@ -36,12 +31,9 @@ impl ActivationLink {
 /// # Fields
 /// * `id` - UUIDv4 for the activation link
 /// * `user_id` - The user account uuid it is generated for
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::activation_links)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewActivationLink {
-    id: Uuid,
-    user_id: Uuid,
+    pub id: Uuid,
+    pub user_id: Uuid,
 }
 
 impl NewActivationLink {

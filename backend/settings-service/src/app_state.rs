@@ -1,5 +1,4 @@
-use deadpool::managed::Pool;
-use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
+use sqlx::PgPool;
 
 use crate::Config;
 
@@ -24,7 +23,7 @@ use crate::Config;
 /// ```
 pub struct AppState {
     pub config: Config,
-    db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
+    db: PgPool,
 }
 
 impl AppState {
@@ -32,33 +31,21 @@ impl AppState {
     ///
     /// # Returns
     /// * `AppState` - the AppState that contains all the necessary configs
-    pub fn new(config: Config, db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>) -> Self {
+    pub fn new(config: Config, db: PgPool) -> Self {
         Self { config, db }
     }
 
-    /// Gets a connection from the database pool
+    /// Gets a reference to the database pool
     ///
     /// # Returns
-    /// * `Ok(Object)` - A connection from the pool
-    /// * `Err(PoolError)` - If connection acquisition fails
+    /// * `&PgPool` - A reference to the database pool
     ///
     /// # Example
     /// ```rust
-    /// let conn = state.get_database_connection().await?;
-    /// // Use connection for database operations
+    /// let pool = state.get_database_pool();
+    /// // Use pool for database operations
     /// ```
-    ///
-    /// # Errors
-    /// Returns error if:
-    /// * Pool is exhausted (too many connections)
-    /// * Connection establishment fails
-    /// * Database is unreachable
-    pub async fn get_database_connection(
-        &self,
-    ) -> Result<
-        deadpool::managed::Object<AsyncDieselConnectionManager<AsyncPgConnection>>,
-        deadpool::managed::PoolError<diesel_async::pooled_connection::PoolError>,
-    > {
-        self.db.get().await
+    pub fn get_database_pool(&self) -> &PgPool {
+        &self.db
     }
 }

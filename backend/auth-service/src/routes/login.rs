@@ -58,8 +58,8 @@ async fn login_handler(
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     // Query database for user with matching username
-    let conn = &mut state.get_database_connection().await?;
-    let user = database::users::filter_by_username(&body.username, conn).await?;
+    let pool = state.get_database_pool();
+    let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
@@ -105,7 +105,7 @@ async fn login_handler(
 
     // Store token into database
     let new_token = NewToken::new(&user, &token, None, None);
-    database::tokens::insert(new_token, conn).await?;
+    database::tokens::insert(new_token, pool).await?;
 
     // Return token to client
     Ok(Json(Token { token }))

@@ -40,12 +40,12 @@ async fn activate_account_handler(
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
     // Get the activation link from the db
-    let mut conn = state.get_database_connection().await?;
+    let pool = state.get_database_pool();
     let activation_link =
-        database::activation_links::filter_and_delete_by_id(id, &mut conn).await?;
+        database::activation_links::filter_and_delete_by_id(id, pool).await?;
 
     // Set the account as verified and delete the activation link
-    if database::users::set_verified(activation_link.get_uuid(), &mut conn).await? != 1 {
+    if database::users::set_verified(activation_link.get_uuid(), pool).await? != 1 {
         return Err((StatusCode::BAD_REQUEST, "User does not exist.").into());
     }
 

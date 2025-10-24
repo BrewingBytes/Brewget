@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use diesel::prelude::*;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::models::user::User;
@@ -12,9 +12,7 @@ use crate::models::user::User;
 /// * `user_id` - ID of the user this token belongs to
 /// * `token` - The actual token string
 /// * `expires_at` - Timestamp when the token expires
-#[derive(Queryable, Selectable, Clone)]
-#[diesel(table_name = crate::schema::tokens)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone)]
 pub struct Token {
     user_id: Uuid,
     token: String,
@@ -53,14 +51,11 @@ impl Token {
 /// * `token` - The actual token string
 /// * `token_type` - Type of token
 /// * `expires_at` - When the token expires
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::tokens)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewToken {
-    user_id: Uuid,
-    token: String,
-    token_type: String,
-    expires_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub token: String,
+    pub token_type: String,
+    pub expires_at: DateTime<Utc>,
 }
 
 impl NewToken {

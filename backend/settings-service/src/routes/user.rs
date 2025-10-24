@@ -74,8 +74,8 @@ async fn get_user_settings(
     Path(id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    let pool = state.get_database_pool();
+    let settings = database::settings::find_by_uuid(id, pool).await?;
 
     Ok(Json(settings))
 }
@@ -127,10 +127,10 @@ async fn update_user_settings(
     State(state): State<Arc<AppState>>,
     Json(settings): Json<UpdateSettings>,
 ) -> Result<impl IntoResponse, Error> {
-    let conn = &mut state.get_database_connection().await?;
-    database::settings::update(id, settings, conn).await?;
+    let pool = state.get_database_pool();
+    database::settings::update(id, settings, pool).await?;
 
-    let settings = database::settings::find_by_uuid(id, conn).await?;
+    let settings = database::settings::find_by_uuid(id, pool).await?;
 
     Ok(Json(settings))
 }

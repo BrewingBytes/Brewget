@@ -4,7 +4,6 @@ mod database;
 mod grpc;
 mod models;
 mod routes;
-mod schema;
 mod utils;
 
 pub use app_state::AppState;
