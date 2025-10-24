@@ -1,6 +1,6 @@
 use chrono::NaiveTime;
-use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 /// Represents user settings stored in the database
@@ -17,9 +17,7 @@ use uuid::Uuid;
 /// * `alarm_time` - The time when the alarm should trigger
 /// * `alarm_offset_minutes` - Additional offset in minutes for the alarm
 /// * `night_mode` - Whether the user has enabled dark/night mode
-#[derive(Queryable, Selectable, Clone, Serialize)]
-#[diesel(table_name = crate::schema::user_settings)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone, Serialize)]
 pub struct Settings {
     user_id: Uuid,
     language: String,
@@ -38,11 +36,8 @@ pub struct Settings {
 /// # Fields
 ///
 /// * `user_id` - Unique identifier of the user these settings belong to
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::user_settings)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewSettings {
-    user_id: Uuid,
+    pub user_id: Uuid,
 }
 
 impl NewSettings {
@@ -74,8 +69,7 @@ impl NewSettings {
 /// * `alarm_time` - Optional new alarm time
 /// * `alarm_offset_minutes` - Optional new alarm offset
 /// * `night_mode` - Optional night mode status
-#[derive(AsChangeset, Deserialize)]
-#[diesel(table_name = crate::schema::user_settings)]
+#[derive(Deserialize)]
 pub struct UpdateSettings {
     pub language: Option<String>,
     pub currency: Option<String>,

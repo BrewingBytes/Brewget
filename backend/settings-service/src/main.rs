@@ -5,7 +5,6 @@ mod config;
 mod database;
 mod models;
 mod routes;
-mod schema;
 
 pub use app_state::AppState;
 

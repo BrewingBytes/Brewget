@@ -1,8 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use diesel::{
-    Selectable,
-    prelude::{Insertable, Queryable},
-};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::Config;
@@ -15,9 +12,7 @@ use crate::Config;
 /// * `id` - Unique identifier for the forgot password link
 /// * `user_id` - ID of the user this forgot password link belongs to
 /// * `expires_at` - Timestamp when the link will be invalid
-#[derive(Queryable, Selectable, Clone)]
-#[diesel(table_name = crate::schema::forgot_password_links)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone)]
 pub struct ForgotPasswordLink {
     user_id: Uuid,
     expires_at: DateTime<Utc>,
@@ -50,13 +45,11 @@ impl ForgotPasswordLink {
 /// * `id` - UUIDv4 for the forgot password link
 /// * `user_id` - The user account uuid it is generated for
 /// * `expires_at` - Timestamp of the moment the forgot password link expires
-#[derive(Insertable, Clone)]
-#[diesel(table_name = crate::schema::forgot_password_links)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(Clone)]
 pub struct NewForgotPasswordLink {
-    id: Uuid,
-    user_id: Uuid,
-    expires_at: DateTime<Utc>,
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub expires_at: DateTime<Utc>,
 }
 
 impl NewForgotPasswordLink {

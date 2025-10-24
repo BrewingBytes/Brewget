@@ -1,9 +1,5 @@
 use axum::http::StatusCode;
-use diesel::{
-    ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
+use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::{
@@ -11,91 +7,91 @@ use crate::{
         forgot_password_link::{ForgotPasswordLink, NewForgotPasswordLink},
         response::Error,
     },
-    schema::forgot_password_links::{self, id},
 };
 
 /// Inserts a new forgot password link into the database
 ///
 /// # Arguments
 /// * `new_forgot_password_link` - The forgot password link record to insert
-/// * `conn` - Database connection from the pool
+/// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
 pub async fn insert(
     new_forgot_password_link: NewForgotPasswordLink,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
+    pool: &PgPool,
 ) -> Result<usize, Error> {
-    diesel::insert_into(forgot_password_links::table)
-        .values(new_forgot_password_link)
-        .execute(conn)
-        .await
-        .map_err(|e| e.into())
+    sqlx::query(
+        r#"
+        INSERT INTO forgot_password_links (id, user_id, expires_at)
+        VALUES ($1, $2, $3)
+        "#,
+    )
+    .bind(new_forgot_password_link.id)
+    .bind(new_forgot_password_link.user_id)
+    .bind(new_forgot_password_link.expires_at)
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected() as usize)
+    .map_err(|e| e.into())
 }
 
 /// Search for a forgot password link by id return it
 ///
 /// # Arguments
 /// * `find_id` - The id to find
-/// * `conn` - Database connection from the pool
+/// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(User)` - The `ForgotPasswordLink` object from the database
 /// * `Err(Error)` - Database operation error
-pub async fn filter_by_id(
-    find_id: Uuid,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<ForgotPasswordLink, Error> {
-    forgot_password_links::table
-        .filter(id.eq(find_id))
-        .select(ForgotPasswordLink::as_select())
-        .first(conn)
-        .await
-        .map_err(|e: diesel::result::Error| -> Error {
-            match e {
-                diesel::result::Error::NotFound => {
-                    (StatusCode::BAD_REQUEST, "Activation link not found.").into()
-                }
-                _ => e.into(),
+pub async fn filter_by_id(find_id: Uuid, pool: &PgPool) -> Result<ForgotPasswordLink, Error> {
+    sqlx::query_as::<_, ForgotPasswordLink>(
+        r#"
+        SELECT user_id, expires_at
+        FROM forgot_password_links
+        WHERE id = $1
+        "#,
+    )
+    .bind(find_id)
+    .fetch_one(pool)
+    .await
+    .map_err(|e: sqlx::Error| -> Error {
+        match e {
+            sqlx::Error::RowNotFound => {
+                (StatusCode::BAD_REQUEST, "Activation link not found.").into()
             }
-        })
+            _ => e.into(),
+        }
+    })
 }
 
 /// Delete a forgot password link by id
 ///
 /// # Arguments
 /// * `find_id` - The id to find and delete
-/// * `conn` - Database connection from the pool
+/// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(usize)` - The amount of lines that have been deleted from database
 /// * `Err(Error)` - Database operation error
-pub async fn delete(
-    find_id: Uuid,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<usize, Error> {
-    diesel::delete(forgot_password_links::table)
-        .filter(id.eq(find_id))
-        .execute(conn)
-        .await
-        .map_err(|_| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not delete from database",
-            )
-                .into()
-        })
+pub async fn delete(find_id: Uuid, pool: &PgPool) -> Result<usize, Error> {
+    sqlx::query(
+        r#"
+        DELETE FROM forgot_password_links
+        WHERE id = $1
+        "#,
+    )
+    .bind(find_id)
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected() as usize)
+    .map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Could not delete from database",
+        )
+            .into()
+    })
 }
