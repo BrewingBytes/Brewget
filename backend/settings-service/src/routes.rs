@@ -28,6 +28,14 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
         .await
         .expect("Unable to create database pool");
 
+    // Run database migrations
+    sqlx::migrate!("./migrations")
+        .run(&db)
+        .await
+        .expect("Unable to run migrations");
+
+    println!("✅ Database migrations completed successfully");
+
     // Create all the GRPCs Clients
     // We don't use any for now
 
