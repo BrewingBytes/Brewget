@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::{
     AppState,
-    grpc::auth_service::service::{VerifyTokenRequest, auth_service_client::AuthServiceClient},
+    grpc::auth_service::service::VerifyTokenRequest,
     models::response::Error,
 };
 
@@ -20,12 +20,12 @@ use crate::{
 ///
 /// # Flow
 /// 1. Extracts Bearer token from Authorization header
-/// 2. Calls auth service via gRPC to verify token
+/// 2. Calls auth service via gRPC to verify token (using persistent connection)
 /// 3. Auth service returns Option<Uuid> with user ID if valid
 /// 4. Adds user ID to request extensions if token is valid
 ///
 /// # Arguments
-/// * `state` - Application state containing config
+/// * `state` - Application state containing auth service client
 /// * `req` - The incoming HTTP request
 /// * `next` - Next middleware in chain
 ///
@@ -61,21 +61,10 @@ pub async fn auth_guard(
 
     tracing::debug!("Auth guard: Token extracted from header");
 
-    // Connect to auth service via gRPC
-    let auth_service_url = format!(
-        "http://{}:{}",
-        state.config.auth_hostname, state.config.auth_grpc_port
-    );
+    // Get auth service client from state (persistent connection)
+    let mut client = state.get_auth_service().await;
     
-    tracing::debug!("Auth guard: Connecting to auth service at {}", auth_service_url);
-    let mut client = AuthServiceClient::connect(auth_service_url)
-        .await
-        .map_err(|e| {
-            tracing::error!("Auth guard: Failed to connect to auth service: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to connect to auth service")
-        })?;
-
-    tracing::debug!("Auth guard: Connected to auth service, calling verify_token");
+    tracing::debug!("Auth guard: Using persistent auth service connection, calling verify_token");
 
     // Call verify_token on auth service
     let request = tonic::Request::new(VerifyTokenRequest {
