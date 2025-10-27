@@ -33,9 +33,13 @@ impl AppState {
     ///
     /// # Returns
     /// * `AppState` - the AppState that contains all the necessary configs
-    pub fn new(config: Config, db: PgPool, auth_service: AuthServiceClient<tonic::transport::Channel>) -> Self {
-        Self { 
-            config, 
+    pub fn new(
+        config: Config,
+        db: PgPool,
+        auth_service: AuthServiceClient<tonic::transport::Channel>,
+    ) -> Self {
+        Self {
+            config,
             db,
             auth_service: Mutex::new(auth_service),
         }
@@ -65,7 +69,9 @@ impl AppState {
     /// let mut client = state.get_auth_service().await;
     /// // Use client for gRPC calls
     /// ```
-    pub async fn get_auth_service(&self) -> tokio::sync::MutexGuard<'_, AuthServiceClient<tonic::transport::Channel>> {
+    pub async fn get_auth_service(
+        &self,
+    ) -> tokio::sync::MutexGuard<'_, AuthServiceClient<tonic::transport::Channel>> {
         self.auth_service.lock().await
     }
 }

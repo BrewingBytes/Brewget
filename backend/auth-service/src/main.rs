@@ -18,7 +18,7 @@ async fn main() {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
         )
         .init();
 
@@ -30,7 +30,11 @@ async fn main() {
     // Initialize configuration from environment variables
     let config = Config::init();
     tracing::info!("✅ Configuration loaded successfully");
-    tracing::debug!("HTTP port: {}, gRPC port: {}", config.auth_http_port, config.auth_grpc_port);
+    tracing::debug!(
+        "HTTP port: {}, gRPC port: {}",
+        config.auth_http_port,
+        config.auth_grpc_port
+    );
 
     // Bind TCP listener to the configured HTTP port
     let http_listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.auth_http_port))
@@ -45,7 +49,9 @@ async fn main() {
     tracing::info!("✅ gRPC address configured: {}", grpc_addr);
 
     // Create the Axum application with all routes and middleware
-    let app = make_app(config.clone()).await.expect("Could not create app.");
+    let app = make_app(config.clone())
+        .await
+        .expect("Could not create app.");
     tracing::info!("✅ HTTP routes configured");
 
     tracing::info!("🚀 HTTP Server started on port {}", config.auth_http_port);
@@ -63,14 +69,17 @@ async fn main() {
     let grpc_server = tokio::spawn(async move {
         // Create state for gRPC service (we need to recreate it as app consumed the first one)
         let grpc_config = Config::init();
-        
-        use sqlx::postgres::PgPoolOptions;
+
         use grpc::email_service::service::email_service_client::EmailServiceClient;
-        
+        use sqlx::postgres::PgPoolOptions;
+
         tracing::debug!("Creating database connection pool for gRPC service");
         let postgres_url = format!(
             "postgres://{}:{}@{}/{}",
-            grpc_config.pg_username, grpc_config.pg_password, grpc_config.pg_url, grpc_config.pg_database
+            grpc_config.pg_username,
+            grpc_config.pg_password,
+            grpc_config.pg_url,
+            grpc_config.pg_database
         );
         let db = PgPoolOptions::new()
             .max_connections(5)
@@ -78,8 +87,12 @@ async fn main() {
             .await
             .expect("Unable to create database pool for gRPC");
         tracing::info!("✅ Database pool created for gRPC service");
-            
-        tracing::debug!("Connecting to email service at {}:{}", grpc_config.email_hostname, grpc_config.email_grpc_port);
+
+        tracing::debug!(
+            "Connecting to email service at {}:{}",
+            grpc_config.email_hostname,
+            grpc_config.email_grpc_port
+        );
         let email_service = EmailServiceClient::connect(format!(
             "{}:{}",
             grpc_config.email_hostname, grpc_config.email_grpc_port
@@ -87,12 +100,12 @@ async fn main() {
         .await
         .expect("Could not connect to email service");
         tracing::info!("✅ Email service client connected");
-        
+
         let state = std::sync::Arc::new(AppState::new(grpc_config, db, email_service));
-        
+
         let auth_service = AuthServiceImpl::new(state);
         tracing::info!("✅ gRPC service initialized");
-        
+
         tracing::info!("📡 gRPC server accepting connections");
         tonic::transport::Server::builder()
             .add_service(AuthServiceServer::new(auth_service))

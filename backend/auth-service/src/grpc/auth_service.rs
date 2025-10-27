@@ -73,7 +73,10 @@ impl AuthService for AuthServiceImpl {
 
         // Check if token is expired
         if token_res.is_expired() {
-            tracing::info!("Token expired for user: {}, cleaning up", token_res.get_uuid());
+            tracing::info!(
+                "Token expired for user: {}, cleaning up",
+                token_res.get_uuid()
+            );
             // Clean up expired token
             let _ = database::tokens::delete_by_token(token_res.get_token(), pool).await;
             return Ok(Response::new(VerifyTokenResponse { user_id: None }));

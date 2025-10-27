@@ -14,7 +14,9 @@ use axum::{
 use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 
-use crate::{AppState, config::Config, grpc::auth_service::service::auth_service_client::AuthServiceClient};
+use crate::{
+    AppState, config::Config, grpc::auth_service::service::auth_service_client::AuthServiceClient,
+};
 
 pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Error>> {
     let cors = HeaderValue::from_str(&config.cors_url)?;
@@ -38,16 +40,13 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
     println!("✅ Database migrations completed successfully");
 
     // Create gRPC client connection to auth service
-    let auth_service_url = format!(
-        "http://{}:{}",
-        config.auth_hostname, config.auth_grpc_port
-    );
-    
+    let auth_service_url = format!("http://{}:{}", config.auth_hostname, config.auth_grpc_port);
+
     tracing::info!("Connecting to auth service at {}", auth_service_url);
     let auth_service = AuthServiceClient::connect(auth_service_url)
         .await
         .expect("Failed to connect to auth service");
-    
+
     tracing::info!("✅ Connected to auth service gRPC");
 
     let state = Arc::new(AppState::new(config, db, auth_service));

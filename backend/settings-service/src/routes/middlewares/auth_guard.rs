@@ -8,11 +8,7 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{
-    AppState,
-    grpc::auth_service::service::VerifyTokenRequest,
-    models::response::Error,
-};
+use crate::{AppState, grpc::auth_service::service::VerifyTokenRequest, models::response::Error};
 
 /// Authentication middleware guard for protected routes
 ///
@@ -63,7 +59,7 @@ pub async fn auth_guard(
 
     // Get auth service client from state (persistent connection)
     let mut client = state.get_auth_service().await;
-    
+
     tracing::debug!("Auth guard: Using persistent auth service connection, calling verify_token");
 
     // Call verify_token on auth service
@@ -71,31 +67,27 @@ pub async fn auth_guard(
         token: received_token.to_string(),
     });
 
-    let response = client
-        .verify_token(request)
-        .await
-        .map_err(|e| {
-            tracing::error!("Auth guard: Failed to verify token: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to verify token")
-        })?;
+    let response = client.verify_token(request).await.map_err(|e| {
+        tracing::error!("Auth guard: Failed to verify token: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Failed to verify token")
+    })?;
 
     // Check if token is valid (auth service returns Some(user_id) if valid)
-    let user_id = response
-        .into_inner()
-        .user_id
-        .ok_or_else(|| {
-            tracing::warn!("Auth guard: Token validation failed - invalid or expired token");
-            (StatusCode::UNAUTHORIZED, "Invalid or expired token")
-        })?;
+    let user_id = response.into_inner().user_id.ok_or_else(|| {
+        tracing::warn!("Auth guard: Token validation failed - invalid or expired token");
+        (StatusCode::UNAUTHORIZED, "Invalid or expired token")
+    })?;
 
     // Parse user_id as UUID
-    let user_uuid = Uuid::parse_str(&user_id)
-        .map_err(|e| {
-            tracing::error!("Auth guard: Invalid user ID format: {}", e);
-            (StatusCode::UNAUTHORIZED, "Invalid user ID format")
-        })?;
+    let user_uuid = Uuid::parse_str(&user_id).map_err(|e| {
+        tracing::error!("Auth guard: Invalid user ID format: {}", e);
+        (StatusCode::UNAUTHORIZED, "Invalid user ID format")
+    })?;
 
-    tracing::info!("Auth guard: Token verified successfully for user: {}", user_uuid);
+    tracing::info!(
+        "Auth guard: Token verified successfully for user: {}",
+        user_uuid
+    );
 
     // Add user UUID to request extensions and continue
     req.extensions_mut().insert(user_uuid);
