@@ -7,32 +7,16 @@ import type { Settings, UpdateSettings } from "@/services/settings/types";
 
 import { settingsService } from "@/services/settings";
 import { ServerStatus } from "@/services/types";
-import { useAuthStore } from "@/stores/auth";
-import { getUserIdFromToken } from "@/utils/jwt";
 
 
 export const useSettingsStore = defineStore("settings", () => {
   const settings = ref<Settings | null>(null);
   const loading = ref(false);
 
-  function getUserId(): string | null {
-    const authStore = useAuthStore();
-    const userId = getUserIdFromToken(authStore.token);
-
-    if (!userId) {
-      useToastStore().showError("Failed to get user ID from token.");
-    }
-
-    return userId;
-  }
-
   async function loadSettings(): Promise<void> {
-    const userId = getUserId();
-    if (!userId) {return;}
-
     loading.value = true;
     try {
-      const response = await settingsService.getSettings(userId);
+      const response = await settingsService.getSettings();
 
       if (response.status !== ServerStatus.NO_ERROR) {
         useToastStore().showError("Failed to load settings.");
@@ -46,12 +30,9 @@ export const useSettingsStore = defineStore("settings", () => {
   }
 
   async function updateSettings(updates: UpdateSettings): Promise<boolean> {
-    const userId = getUserId();
-    if (!userId) {return false;}
-
     loading.value = true;
     try {
-      const response = await settingsService.updateSettings(userId, updates);
+      const response = await settingsService.updateSettings(updates);
 
       if (response.status !== ServerStatus.NO_ERROR) {
         useToastStore().showError("Failed to update settings.");
