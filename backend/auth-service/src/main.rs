@@ -64,10 +64,7 @@ async fn main() {
         // Create state for gRPC service (we need to recreate it as app consumed the first one)
         let grpc_config = Config::init();
         
-        use diesel_async::{
-            AsyncPgConnection,
-            pooled_connection::{AsyncDieselConnectionManager, deadpool::Pool},
-        };
+        use sqlx::postgres::PgPoolOptions;
         use grpc::email_service::service::email_service_client::EmailServiceClient;
         
         tracing::debug!("Creating database connection pool for gRPC service");
@@ -75,10 +72,11 @@ async fn main() {
             "postgres://{}:{}@{}/{}",
             grpc_config.pg_username, grpc_config.pg_password, grpc_config.pg_url, grpc_config.pg_database
         );
-        let db = AsyncDieselConnectionManager::<AsyncPgConnection>::new(&postgres_url);
-        let db = Pool::builder(db)
-            .build()
-            .expect("Unable to create new db pool for gRPC");
+        let db = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&postgres_url)
+            .await
+            .expect("Unable to create database pool for gRPC");
         tracing::info!("✅ Database pool created for gRPC service");
             
         tracing::debug!("Connecting to email service at {}:{}", grpc_config.email_hostname, grpc_config.email_grpc_port);

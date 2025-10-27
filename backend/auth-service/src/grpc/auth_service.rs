@@ -57,18 +57,9 @@ impl AuthService for AuthServiceImpl {
         };
 
         // Check if token exists in database and is not expired
-        let conn = &mut match self.state.get_database_connection().await {
-            Ok(conn) => {
-                tracing::debug!("Database connection acquired");
-                conn
-            }
-            Err(_) => {
-                tracing::error!("Failed to get database connection");
-                return Err(Status::internal("Database connection failed"));
-            }
-        };
+        let pool = self.state.get_database_pool();
 
-        let token_res = match database::tokens::find(&token, conn).await {
+        let token_res = match database::tokens::find(&token, pool).await {
             Ok(token) => {
                 tracing::debug!("Token found in database for user: {}", token.get_uuid());
                 token
@@ -84,7 +75,7 @@ impl AuthService for AuthServiceImpl {
         if token_res.is_expired() {
             tracing::info!("Token expired for user: {}, cleaning up", token_res.get_uuid());
             // Clean up expired token
-            let _ = database::tokens::delete_by_token(token_res.get_token(), conn).await;
+            let _ = database::tokens::delete_by_token(token_res.get_token(), pool).await;
             return Ok(Response::new(VerifyTokenResponse { user_id: None }));
         }
 
