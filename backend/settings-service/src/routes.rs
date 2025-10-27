@@ -40,7 +40,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
     println!("✅ Database migrations completed successfully");
 
     // Create gRPC client connection to auth service
-    let auth_service_url = format!("http://{}:{}", config.auth_hostname, config.auth_grpc_port);
+    let auth_service_url = format!("{}:{}", config.auth_hostname, config.auth_grpc_port);
 
     tracing::info!("Connecting to auth service at {}", auth_service_url);
     let auth_service = AuthServiceClient::connect(auth_service_url)
