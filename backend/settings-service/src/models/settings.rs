@@ -1,6 +1,6 @@
 use chrono::NaiveTime;
-use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 /// Represents user settings stored in the database
@@ -17,9 +17,7 @@ use uuid::Uuid;
 /// * `alarm_time` - The time when the alarm should trigger
 /// * `alarm_offset_minutes` - Additional offset in minutes for the alarm
 /// * `night_mode` - Whether the user has enabled dark/night mode
-#[derive(Queryable, Selectable, Clone, Serialize)]
-#[diesel(table_name = crate::schema::user_settings)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone, Serialize)]
 pub struct Settings {
     user_id: Uuid,
     language: String,
@@ -28,37 +26,6 @@ pub struct Settings {
     alarm_time: NaiveTime,
     alarm_offset_minutes: i32,
     night_mode: bool,
-}
-
-/// Represents new user settings to be inserted into the database
-///
-/// This struct is used for creating initial settings records for new users.
-/// All fields except `user_id` will use default values from the database.
-///
-/// # Fields
-///
-/// * `user_id` - Unique identifier of the user these settings belong to
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::user_settings)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct NewSettings {
-    user_id: Uuid,
-}
-
-impl NewSettings {
-    /// Creates new default settings for a user
-    ///
-    /// # Arguments
-    ///
-    /// * `user_id` - The unique identifier of the user
-    ///
-    /// # Returns
-    ///
-    /// Returns a new `NewSettings` instance ready for database insertion.
-    /// All other fields will use database defaults.
-    pub fn new(user_id: Uuid) -> Self {
-        Self { user_id }
-    }
 }
 
 /// Represents updates to user settings
@@ -74,8 +41,7 @@ impl NewSettings {
 /// * `alarm_time` - Optional new alarm time
 /// * `alarm_offset_minutes` - Optional new alarm offset
 /// * `night_mode` - Optional night mode status
-#[derive(AsChangeset, Deserialize)]
-#[diesel(table_name = crate::schema::user_settings)]
+#[derive(Deserialize)]
 pub struct UpdateSettings {
     pub language: Option<String>,
     pub currency: Option<String>,

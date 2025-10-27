@@ -16,10 +16,7 @@ use axum::{
         header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     },
 };
-use diesel_async::{
-    AsyncPgConnection,
-    pooled_connection::{AsyncDieselConnectionManager, deadpool::Pool},
-};
+use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
 
 use crate::{
@@ -33,10 +30,19 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
         config.pg_username, config.pg_password, config.pg_url, config.pg_database
     );
 
-    let db = AsyncDieselConnectionManager::<AsyncPgConnection>::new(&postgres_url);
-    let db = Pool::builder(db)
-        .build()
-        .expect("Unable to create new db pool");
+    let db = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&postgres_url)
+        .await
+        .expect("Unable to create database pool");
+
+    // Run database migrations
+    sqlx::migrate!("./migrations")
+        .run(&db)
+        .await
+        .expect("Unable to run migrations");
+
+    println!("✅ Database migrations completed successfully");
 
     // Create all the GRPCs Clients
     let email_service = EmailServiceClient::connect(format!(

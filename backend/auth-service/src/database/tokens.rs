@@ -1,99 +1,88 @@
 use axum::http::StatusCode;
-use diesel::{
-    ExpressionMethods, SelectableHelper,
-    query_dsl::methods::{FilterDsl, SelectDsl},
-};
-use diesel_async::RunQueryDsl;
+use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        response::Error,
-        token::{NewToken, Token},
-    },
-    schema::tokens::dsl::*,
+use crate::models::{
+    response::Error,
+    token::{NewToken, Token},
 };
 
 /// Inserts a new token into the database
 ///
 /// # Arguments
 /// * `new_token` - The token record to insert
-/// * `conn` - Database connection from the pool
+/// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn insert(
-    new_token: NewToken,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<usize, Error> {
-    diesel::insert_into(tokens)
-        .values(new_token)
-        .execute(conn)
-        .await
-        .map_err(|e| e.into())
+pub async fn insert(new_token: NewToken, pool: &PgPool) -> Result<usize, Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO tokens (user_id, token, token_type, expires_at)
+        VALUES ($1, $2, $3, $4)
+        "#,
+    )
+    .bind(new_token.user_id)
+    .bind(new_token.token)
+    .bind(new_token.token_type)
+    .bind(new_token.expires_at)
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected() as usize)
+    .map_err(|e| e.into())
 }
 
 /// Deletes all tokens associated with a user
 ///
 /// # Arguments
 /// * `uuid` - User ID whose tokens should be deleted
-/// * `conn` - Database connection from the pool
+/// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of tokens deleted
 /// * `Err(Error)` - Database operation error
-pub async fn delete_by_uuid(
-    uuid: Uuid,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<usize, Error> {
-    Ok(diesel::delete(tokens)
-        .filter(user_id.eq(uuid))
-        .execute(conn)
-        .await?)
+pub async fn delete_by_uuid(uuid: Uuid, pool: &PgPool) -> Result<usize, Error> {
+    Ok(sqlx::query(
+        r#"
+        DELETE FROM tokens
+        WHERE user_id = $1
+        "#,
+    )
+    .bind(uuid)
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected() as usize)?)
 }
 
-pub async fn delete_by_token(
-    tkn: &str,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<usize, Error> {
-    Ok(diesel::delete(tokens)
-        .filter(token.eq(tkn))
-        .execute(conn)
-        .await?)
+pub async fn delete_by_token(tkn: &str, pool: &PgPool) -> Result<usize, Error> {
+    Ok(sqlx::query(
+        r#"
+        DELETE FROM tokens
+        WHERE token = $1
+        "#,
+    )
+    .bind(tkn)
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected() as usize)?)
 }
 
-pub async fn find(
-    find_token: &str,
-    conn: &mut deadpool::managed::Object<
-        diesel_async::pooled_connection::AsyncDieselConnectionManager<
-            diesel_async::AsyncPgConnection,
-        >,
-    >,
-) -> Result<Token, Error> {
-    tokens
-        .filter(token.eq(find_token))
-        .select(Token::as_select())
-        .first(conn)
-        .await
-        .map_err(|e: diesel::result::Error| -> Error {
-            match e {
-                diesel::result::Error::NotFound => {
-                    (StatusCode::UNAUTHORIZED, "Token has expired.").into()
-                }
-                _ => e.into(),
-            }
-        })
+pub async fn find(find_token: &str, pool: &PgPool) -> Result<Token, Error> {
+    sqlx::query_as::<_, Token>(
+        r#"
+        SELECT user_id, token, expires_at
+        FROM tokens
+        WHERE token = $1
+        "#,
+    )
+    .bind(find_token)
+    .fetch_one(pool)
+    .await
+    .map_err(|e: sqlx::Error| -> Error {
+        match e {
+            sqlx::Error::RowNotFound => (StatusCode::UNAUTHORIZED, "Token has expired.").into(),
+            _ => e.into(),
+        }
+    })
 }

@@ -6,12 +6,13 @@ edition = "2024"
 [dependencies]
 axum = "0.8.4"
 chrono = { version = "0.4.41", features = ["serde"] }
-deadpool = "0.12.2"
-diesel = { version = "2.2.12", features = ["uuid", "chrono"] }
-diesel-async = { version = "0.6.1", features = [
-    "deadpool",
-    "pool",
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
     "postgres",
+    "uuid",
+    "chrono",
+    "macros",
+    "migrate",
 ] }
 dotenv = "0.15.0"
 jsonwebtoken = "9.3.1"

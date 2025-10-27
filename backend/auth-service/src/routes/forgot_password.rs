@@ -39,11 +39,10 @@ async fn forgot_password_handler(
     let state_clone = state.clone();
 
     tokio::spawn(async move {
-        if let Ok(mut conn) = state_clone.get_database_connection().await
-            && let Ok(user) = database::users::filter_by_email(&email, &mut conn).await
-        {
+        let pool = state_clone.get_database_pool();
+        if let Ok(user) = database::users::filter_by_email(&email, pool).await {
             let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
-            if database::forgot_password_links::insert(new_forgot_password_link.clone(), &mut conn)
+            if database::forgot_password_links::insert(new_forgot_password_link.clone(), pool)
                 .await
                 .is_ok()
             {

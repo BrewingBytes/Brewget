@@ -15,7 +15,7 @@ use std::env::var;
 /// * `pg_url` - PostgreSQL server hostname or IP address
 /// * `pg_username` - Database username for authentication
 /// * `pg_password` - Database password for authentication
-/// * `pg_database` - Name of the database to connect to
+/// * `pg_database` - Name of the settings-service database to connect to (default: brewget_settings)
 ///
 /// ## Security Configuration
 /// * `cors_url` - Allowed CORS origin URL for frontend integration
@@ -42,7 +42,7 @@ impl Config {
     /// - `PG_URL` - PostgreSQL server URL
     /// - `PG_USERNAME` - Database username
     /// - `PG_PASSWORD` - Database password
-    /// - `PG_DATABASE` - Database name
+    /// - `SETTINGS_PG_DATABASE` - Settings service database name (falls back to PG_DATABASE if not set)
     /// - `CORS_URL` - Allowed CORS origin URL
     ///
     /// # Panics
@@ -72,7 +72,10 @@ impl Config {
         let pg_url = var("PG_URL").expect("PG_URL must be provided.");
         let pg_username = var("PG_USERNAME").expect("PG_USERNAME must be provided.");
         let pg_password = var("PG_PASSWORD").expect("PG_PASSWORD must be provided.");
-        let pg_database = var("PG_DATABASE").expect("PG_DATABASE must be provided.");
+        // Use SETTINGS_PG_DATABASE if provided, otherwise fall back to PG_DATABASE for backwards compatibility
+        let pg_database = var("SETTINGS_PG_DATABASE")
+            .or_else(|_| var("PG_DATABASE"))
+            .expect("SETTINGS_PG_DATABASE or PG_DATABASE must be provided.");
         let cors_url = var("CORS_URL").expect("CORS_URL must be provided.");
 
         Self {

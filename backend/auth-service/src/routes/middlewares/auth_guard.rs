@@ -63,12 +63,12 @@ pub async fn auth_guard(
     )?;
 
     // Check if token exists in database
-    let conn = &mut state.get_database_connection().await?;
-    let token_res = database::tokens::find(received_token, conn).await?;
+    let pool = state.get_database_pool();
+    let token_res = database::tokens::find(received_token, pool).await?;
 
     // Verify token is not expired
     if token_res.is_expired() {
-        database::tokens::delete_by_token(token_res.get_token(), conn).await?;
+        database::tokens::delete_by_token(token_res.get_token(), pool).await?;
         return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
     }
 

@@ -36,7 +36,7 @@ services:
       - PG_URL=db
       - PG_USERNAME=user-name
       - PG_PASSWORD=strong-password
-      - PG_DATABASE=brewget
+      - AUTH_PG_DATABASE=brewget_auth
       - CORS_URL=http://localhost
       - JWT_SECRET=secret
       - JWT_EXPIRES_IN=86400
@@ -68,14 +68,22 @@ services:
       - 9001
 
   settings-service:
+    depends_on:
+      - db
     container_name: settings-service
     image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.3"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
       - PG_PASSWORD=strong-password
-      - PG_DATABASE=brewget
+      - SETTINGS_PG_DATABASE=brewget_settings
       - CORS_URL=http://localhost
+      - SETTINGS_HTTP_PORT=8001
+    networks:
+      - db
+      - brewget
+    expose:
+      - 8001
 
   db:
     image: postgres

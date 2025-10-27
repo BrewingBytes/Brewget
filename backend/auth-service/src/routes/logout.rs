@@ -50,8 +50,8 @@ async fn logout_handler(
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
     // Delete all tokens for the user
-    let conn = &mut state.get_database_connection().await?;
-    database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, conn).await?;
+    let pool = state.get_database_pool();
+    database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, pool).await?;
 
     // Return success message
     Ok(Json(Message {
