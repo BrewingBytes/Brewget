@@ -46,8 +46,8 @@ async fn register_start_handler(
     }
 
     // Check for existing username or email
-    let conn = &mut state.get_database_connection().await?;
-    if database::users::filter_by_username_or_email(&body.username, &body.email, conn)
+    let pool = state.get_database_pool();
+    if database::users::filter_by_username_or_email(&body.username, &body.email, pool)
         .await
         .is_ok()
     {
@@ -118,10 +118,10 @@ async fn register_finish_handler(
     
     // For now, we'll create a new registration state
     // This is a placeholder - in production, retrieve the stored state
-    let conn = &mut state.get_database_connection().await?;
+    let pool = state.get_database_pool();
 
     // Re-check for existing username or email
-    if database::users::filter_by_username_or_email(&body.username, &body.email, conn)
+    if database::users::filter_by_username_or_email(&body.username, &body.email, pool)
         .await
         .is_ok()
     {
@@ -168,8 +168,8 @@ async fn register_finish_handler(
     let new_credential = NewPasskeyCredential::from_passkey(user_id, &passkey);
 
     // Insert user and credential
-    database::users::insert(new_user, conn).await?;
-    database::passkey_credentials::insert(new_credential, conn).await?;
+    database::users::insert(new_user, pool).await?;
+    database::passkey_credentials::insert(new_credential, pool).await?;
 
     Ok(Json(serde_json::json!({
         "message": "Passkey registered successfully.",

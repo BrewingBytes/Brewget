@@ -40,7 +40,7 @@ async fn activate_account_handler(
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
     // Get the activation link from the db
-    let mut conn = state.get_database_connection().await?;
+    let pool = state.get_database_pool();
     let activation_link =
         database::activation_links::filter_and_delete_by_id(id, &mut conn).await?;
 

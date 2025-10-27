@@ -81,8 +81,8 @@ async fn register_handler(
     }
 
     // Check for existing username or email
-    let conn = &mut state.get_database_connection().await?;
-    if database::users::filter_by_username_or_email(&body.username, &body.email, conn)
+    let pool = state.get_database_pool();
+    if database::users::filter_by_username_or_email(&body.username, &body.email, pool)
         .await
         .is_ok()
     {
@@ -110,8 +110,8 @@ async fn register_handler(
     let new_activation_link = NewActivationLink::new(new_user.get_uuid());
     let link = new_activation_link.get_link(&state.config);
 
-    database::users::insert(new_user, conn).await?;
-    database::activation_links::insert(new_activation_link, conn).await?;
+    database::users::insert(new_user, pool).await?;
+    database::activation_links::insert(new_activation_link, pool).await?;
 
     // Send confirmation email
     let request = ActivateAccountRequest {

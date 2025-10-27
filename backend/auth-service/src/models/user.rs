@@ -1,4 +1,4 @@
-use diesel::prelude::*;
+use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::utils::password::{hash_password, verify_password};
@@ -14,16 +14,14 @@ use crate::utils::password::{hash_password, verify_password};
 /// * `email` - User's email address
 /// * `is_verified` - Email verification status
 /// * `is_active` - Account active status
-#[derive(Queryable, Selectable, Clone)]
-#[diesel(table_name = crate::schema::users)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(FromRow, Clone)]
 pub struct User {
-    id: Uuid,
-    username: String,
-    password: Option<String>,
-    email: String,
-    is_verified: bool,
-    is_active: bool,
+    pub id: Uuid,
+    pub username: String,
+    pub password: Option<String>,
+    pub email: String,
+    pub is_verified: bool,
+    pub is_active: bool,
 }
 
 impl User {
@@ -94,14 +92,11 @@ impl User {
 /// * `username` - Chosen username for the new account
 /// * `password` - Password that will be hashed before storage (optional for passkey-only)
 /// * `email` - Email address for the account
-#[derive(Insertable)]
-#[diesel(table_name = crate::schema::users)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewUser {
-    id: Uuid,
-    username: String,
-    password: Option<String>,
-    email: String,
+    pub id: Uuid,
+    pub username: String,
+    pub password: Option<String>,
+    pub email: String,
 }
 
 impl NewUser {

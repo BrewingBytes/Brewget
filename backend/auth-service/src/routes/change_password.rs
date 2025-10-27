@@ -34,7 +34,7 @@ async fn change_password_handler(
     Json(body): Json<ResetPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
     // Get the forgot password link from the db
-    let mut conn = state.get_database_connection().await?;
+    let pool = state.get_database_pool();
     let link = database::forgot_password_links::filter_by_id(body.id, &mut conn).await?;
 
     // If the link is expired, remove it from the database and send a BAD_REQUEST

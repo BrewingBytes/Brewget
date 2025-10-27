@@ -30,7 +30,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// }
 /// ```
 async fn health_checker_handler(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    match state.get_database_connection().await {
+    match state.get_database_pool().await {
         Ok(_) => Json(Health {
             status: HealthStatus::Healthy,
             database: DatabaseConnection::Connected,

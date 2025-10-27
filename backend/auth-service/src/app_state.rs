@@ -1,5 +1,4 @@
-use deadpool::managed::Pool;
-use diesel_async::{AsyncPgConnection, pooled_connection::AsyncDieselConnectionManager};
+use sqlx::PgPool;
 use tokio::sync::Mutex;
 use tonic::{Response, Status, transport::Channel};
 use webauthn_rs::prelude::*;
@@ -28,13 +27,13 @@ use crate::{
 /// use axum::extract::State;
 ///
 /// async fn handler(State(state): State<Arc<AppState>>) {
-///     let mut conn = state.db.get().await?;
-///     // Use connection...
+///     let pool = state.get_database_pool();
+///     // Use pool...
 /// }
 /// ```
 pub struct AppState {
     pub config: Config,
-    db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
+    db: PgPool,
     email_service: Mutex<EmailServiceClient<Channel>>,
     pub webauthn: Webauthn,
 }
@@ -44,19 +43,14 @@ impl AppState {
     ///
     /// # Returns
     /// * `AppState` - the AppState that contains all the necessary configs
-    pub fn new(
-        config: Config,
-        db: Pool<AsyncDieselConnectionManager<AsyncPgConnection>>,
-        email_service: EmailServiceClient<Channel>,
-    ) -> Self {
+    pub fn new(config: Config, db: PgPool, email_service: EmailServiceClient<Channel>) -> Self {
         // Initialize WebAuthn with RP configuration
         let rp_id = &config.rp_id;
-        let rp_origin = Url::parse(&config.rp_origin)
-            .expect("RP_ORIGIN must be a valid URL");
-        
-        let builder = WebauthnBuilder::new(rp_id, &rp_origin)
-            .expect("Invalid WebAuthn configuration");
-        
+        let rp_origin = Url::parse(&config.rp_origin).expect("RP_ORIGIN must be a valid URL");
+
+        let builder =
+            WebauthnBuilder::new(rp_id, &rp_origin).expect("Invalid WebAuthn configuration");
+
         let webauthn = builder
             .rp_name("BrewGet")
             .build()
@@ -70,30 +64,18 @@ impl AppState {
         }
     }
 
-    /// Gets a connection from the database pool
+    /// Gets a reference to the database pool
     ///
     /// # Returns
-    /// * `Ok(Object)` - A connection from the pool
-    /// * `Err(PoolError)` - If connection acquisition fails
+    /// * `&PgPool` - A reference to the database pool
     ///
     /// # Example
     /// ```rust
-    /// let conn = state.get_database_connection().await?;
-    /// // Use connection for database operations
+    /// let pool = state.get_database_pool();
+    /// // Use pool for database operations
     /// ```
-    ///
-    /// # Errors
-    /// Returns error if:
-    /// * Pool is exhausted (too many connections)
-    /// * Connection establishment fails
-    /// * Database is unreachable
-    pub async fn get_database_connection(
-        &self,
-    ) -> Result<
-        deadpool::managed::Object<AsyncDieselConnectionManager<AsyncPgConnection>>,
-        deadpool::managed::PoolError<diesel_async::pooled_connection::PoolError>,
-    > {
-        self.db.get().await
+    pub fn get_database_pool(&self) -> &PgPool {
+        &self.db
     }
 
     /// Call the send_activate_account GRPC from the email-service

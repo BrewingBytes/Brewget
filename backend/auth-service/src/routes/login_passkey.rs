@@ -32,8 +32,8 @@ async fn auth_start_handler(
     Json(body): Json<PasskeyAuthStartInfo>,
 ) -> Result<impl IntoResponse, Error> {
     // Get user from database
-    let conn = &mut state.get_database_connection().await?;
-    let user = database::users::filter_by_username(&body.username, conn).await?;
+    let pool = state.get_database_pool();
+    let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Check if user has activated their account
     if !user.is_account_verified() {
@@ -54,7 +54,7 @@ async fn auth_start_handler(
     }
 
     // Get user's passkey credentials
-    let credentials = database::passkey_credentials::filter_by_user_id(user.get_uuid(), conn).await?;
+    let credentials = database::passkey_credentials::filter_by_user_id(user.get_uuid(), pool).await?;
 
     if credentials.is_empty() {
         return Err((
@@ -124,11 +124,11 @@ async fn auth_finish_handler(
         })?;
 
     // Get user from database
-    let conn = &mut state.get_database_connection().await?;
-    let user = database::users::filter_by_username(&body.username, conn).await?;
+    let pool = state.get_database_pool();
+    let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Get user's passkey credentials
-    let credentials = database::passkey_credentials::filter_by_user_id(user.get_uuid(), conn).await?;
+    let credentials = database::passkey_credentials::filter_by_user_id(user.get_uuid(), pool).await?;
 
     // Convert database credentials to passkeys
     let passkeys: Vec<Passkey> = credentials
@@ -167,7 +167,7 @@ async fn auth_finish_handler(
 
     // Update the credential counter
     let credential_id = auth_result.cred_id().as_ref().to_vec();
-    if let Ok(mut cred) = database::passkey_credentials::filter_by_credential_id(&credential_id, conn).await {
+    if let Ok(mut cred) = database::passkey_credentials::filter_by_credential_id(&credential_id, pool).await {
         let _ = database::passkey_credentials::update_counter(
             cred.id,
             0, // WebAuthn 0.5 doesn't expose counter directly, use 0 for now
@@ -195,7 +195,7 @@ async fn auth_finish_handler(
 
     // Store token in database
     let new_token = NewToken::new(&user, &token, None, None);
-    database::tokens::insert(new_token, conn).await?;
+    database::tokens::insert(new_token, pool).await?;
 
     // Return token to client
     Ok(Json(Token { token }))

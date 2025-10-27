@@ -15,12 +15,8 @@ CREATE TABLE passkey_credentials (
     backup_state BOOLEAN NOT NULL DEFAULT FALSE,
     attestation_type TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    last_used_at TIMESTAMPTZ,
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    last_used_at TIMESTAMPTZ
 );
 
 -- Create index on user_id for faster lookups
 CREATE INDEX idx_passkey_credentials_user_id ON passkey_credentials(user_id);
-
--- Create index on credential_id for faster lookups during authentication
-CREATE INDEX idx_passkey_credentials_credential_id ON passkey_credentials(credential_id);
