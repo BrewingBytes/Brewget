@@ -41,8 +41,7 @@ async fn activate_account_handler(
 ) -> Result<impl IntoResponse, Error> {
     // Get the activation link from the db
     let pool = state.get_database_pool();
-    let activation_link =
-        database::activation_links::filter_and_delete_by_id(id, pool).await?;
+    let activation_link = database::activation_links::filter_and_delete_by_id(id, pool).await?;
 
     // Set the account as verified and delete the activation link
     if database::users::set_verified(activation_link.get_uuid(), pool).await? != 1 {

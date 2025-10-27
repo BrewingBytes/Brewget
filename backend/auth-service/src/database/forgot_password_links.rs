@@ -2,11 +2,9 @@ use axum::http::StatusCode;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        forgot_password_link::{ForgotPasswordLink, NewForgotPasswordLink},
-        response::Error,
-    },
+use crate::models::{
+    forgot_password_link::{ForgotPasswordLink, NewForgotPasswordLink},
+    response::Error,
 };
 
 /// Inserts a new forgot password link into the database

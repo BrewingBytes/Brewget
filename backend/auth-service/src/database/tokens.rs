@@ -2,11 +2,9 @@ use axum::http::StatusCode;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        response::Error,
-        token::{NewToken, Token},
-    },
+use crate::models::{
+    response::Error,
+    token::{NewToken, Token},
 };
 
 /// Inserts a new token into the database
@@ -83,9 +81,7 @@ pub async fn find(find_token: &str, pool: &PgPool) -> Result<Token, Error> {
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::UNAUTHORIZED, "Token has expired.").into()
-            }
+            sqlx::Error::RowNotFound => (StatusCode::UNAUTHORIZED, "Token has expired.").into(),
             _ => e.into(),
         }
     })

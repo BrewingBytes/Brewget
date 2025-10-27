@@ -1,11 +1,9 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        response::Error,
-        settings::{Settings, UpdateSettings},
-    },
+use crate::models::{
+    response::Error,
+    settings::{Settings, UpdateSettings},
 };
 
 /// Inserts blank default settings for a new user
@@ -147,6 +145,6 @@ pub async fn update(
     .bind(uuid)
     .execute(pool)
     .await?;
-    
+
     Ok(result.rows_affected() as usize)
 }

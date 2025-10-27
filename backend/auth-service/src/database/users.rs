@@ -2,11 +2,9 @@ use axum::http::StatusCode;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        response::Error,
-        user::{NewUser, User},
-    },
+use crate::models::{
+    response::Error,
+    user::{NewUser, User},
 };
 
 /// Inserts a new user into the database
@@ -57,9 +55,7 @@ pub async fn filter_by_username(find_username: &str, pool: &PgPool) -> Result<Us
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::BAD_REQUEST, "Username not found.").into()
-            }
+            sqlx::Error::RowNotFound => (StatusCode::BAD_REQUEST, "Username not found.").into(),
             _ => e.into(),
         }
     })

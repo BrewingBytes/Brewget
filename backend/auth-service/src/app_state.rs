@@ -40,11 +40,7 @@ impl AppState {
     ///
     /// # Returns
     /// * `AppState` - the AppState that contains all the necessary configs
-    pub fn new(
-        config: Config,
-        db: PgPool,
-        email_service: EmailServiceClient<Channel>,
-    ) -> Self {
+    pub fn new(config: Config, db: PgPool, email_service: EmailServiceClient<Channel>) -> Self {
         Self {
             config,
             db,

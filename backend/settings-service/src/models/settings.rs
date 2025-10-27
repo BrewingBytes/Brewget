@@ -28,34 +28,6 @@ pub struct Settings {
     night_mode: bool,
 }
 
-/// Represents new user settings to be inserted into the database
-///
-/// This struct is used for creating initial settings records for new users.
-/// All fields except `user_id` will use default values from the database.
-///
-/// # Fields
-///
-/// * `user_id` - Unique identifier of the user these settings belong to
-pub struct NewSettings {
-    pub user_id: Uuid,
-}
-
-impl NewSettings {
-    /// Creates new default settings for a user
-    ///
-    /// # Arguments
-    ///
-    /// * `user_id` - The unique identifier of the user
-    ///
-    /// # Returns
-    ///
-    /// Returns a new `NewSettings` instance ready for database insertion.
-    /// All other fields will use database defaults.
-    pub fn new(user_id: Uuid) -> Self {
-        Self { user_id }
-    }
-}
-
 /// Represents updates to user settings
 ///
 /// This struct is used for partial updates to user settings. All fields are optional,

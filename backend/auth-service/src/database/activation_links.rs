@@ -2,11 +2,9 @@ use axum::http::StatusCode;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::{
-    models::{
-        activation_link::{ActivationLink, NewActivationLink},
-        response::Error,
-    },
+use crate::models::{
+    activation_link::{ActivationLink, NewActivationLink},
+    response::Error,
 };
 
 /// Inserts a new activation link into the database
@@ -18,10 +16,7 @@ use crate::{
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn insert(
-    new_activation_link: NewActivationLink,
-    pool: &PgPool,
-) -> Result<usize, Error> {
+pub async fn insert(new_activation_link: NewActivationLink, pool: &PgPool) -> Result<usize, Error> {
     sqlx::query(
         r#"
         INSERT INTO activation_links (id, user_id)
@@ -45,7 +40,10 @@ pub async fn insert(
 /// # Returns
 /// * `Ok(User)` - The `ActivationLink` object from the database
 /// * `Err(Error)` - Database operation error
-pub async fn filter_and_delete_by_id(find_id: Uuid, pool: &PgPool) -> Result<ActivationLink, Error> {
+pub async fn filter_and_delete_by_id(
+    find_id: Uuid,
+    pool: &PgPool,
+) -> Result<ActivationLink, Error> {
     let link = sqlx::query_as::<_, ActivationLink>(
         r#"
         SELECT user_id
@@ -74,6 +72,6 @@ pub async fn filter_and_delete_by_id(find_id: Uuid, pool: &PgPool) -> Result<Act
     .bind(find_id)
     .execute(pool)
     .await?;
-    
+
     Ok(link)
 }
