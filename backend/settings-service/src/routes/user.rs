@@ -88,9 +88,8 @@ async fn get_user_settings(
 
     let settings = database::settings::find_by_uuid(id, pool)
         .await
-        .map_err(|e| {
+        .inspect_err(|_| {
             tracing::error!("Failed to fetch settings for user {}", id);
-            e
         })?;
 
     tracing::info!("Successfully fetched settings for user {}", id);
@@ -159,17 +158,15 @@ async fn update_user_settings(
 
     database::settings::update(id, settings, pool)
         .await
-        .map_err(|e| {
+        .inspect_err(|_| {
             tracing::error!("Failed to update settings for user {}", id);
-            e
         })?;
 
     tracing::debug!("Settings updated, fetching updated record for user {}", id);
     let settings = database::settings::find_by_uuid(id, pool)
         .await
-        .map_err(|e| {
+        .inspect_err(|_| {
             tracing::error!("Failed to fetch updated settings for user {}", id);
-            e
         })?;
 
     tracing::info!("Successfully updated settings for user {}", id);
