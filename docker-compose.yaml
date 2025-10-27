@@ -31,7 +31,7 @@ services:
       - db
       - email-service
     container_name: auth-service
-    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.7"
+    image: "ghcr.io/brewingbytes/brewget-auth-service:0.0.8"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -42,7 +42,8 @@ services:
       - JWT_EXPIRES_IN=86400
       - JWT_MAX_AGE=86400
       - AUTH_HTTP_PORT=8000
-      - EMAIL_HOSTNAME=http://email-service
+      - AUTH_GRPC_PORT=9000
+      - EMAIL_HOSTNAME=email-service
       - EMAIL_GRPC_PORT=9001
       - FRONTEND_HOSTNAME=http://localhost
     networks:
@@ -50,6 +51,7 @@ services:
       - brewget
     expose:
       - 8000
+      - 9000
 
   email-service:
     container_name: email-service
@@ -70,8 +72,9 @@ services:
   settings-service:
     depends_on:
       - db
+      - auth-service
     container_name: settings-service
-    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.3"
+    image: "ghcr.io/brewingbytes/brewget-settings-service:0.0.4"
     environment:
       - PG_URL=db
       - PG_USERNAME=user-name
@@ -79,6 +82,8 @@ services:
       - SETTINGS_PG_DATABASE=brewget_settings
       - CORS_URL=http://localhost
       - SETTINGS_HTTP_PORT=8001
+      - AUTH_HOSTNAME=auth-service
+      - AUTH_GRPC_PORT=9000
     networks:
       - db
       - brewget

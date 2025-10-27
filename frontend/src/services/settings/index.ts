@@ -5,14 +5,12 @@ import type {
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
-import axios from "@/services/api";
+import { settingsApi } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
-
-const URL_PATH = import.meta.env.PROD ? "/api/settings/user" : "/user";
 
 async function getSettings(): Promise<ServerResponse<Settings>> {
   try {
-    return await axios.get(`${URL_PATH}`, {
+    return await settingsApi.get(`/user`, {
       headers: {
         Authorization: useAuthStore().bearerToken,
       },
@@ -26,7 +24,7 @@ async function updateSettings(
   settings: UpdateSettings,
 ): Promise<ServerResponse<Settings>> {
   try {
-    return await axios.post(`${URL_PATH}`, settings, {
+    return await settingsApi.post(`/user`, settings, {
       headers: {
         Authorization: useAuthStore().bearerToken,
       },
