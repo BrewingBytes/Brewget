@@ -10,7 +10,7 @@ import { useAuthStore } from "@/stores/auth";
 
 async function getSettings(): Promise<ServerResponse<Settings>> {
   try {
-    return await settingsApi.get(`/user`, {
+    return await settingsApi.get("/user", {
       headers: {
         Authorization: useAuthStore().bearerToken,
       },
@@ -24,7 +24,7 @@ async function updateSettings(
   settings: UpdateSettings,
 ): Promise<ServerResponse<Settings>> {
   try {
-    return await settingsApi.post(`/user`, settings, {
+    return await settingsApi.post("/user", settings, {
       headers: {
         Authorization: useAuthStore().bearerToken,
       },

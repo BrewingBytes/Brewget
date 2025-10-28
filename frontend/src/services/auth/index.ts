@@ -15,7 +15,7 @@ async function activate(values: { id: string }): Promise<ServerResponse<Activate
 
 async function login(values: { username: string, password: string }): Promise<ServerResponse<LoginResponse>> {
     try {
-        return await authApi.post(`/login`, values);
+        return await authApi.post("/login", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -23,7 +23,7 @@ async function login(values: { username: string, password: string }): Promise<Se
 
 async function register(values: { email: string, username: string, password: string }): Promise<ServerResponse<RegisterResponse>> {
     try {
-        return await authApi.post(`/register`, values);
+        return await authApi.post("/register", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -31,7 +31,7 @@ async function register(values: { email: string, username: string, password: str
 
 async function forgotPassword(values: { email: string }): Promise<ServerResponse<ForgotPasswordResponse>> {
     try {
-        return await authApi.post(`/forgot-password`, values);
+        return await authApi.post("/forgot-password", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -39,7 +39,7 @@ async function forgotPassword(values: { email: string }): Promise<ServerResponse
 
 async function changePassword(values: { id: string, password: string }): Promise<ServerResponse<ChangePasswordResponse>> {
     try {
-        return await authApi.post(`/change-password`, values);
+        return await authApi.post("/change-password", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -47,7 +47,7 @@ async function changePassword(values: { id: string, password: string }): Promise
 
 async function logout(): Promise<ServerResponse<LogoutResponse>> {
     try {
-        return await authApi.get(`/logout`, {
+        return await authApi.get("/logout", {
             headers: {
                 Authorization: useAuthStore().bearerToken,
             },
