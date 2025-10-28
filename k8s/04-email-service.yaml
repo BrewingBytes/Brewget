@@ -1,0 +1,83 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-service
+  namespace: brewget
+  labels:
+    app: email-service
+spec:
+  ports:
+    - port: 9001
+      targetPort: 9001
+      name: grpc
+  selector:
+    app: email-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-service
+  namespace: brewget
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-service
+  template:
+    metadata:
+      labels:
+        app: email-service
+    spec:
+      containers:
+      - name: email-service
+        image: ghcr.io/brewingbytes/brewget-email-service:0.0.6
+        ports:
+        - containerPort: 9001
+          name: grpc
+        env:
+        - name: SMTP_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: smtp-email
+        - name: SMTP_NAME
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: smtp-name
+        - name: SMTP_RELAY
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: smtp-relay
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: smtp-username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: smtp-password
+        - name: EMAIL_GRPC_PORT
+          value: "9001"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          tcpSocket:
+            port: 9001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+          initialDelaySeconds: 5
+          periodSeconds: 5
