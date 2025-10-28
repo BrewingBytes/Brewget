@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{Json, Router, extract::State, http::{StatusCode, HeaderMap, header::ACCEPT_LANGUAGE}, response::IntoResponse, routing::post};
+use shared_types::i18n;
 
 use crate::{
     AppState, database,
@@ -31,8 +32,16 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn change_password_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<ResetPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Extract language from Accept-Language header
+    let lang = i18n::extract_language(
+        headers
+            .get(ACCEPT_LANGUAGE)
+            .and_then(|v| v.to_str().ok()),
+    );
+
     // Get the forgot password link from the db
     let pool = state.get_database_pool();
     let link = database::forgot_password_links::filter_by_id(body.id, pool).await?;
@@ -40,7 +49,8 @@ async fn change_password_handler(
     // If the link is expired, remove it from the database and send a BAD_REQUEST
     if link.is_expired() {
         database::forgot_password_links::delete(body.id, pool).await?;
-        return Err((StatusCode::BAD_REQUEST, "Link is expired.").into());
+        let msg = i18n::translate("auth.link_expired", &lang);
+        return Err((StatusCode::BAD_REQUEST, msg.as_str()).into());
     }
 
     // Check if the password is ok and hash it

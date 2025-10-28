@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{Json, Router, extract::State, http::{StatusCode, header::ACCEPT_LANGUAGE}, response::IntoResponse, routing::post};
+use axum::http::HeaderMap;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
+use shared_types::i18n;
 
 use crate::{
     AppState, database,
@@ -55,33 +57,36 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn login_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Extract language from Accept-Language header
+    let lang = i18n::extract_language(
+        headers
+            .get(ACCEPT_LANGUAGE)
+            .and_then(|v| v.to_str().ok()),
+    );
+
     // Query database for user with matching username
     let pool = state.get_database_pool();
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
-        return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
+        let msg = i18n::translate("auth.username_or_password_invalid", &lang);
+        return Err((StatusCode::BAD_REQUEST, msg.as_str()).into());
     }
 
     // Check if user has activated his account
     if !user.is_account_verified() {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            "Email has not been verified, please check your inbox.",
-        )
-            .into());
+        let msg = i18n::translate("auth.email_not_verified", &lang);
+        return Err((StatusCode::UNAUTHORIZED, msg.as_str()).into());
     }
 
     // Check if the account is deleted temporarily
     if !user.is_account_active() {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            "Account has been deleted temporarily",
-        )
-            .into());
+        let msg = i18n::translate("auth.account_deleted", &lang);
+        return Err((StatusCode::UNAUTHORIZED, msg.as_str()).into());
     }
 
     // Generate token timestamps

@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{Json, Router, extract::State, http::{StatusCode, header::ACCEPT_LANGUAGE}, response::IntoResponse, routing::post};
+use axum::http::HeaderMap;
+use shared_types::i18n;
 
 use crate::{
     AppState, database,
@@ -58,15 +60,20 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn register_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Extract language from Accept-Language header
+    let lang = i18n::extract_language(
+        headers
+            .get(ACCEPT_LANGUAGE)
+            .and_then(|v| v.to_str().ok()),
+    );
+
     // Validate username length
     if body.username.len() <= 3 {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Username length cannot be less or equal to 3 characters.",
-        )
-            .into());
+        let msg = i18n::translate("auth.username_length", &lang);
+        return Err((StatusCode::BAD_REQUEST, msg.as_str()).into());
     }
 
     // Validate password length
@@ -75,7 +82,8 @@ async fn register_handler(
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {
-        return Err((StatusCode::BAD_REQUEST, "Email address is not valid.").into());
+        let msg = i18n::translate("auth.email_invalid", &lang);
+        return Err((StatusCode::BAD_REQUEST, msg.as_str()).into());
     }
 
     // Check for existing username or email
@@ -84,11 +92,8 @@ async fn register_handler(
         .await
         .is_ok()
     {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Username or email is already used.",
-        )
-            .into());
+        let msg = i18n::translate("auth.username_email_used", &lang);
+        return Err((StatusCode::BAD_REQUEST, msg.as_str()).into());
     }
 
     // Create new user record
@@ -119,7 +124,8 @@ async fn register_handler(
     }
 
     // Return success message
+    let msg = i18n::translate("auth.account_created", &lang);
     Ok(Json(Message {
-        message: "Account has been created.".into(),
+        message: msg,
     }))
 }
