@@ -1,0 +1,411 @@
+# Kubernetes Deployment for BrewGet
+
+This directory contains the Kubernetes manifests for deploying the BrewGet application to a Kubernetes cluster.
+
+## Architecture
+
+The BrewGet application consists of the following components:
+
+- **nginx**: Reverse proxy and API gateway
+- **frontend**: Vue.js frontend application
+- **auth-service**: Authentication and authorization service (Rust)
+- **settings-service**: User settings service (Rust)
+- **email-service**: Email notification service (Rust)
+- **postgres**: PostgreSQL database (StatefulSet with persistent storage)
+
+## Prerequisites
+
+- A Kubernetes cluster (minikube, kind, GKE, EKS, AKS, etc.)
+- `kubectl` CLI tool installed and configured
+- Access to pull the container images from GitHub Container Registry
+
+## Quick Start
+
+### 1. Deploy to Kubernetes
+
+Apply all manifests in order:
+
+```bash
+kubectl apply -f k8s/00-namespace.yaml
+kubectl apply -f k8s/01-shared-config.yaml
+kubectl apply -f k8s/02-secrets.yaml
+kubectl apply -f k8s/03-configmaps.yaml
+kubectl apply -f k8s/04-postgres.yaml
+kubectl apply -f k8s/05-email-service.yaml
+kubectl apply -f k8s/06-auth-service.yaml
+kubectl apply -f k8s/07-settings-service.yaml
+kubectl apply -f k8s/08-frontend.yaml
+kubectl apply -f k8s/09-nginx.yaml
+```
+
+Or apply all at once:
+
+```bash
+kubectl apply -f k8s/
+```
+
+### 2. Wait for Pods to be Ready
+
+```bash
+kubectl wait --for=condition=ready pod --all -n brewget --timeout=300s
+```
+
+### 3. Access the Application
+
+#### For LoadBalancer (Cloud Providers)
+
+```bash
+kubectl get service nginx -n brewget
+```
+
+Access the application using the EXTERNAL-IP shown.
+
+#### For NodePort (Local Clusters)
+
+If your cluster doesn't support LoadBalancer, change the service type:
+
+```bash
+kubectl patch service nginx -n brewget -p '{"spec":{"type":"NodePort"}}'
+```
+
+Then get the NodePort:
+
+```bash
+kubectl get service nginx -n brewget
+```
+
+Access the application at `http://<node-ip>:<node-port>`
+
+#### For Port Forwarding (Development)
+
+```bash
+kubectl port-forward -n brewget service/nginx 8080:80
+```
+
+Then access at `http://localhost:8080`
+
+## Configuration
+
+### Secrets
+
+The application requires several secrets configured in `01-secrets.yaml`:
+
+- **Database credentials**: `postgres-user`, `postgres-password`
+- **JWT configuration**: `jwt-secret`
+- **SMTP credentials**: `smtp-email`, `smtp-name`, `smtp-relay`, `smtp-username`, `smtp-password`
+
+**⚠️ IMPORTANT**: Before deploying to production, update the secrets with secure values:
+
+```bash
+# Edit the secrets file
+nano k8s/01-secrets.yaml
+
+# Or create a secret from command line
+kubectl create secret generic brewget-secrets \
+  --from-literal=postgres-user=<your-user> \
+  --from-literal=postgres-password=<your-password> \
+  --from-literal=jwt-secret=<your-jwt-secret> \
+  --from-literal=smtp-email=<your-email> \
+  --from-literal=smtp-name=<your-name> \
+  --from-literal=smtp-relay=<your-smtp-server> \
+  --from-literal=smtp-username=<your-smtp-user> \
+  --from-literal=smtp-password=<your-smtp-password> \
+  -n brewget --dry-run=client -o yaml > k8s/01-secrets.yaml
+```
+
+### ConfigMaps
+
+The `02-configmaps.yaml` file contains:
+
+1. **nginx-config**: Nginx configuration files
+2. **postgres-init**: Database initialization script
+
+The postgres-init script automatically creates the required databases:
+- `brewget_auth` - Authentication service database
+- `brewget_settings` - Settings service database
+
+## Database Migrations
+
+Database migrations are handled automatically by each service using SQLX:
+
+1. When a service starts, it connects to its dedicated database
+2. Checks for pending migrations in its `migrations/` directory
+3. Applies any unapplied migrations
+4. Tracks migration history in the `_sqlx_migrations` table
+
+The PostgreSQL initialization script (`postgres-init` ConfigMap) creates the separate databases on first startup:
+- `brewget_auth`
+- `brewget_settings`
+
+This ensures each service has its own isolated database for security and maintainability.
+
+## TLS/HTTPS Configuration
+
+The nginx service is configured to support HTTPS with TLS certificates. For production deployments, you should configure Let's Encrypt certificates.
+
+**See [TLS_SETUP.md](TLS_SETUP.md) for detailed instructions on:**
+- Setting up Let's Encrypt certificates using cert-manager (recommended)
+- Manual certificate generation with certbot
+- Certificate renewal automation
+- Troubleshooting TLS issues
+
+The nginx configuration includes:
+- HTTP to HTTPS redirect
+- SSL/TLS best practices (TLSv1.2, TLSv1.3)
+- Security headers (HSTS, X-Frame-Options, etc.)
+- Support for ACME challenges (Let's Encrypt verification)
+
+**Quick Setup:**
+```bash
+# Option 1: Using cert-manager (recommended)
+# See TLS_SETUP.md for full instructions
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+# Option 2: Manual certificate with certbot
+# Generate certificate and create secret
+kubectl create secret tls brewget-tls \
+  --cert=/path/to/fullchain.pem \
+  --key=/path/to/privkey.pem \
+  -n brewget
+```
+
+## Persistent Storage
+
+The PostgreSQL database uses a PersistentVolumeClaim for data persistence:
+
+```yaml
+volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+### Increasing Storage
+
+To increase storage size, you may need to:
+
+1. Check if your StorageClass supports volume expansion
+2. Edit the PVC to request more storage
+3. The exact steps depend on your Kubernetes provider and storage backend
+
+## Monitoring
+
+### Check Pod Status
+
+```bash
+kubectl get pods -n brewget
+```
+
+### View Pod Logs
+
+```bash
+# View logs for a specific pod
+kubectl logs -n brewget <pod-name>
+
+# Follow logs
+kubectl logs -n brewget <pod-name> -f
+
+# View logs from all containers in a pod
+kubectl logs -n brewget <pod-name> --all-containers
+```
+
+### Check Service Endpoints
+
+```bash
+kubectl get endpoints -n brewget
+```
+
+### Describe Resources
+
+```bash
+kubectl describe pod <pod-name> -n brewget
+kubectl describe service <service-name> -n brewget
+```
+
+## Scaling
+
+To scale individual services:
+
+```bash
+# Scale frontend
+kubectl scale deployment frontend -n brewget --replicas=3
+
+# Scale auth-service
+kubectl scale deployment auth-service -n brewget --replicas=2
+
+# Scale settings-service
+kubectl scale deployment settings-service -n brewget --replicas=2
+```
+
+**Note**: PostgreSQL is deployed as a StatefulSet with 1 replica. For high availability, you would need to configure PostgreSQL replication.
+
+## Updating
+
+To update to a new version of a service:
+
+```bash
+# Update the image
+kubectl set image deployment/auth-service \
+  auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.9 \
+  -n brewget
+
+# Check rollout status
+kubectl rollout status deployment/auth-service -n brewget
+
+# Rollback if needed
+kubectl rollout undo deployment/auth-service -n brewget
+```
+
+## Cleanup
+
+To remove the entire application:
+
+```bash
+kubectl delete namespace brewget
+```
+
+**⚠️ WARNING**: This will delete all data including the PostgreSQL database.
+
+To delete specific components:
+
+```bash
+kubectl delete -f k8s/08-nginx.yaml
+kubectl delete -f k8s/07-frontend.yaml
+# ... etc
+```
+
+## Troubleshooting
+
+### Pods Not Starting
+
+1. Check pod status:
+   ```bash
+   kubectl get pods -n brewget
+   ```
+
+2. Describe the pod to see events:
+   ```bash
+   kubectl describe pod <pod-name> -n brewget
+   ```
+
+3. Check logs:
+   ```bash
+   kubectl logs <pod-name> -n brewget
+   ```
+
+### Database Connection Issues
+
+1. Check if PostgreSQL is running:
+   ```bash
+   kubectl get pods -n brewget | grep postgres
+   ```
+
+2. Test database connectivity:
+   ```bash
+   kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_auth -c "\dt"
+   ```
+
+3. Verify secrets are correct:
+   ```bash
+   kubectl get secret brewget-secrets -n brewget -o yaml
+   ```
+
+### Service Not Accessible
+
+1. Check service status:
+   ```bash
+   kubectl get service -n brewget
+   ```
+
+2. Check if pods are running and ready:
+   ```bash
+   kubectl get pods -n brewget
+   ```
+
+3. For LoadBalancer services, ensure your cluster supports LoadBalancer
+
+4. Try port-forwarding to test directly:
+   ```bash
+   kubectl port-forward -n brewget service/nginx 8080:80
+   ```
+
+### Init Container Failures
+
+Init containers wait for dependencies to be ready. If they're failing:
+
+1. Check if the dependency service is running:
+   ```bash
+   kubectl get pods -n brewget
+   ```
+
+2. Check init container logs:
+   ```bash
+   kubectl logs <pod-name> -n brewget -c <init-container-name>
+   ```
+
+3. The init containers will retry automatically
+
+## Production Considerations
+
+### Security
+
+1. **Use strong secrets**: Replace default secrets with strong, randomly generated values
+2. **Network policies**: Implement NetworkPolicies to restrict traffic between pods
+3. **RBAC**: Configure Role-Based Access Control for the namespace
+4. **Image scanning**: Scan container images for vulnerabilities
+5. **Pod Security Standards**: Enable and enforce pod security standards
+
+### High Availability
+
+1. **Multiple replicas**: Scale deployments to multiple replicas
+2. **Pod Disruption Budgets**: Configure PDBs to ensure availability during updates
+3. **PostgreSQL HA**: Consider using a PostgreSQL operator for high availability
+4. **Multi-zone deployment**: Spread pods across multiple availability zones
+
+### Performance
+
+1. **Resource limits**: Tune resource requests and limits based on actual usage
+2. **HorizontalPodAutoscaler**: Configure HPA for automatic scaling
+3. **Database connection pooling**: Already configured in services
+4. **Caching**: Consider adding Redis for caching
+
+### Monitoring & Observability
+
+1. **Prometheus**: Deploy Prometheus for metrics collection
+2. **Grafana**: Use Grafana for visualization
+3. **Logging**: Configure centralized logging (ELK, Loki, etc.)
+4. **Tracing**: Implement distributed tracing (Jaeger, Zipkin)
+5. **Alerts**: Set up alerting for critical issues
+
+### Backup & Recovery
+
+1. **Database backups**: Regular automated backups of PostgreSQL
+2. **Backup testing**: Regularly test backup restoration
+3. **Disaster recovery plan**: Document and test DR procedures
+4. **Version control**: Keep all manifests in version control
+
+## Differences from Docker Compose
+
+The Kubernetes deployment differs from the Docker Compose setup in the following ways:
+
+1. **Orchestration**: Kubernetes provides built-in orchestration, health checks, and self-healing
+2. **Scaling**: Easy horizontal scaling with `kubectl scale`
+3. **Secrets management**: Kubernetes Secrets for sensitive data
+4. **ConfigMaps**: Externalized configuration separate from images
+5. **Service Discovery**: Built-in DNS for service-to-service communication
+6. **Load Balancing**: Built-in load balancing for scaled deployments
+7. **Rolling Updates**: Zero-downtime deployments with rolling updates
+8. **Init Containers**: Proper dependency management with init containers
+9. **Persistent Storage**: PersistentVolumeClaims for stateful workloads
+10. **Resource Management**: CPU and memory limits/requests for better resource allocation
+
+## Support
+
+For issues or questions:
+
+- GitHub Issues: https://github.com/BrewingBytes/Brewget/issues
+- Documentation: See individual service READMEs in the `backend/` directory
