@@ -31,7 +31,7 @@ export const useAuthStore = defineStore("auth", () => {
     router.push("/login");
   }
 
-  async function login(values: { username: string, password: string }): Promise<void> {
+  async function login(values: { username: string, password: string, captchaToken: string }): Promise<void> {
     const response = await authService.login(values);
 
     // If error fail
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore("auth", () => {
     router.push("/");
   }
 
-  async function register(values: { email: string, username: string, password: string }): Promise<boolean> {
+  async function register(values: { email: string, username: string, password: string, captchaToken: string }): Promise<boolean> {
     const response = await authService.register(values);
     if (response.status !== ServerStatus.NO_ERROR) {
       useToastStore().showError((response as ErrorResponse).data.message);
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore("auth", () => {
     return true;
   }
 
-  async function forgotPassword(values: { email: string }): Promise<boolean> {
+  async function forgotPassword(values: { email: string, captchaToken: string }): Promise<boolean> {
     const response = await authService.forgotPassword(values);
     if (response.status !== ServerStatus.NO_ERROR) {
       useToastStore().showError((response as ErrorResponse).data.message);

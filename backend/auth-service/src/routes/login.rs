@@ -57,6 +57,13 @@ async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Verify captcha token
+    crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
+        .await
+        .map_err(|_| -> Error {
+            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+        })?;
+
     // Query database for user with matching username
     let pool = state.get_database_pool();
     let user = database::users::filter_by_username(&body.username, pool).await?;

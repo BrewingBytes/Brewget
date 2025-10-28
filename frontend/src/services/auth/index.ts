@@ -13,7 +13,7 @@ async function activate(values: { id: string }): Promise<ServerResponse<Activate
     }
 }
 
-async function login(values: { username: string, password: string }): Promise<ServerResponse<LoginResponse>> {
+async function login(values: { username: string, password: string, captchaToken: string }): Promise<ServerResponse<LoginResponse>> {
     try {
         return await authApi.post("/login", values);
     } catch (error) {
@@ -21,7 +21,7 @@ async function login(values: { username: string, password: string }): Promise<Se
     }
 }
 
-async function register(values: { email: string, username: string, password: string }): Promise<ServerResponse<RegisterResponse>> {
+async function register(values: { email: string, username: string, password: string, captchaToken: string }): Promise<ServerResponse<RegisterResponse>> {
     try {
         return await authApi.post("/register", values);
     } catch (error) {
@@ -29,7 +29,7 @@ async function register(values: { email: string, username: string, password: str
     }
 }
 
-async function forgotPassword(values: { email: string }): Promise<ServerResponse<ForgotPasswordResponse>> {
+async function forgotPassword(values: { email: string, captchaToken: string }): Promise<ServerResponse<ForgotPasswordResponse>> {
     try {
         return await authApi.post("/forgot-password", values);
     } catch (error) {
