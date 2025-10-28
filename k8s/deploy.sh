@@ -20,29 +20,32 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "📦 Creating namespace..."
 kubectl apply -f "$SCRIPT_DIR/00-namespace.yaml"
 
+echo "📝 Creating shared configuration..."
+kubectl apply -f "$SCRIPT_DIR/01-shared-config.yaml"
+
 echo "🔐 Creating secrets..."
-kubectl apply -f "$SCRIPT_DIR/01-secrets.yaml"
+kubectl apply -f "$SCRIPT_DIR/02-secrets.yaml"
 
 echo "📝 Creating configmaps..."
-kubectl apply -f "$SCRIPT_DIR/02-configmaps.yaml"
+kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 
 echo "🗄️  Deploying PostgreSQL..."
-kubectl apply -f "$SCRIPT_DIR/03-postgres.yaml"
+kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
 
 echo "📧 Deploying email service..."
-kubectl apply -f "$SCRIPT_DIR/04-email-service.yaml"
+kubectl apply -f "$SCRIPT_DIR/05-email-service.yaml"
 
 echo "🔑 Deploying auth service..."
-kubectl apply -f "$SCRIPT_DIR/05-auth-service.yaml"
+kubectl apply -f "$SCRIPT_DIR/06-auth-service.yaml"
 
 echo "⚙️  Deploying settings service..."
-kubectl apply -f "$SCRIPT_DIR/06-settings-service.yaml"
+kubectl apply -f "$SCRIPT_DIR/07-settings-service.yaml"
 
 echo "🎨 Deploying frontend..."
-kubectl apply -f "$SCRIPT_DIR/07-frontend.yaml"
+kubectl apply -f "$SCRIPT_DIR/08-frontend.yaml"
 
 echo "🌐 Deploying nginx..."
-kubectl apply -f "$SCRIPT_DIR/08-nginx.yaml"
+kubectl apply -f "$SCRIPT_DIR/09-nginx.yaml"
 
 echo ""
 echo "✅ All manifests applied successfully!"

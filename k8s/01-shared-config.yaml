@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shared-config
+  namespace: brewget
+data:
+  # Service ports
+  AUTH_HTTP_PORT: "8000"
+  AUTH_GRPC_PORT: "9000"
+  SETTINGS_HTTP_PORT: "8001"
+  EMAIL_GRPC_PORT: "9001"
+
+  # Service hostnames
+  AUTH_HOSTNAME: "auth-service"
+  EMAIL_HOSTNAME: "email-service"
+  SETTINGS_HOSTNAME: "settings-service"
+  FRONTEND_HOSTNAME: "https://brewget.brewingbytes.com"
+
+  # CORS configuration
+  CORS_URL: "https://brewget.brewingbytes.com"
+
+  # API endpoint
+  VITE_API_ENDPOINT: "https://brewget.brewingbytes.com"

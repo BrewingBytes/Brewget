@@ -91,7 +91,10 @@ spec:
         - name: AUTH_PG_DATABASE
           value: brewget_auth
         - name: CORS_URL
-          value: http://localhost
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: CORS_URL
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -102,15 +105,30 @@ spec:
         - name: JWT_MAX_AGE
           value: "86400"
         - name: AUTH_HTTP_PORT
-          value: "8000"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_HTTP_PORT
         - name: AUTH_GRPC_PORT
-          value: "9000"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_GRPC_PORT
         - name: EMAIL_HOSTNAME
-          value: email-service
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: EMAIL_HOSTNAME
         - name: EMAIL_GRPC_PORT
-          value: "9001"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: EMAIL_GRPC_PORT
         - name: FRONTEND_HOSTNAME
-          value: http://localhost
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: FRONTEND_HOSTNAME
         resources:
           requests:
             memory: "256Mi"

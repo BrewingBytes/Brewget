@@ -1,6 +1,6 @@
 # BrewGet
 
-A microservices-based application for managing brew-related tasks.
+A microservices-based application for managing your bugets.
 
 ## Architecture
 
@@ -15,7 +15,7 @@ BrewGet consists of the following services:
 
 ## Deployment
 
-### Kubernetes (Recommended)
+### Kubernetes
 
 For production deployments, use Kubernetes:
 
@@ -25,14 +25,6 @@ cd k8s
 ```
 
 See [k8s/README.md](k8s/README.md) for detailed instructions.
-
-### Docker Compose (Development)
-
-For local development, use Docker Compose:
-
-```bash
-docker-compose up
-```
 
 ## Documentation
 

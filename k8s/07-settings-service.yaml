@@ -86,13 +86,25 @@ spec:
         - name: SETTINGS_PG_DATABASE
           value: brewget_settings
         - name: CORS_URL
-          value: http://localhost
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: CORS_URL
         - name: SETTINGS_HTTP_PORT
-          value: "8001"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: SETTINGS_HTTP_PORT
         - name: AUTH_HOSTNAME
-          value: auth-service
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_HOSTNAME
         - name: AUTH_GRPC_PORT
-          value: "9000"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_GRPC_PORT
         resources:
           requests:
             memory: "256Mi"

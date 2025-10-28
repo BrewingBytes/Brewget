@@ -50,13 +50,16 @@ spec:
             cpu: "100m"
       containers:
       - name: frontend
-        image: ghcr.io/brewingbytes/brewget-frontend:0.0.3
+        image: ghcr.io/brewingbytes/brewget-frontend:0.0.5
         ports:
         - containerPort: 80
           name: http
         env:
         - name: VITE_API_ENDPOINT
-          value: http://localhost
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: VITE_API_ENDPOINT
         resources:
           requests:
             memory: "64Mi"

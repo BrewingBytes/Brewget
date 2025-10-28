@@ -63,7 +63,10 @@ spec:
               name: brewget-secrets
               key: smtp-password
         - name: EMAIL_GRPC_PORT
-          value: "9001"
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: EMAIL_GRPC_PORT
         resources:
           requests:
             memory: "128Mi"
