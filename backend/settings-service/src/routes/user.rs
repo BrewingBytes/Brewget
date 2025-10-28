@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
 use axum::{
-    Json, Router,
-    extract::{Path, State},
+    Extension, Json, Router,
+    extract::State,
+    middleware,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -11,6 +12,7 @@ use uuid::Uuid;
 use crate::{
     AppState, database,
     models::{response::Error, settings::UpdateSettings},
+    routes::middlewares::auth_guard,
 };
 
 /// Creates a router for the user settings routes
@@ -23,20 +25,24 @@ use crate::{
 ///
 /// # Returns
 ///
-/// Returns an Axum router configured with the user settings endpoints.
+/// Returns an Axum router configured with the user settings endpoints with auth middleware.
 ///
 /// # Routes
 ///
-/// - `GET /{id}` - Retrieve user settings by user ID
-/// - `POST /update/{id}` - Update user settings by user ID
+/// - `GET /{id}` - Retrieve user settings by user ID (protected by auth middleware)
+/// - `POST /update/{id}` - Update user settings by user ID (protected by auth middleware)
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
-        .route("/{id}", get(get_user_settings))
-        .route("/update/{id}", post(update_user_settings))
+        .route("/", get(get_user_settings))
+        .route("/", post(update_user_settings))
+        .route_layer(middleware::from_fn_with_state(
+            state.clone(),
+            auth_guard::auth_guard,
+        ))
         .with_state(state)
 }
 
-/// Retrieves user settings by user ID
+/// Retrieves user settings
 ///
 /// This endpoint fetches the settings for a specific user. If no settings exist
 /// for the user, default settings will be created and returned.
@@ -54,7 +60,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// # Example Request
 ///
 /// ```http
-/// GET /user/550e8400-e29b-41d4-a716-446655440000
+/// GET /user
 /// ```
 ///
 /// # Example Response
@@ -71,16 +77,26 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// }
 /// ```
 async fn get_user_settings(
-    Path(id): Path<Uuid>,
+    Extension(id): Extension<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    let pool = state.get_database_pool();
-    let settings = database::settings::find_by_uuid(id, pool).await?;
+    tracing::info!("GET /user/{} - Fetching user settings", id);
 
+    let pool = state.get_database_pool();
+
+    tracing::debug!("Database pool acquired for user {}", id);
+
+    let settings = database::settings::find_by_uuid(id, pool)
+        .await
+        .inspect_err(|_| {
+            tracing::error!("Failed to fetch settings for user {}", id);
+        })?;
+
+    tracing::info!("Successfully fetched settings for user {}", id);
     Ok(Json(settings))
 }
 
-/// Updates user settings by user ID
+/// Updates user settings
 ///
 /// This endpoint allows partial updates to user settings. Only the fields
 /// provided in the request body will be updated, leaving other fields unchanged.
@@ -99,7 +115,7 @@ async fn get_user_settings(
 /// # Example Request
 ///
 /// ```http
-/// POST /user/update/550e8400-e29b-41d4-a716-446655440000
+/// POST /user
 /// Content-Type: application/json
 ///
 /// {
@@ -123,14 +139,36 @@ async fn get_user_settings(
 /// }
 /// ```
 async fn update_user_settings(
-    Path(id): Path<Uuid>,
+    Extension(id): Extension<Uuid>,
     State(state): State<Arc<AppState>>,
     Json(settings): Json<UpdateSettings>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!("POST /user/update/{} - Updating user settings", id);
+    tracing::debug!(
+        "Update payload: language={:?}, currency={:?}, alarm_set={:?}, night_mode={:?}",
+        settings.language,
+        settings.currency,
+        settings.alarm_set,
+        settings.night_mode
+    );
+
     let pool = state.get_database_pool();
-    database::settings::update(id, settings, pool).await?;
 
-    let settings = database::settings::find_by_uuid(id, pool).await?;
+    tracing::debug!("Database pool acquired for user {}", id);
 
+    database::settings::update(id, settings, pool)
+        .await
+        .inspect_err(|_| {
+            tracing::error!("Failed to update settings for user {}", id);
+        })?;
+
+    tracing::debug!("Settings updated, fetching updated record for user {}", id);
+    let settings = database::settings::find_by_uuid(id, pool)
+        .await
+        .inspect_err(|_| {
+            tracing::error!("Failed to fetch updated settings for user {}", id);
+        })?;
+
+    tracing::info!("Successfully updated settings for user {}", id);
     Ok(Json(settings))
 }

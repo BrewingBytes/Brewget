@@ -10,13 +10,19 @@ declare module 'vue' {
   export interface GlobalComponents {
     AuthGlass: typeof import('./src/components/AuthGlass.vue')['default']
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
+    Divider: typeof import('primevue/divider')['default']
     FloatingNavbar: typeof import('./src/components/FloatingNavbar.vue')['default']
     ForgotPasswordGlass: typeof import('./src/components/ForgotPasswordGlass.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
+    InputNumber: typeof import('primevue/inputnumber')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('primevue/select')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
 }

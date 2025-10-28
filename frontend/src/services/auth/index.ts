@@ -2,14 +2,12 @@ import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, 
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
-import axios from "@/services/api";
+import { authApi } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
-
-const URL_PATH = import.meta.env.PROD ? "/api/auth" : "";
 
 async function activate(values: { id: string }): Promise<ServerResponse<ActivateResponse>> {
     try {
-        return await axios.get(`${URL_PATH}/activate/${values.id}`);
+        return await authApi.get(`/activate/${values.id}`);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -17,7 +15,7 @@ async function activate(values: { id: string }): Promise<ServerResponse<Activate
 
 async function login(values: { username: string, password: string }): Promise<ServerResponse<LoginResponse>> {
     try {
-        return await axios.post(`${URL_PATH}/login`, values);
+        return await authApi.post("/login", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -25,7 +23,7 @@ async function login(values: { username: string, password: string }): Promise<Se
 
 async function register(values: { email: string, username: string, password: string }): Promise<ServerResponse<RegisterResponse>> {
     try {
-        return await axios.post(`${URL_PATH}/register`, values);
+        return await authApi.post("/register", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -33,7 +31,7 @@ async function register(values: { email: string, username: string, password: str
 
 async function forgotPassword(values: { email: string }): Promise<ServerResponse<ForgotPasswordResponse>> {
     try {
-        return await axios.post(`${URL_PATH}/forgot-password`, values);
+        return await authApi.post("/forgot-password", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -41,7 +39,7 @@ async function forgotPassword(values: { email: string }): Promise<ServerResponse
 
 async function changePassword(values: { id: string, password: string }): Promise<ServerResponse<ChangePasswordResponse>> {
     try {
-        return await axios.post(`${URL_PATH}/change-password`, values);
+        return await authApi.post("/change-password", values);
     } catch (error) {
         return (error as AxiosError).response as ErrorResponse;
     }
@@ -49,7 +47,7 @@ async function changePassword(values: { id: string, password: string }): Promise
 
 async function logout(): Promise<ServerResponse<LogoutResponse>> {
     try {
-        return await axios.get(`${URL_PATH}/logout`, {
+        return await authApi.get("/logout", {
             headers: {
                 Authorization: useAuthStore().bearerToken,
             },
