@@ -1,6 +1,6 @@
 # BrewGet
 
-A microservices-based application for managing your bugets.
+A microservices-based application for managing your budgets.
 
 ## Architecture
 
