@@ -11,9 +11,9 @@ data:
   EMAIL_GRPC_PORT: "9001"
 
   # Service hostnames
-  AUTH_HOSTNAME: "auth-service"
-  EMAIL_HOSTNAME: "email-service"
-  SETTINGS_HOSTNAME: "settings-service"
+  AUTH_HOSTNAME: "http://auth-service"
+  EMAIL_HOSTNAME: "http://email-service"
+  SETTINGS_HOSTNAME: "http://settings-service"
   FRONTEND_HOSTNAME: "https://brewget.brewingbytes.com"
 
   # CORS configuration

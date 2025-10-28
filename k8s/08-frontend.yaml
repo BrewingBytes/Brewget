@@ -48,6 +48,8 @@ spec:
           limits:
             memory: "64Mi"
             cpu: "100m"
+      imagePullSecrets:
+      - name: ghcr-login-secret
       containers:
       - name: frontend
         image: ghcr.io/brewingbytes/brewget-frontend:0.0.5
