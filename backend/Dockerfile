@@ -15,6 +15,7 @@ COPY auth-service/build.rs auth-service/
 COPY email-service/Cargo.toml email-service/
 COPY email-service/build.rs email-service/
 COPY settings-service/Cargo.toml settings-service/
+COPY settings-service/build.rs settings-service/
 COPY shared-types shared-types/
 
 COPY proto/ proto/
