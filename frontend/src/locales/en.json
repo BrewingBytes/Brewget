@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign up",
+    "register": "Register",
+    "changePassword": "Change Password",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "forgotPassword": "Forgot Password?",
+    "goBack": "Go back",
+    "sendEmail": "Send me an email",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "errors": {
+      "activationInvalid": "Activation link is invalid.",
+      "loginInvalid": "Username or password is invalid.",
+      "registrationFailed": "Registration failed. Please try again.",
+      "forgotPasswordFailed": "Failed to send password reset email.",
+      "changePasswordInvalid": "Password reset link is invalid.",
+      "changePasswordFailed": "Failed to change password."
+    },
+    "success": {
+      "passwordChanged": "Account password has been changed.",
+      "emailSent": "Password reset email has been sent."
+    }
+  },
+  "settings": {
+    "title": "User Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "nightMode": "Night Mode",
+    "enableAlarm": "Enable Alarm",
+    "alarmTime": "Alarm Time",
+    "saveSettings": "Save Settings",
+    "selectLanguage": "Select a language",
+    "selectCurrency": "Select a currency",
+    "errors": {
+      "loadFailed": "Failed to load settings.",
+      "updateFailed": "Failed to update settings."
+    },
+    "success": {
+      "updated": "Settings updated successfully."
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  }
+}

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { useToastStore } from "./toast";
@@ -10,6 +11,7 @@ import { type ErrorResponse, ServerStatus } from "@/services/types";
 export const useAuthStore = defineStore("auth", () => {
   const token = ref("");
   const router = useRouter();
+  const { t } = useI18n();
 
   const isAuthenticated = computed(() => {
     if (token.value === "") {
@@ -25,7 +27,7 @@ export const useAuthStore = defineStore("auth", () => {
     const response = await authService.activate(values);
 
     if (response.status !== ServerStatus.NO_ERROR) {
-      useToastStore().showError("Activation link is invalid.");
+      useToastStore().showError(t("auth.errors.activationInvalid"));
     }
 
     router.push("/login");
@@ -36,7 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // If error fail
     if (response.status !== ServerStatus.NO_ERROR) {
-      useToastStore().showError("Username or password is invalid.");
+      useToastStore().showError(t("auth.errors.loginInvalid"));
       return;
     }
 
@@ -69,13 +71,13 @@ export const useAuthStore = defineStore("auth", () => {
   async function changePassword(values: { id: string, password: string }): Promise<void> {
     const response = await authService.changePassword(values);
     if (response.status === ServerStatus.UNPROCESSABLE_CONTENT) {
-      useToastStore().showError("Activation link is invalid.");
+      useToastStore().showError(t("auth.errors.changePasswordInvalid"));
     } else if (response.status === ServerStatus.BAD_REQUEST) {
       useToastStore().showError((response as ErrorResponse).data.message);
       return;
     }
 
-    useToastStore().showInfo("Account password has been changed.");
+    useToastStore().showInfo(t("auth.success.passwordChanged"));
     router.push("/login");
   }
 

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useAuthStore } from "@/stores/auth";
 
 const props = defineProps(["changePasswordId"]);
 
+const { t } = useI18n();
 const password = ref("");
 function buttonAction() {
     useAuthStore().changePassword({
@@ -28,10 +30,10 @@ function buttonAction() {
                     <InputIcon class="pi pi-lock text-white/70!" />
                     <InputText v-model="password" type="password"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Password" />
+                        :placeholder="t('auth.password')" />
                 </IconField>
             </div>
-            <Button @click="buttonAction" label="Change password"
+            <Button @click="buttonAction" :label="t('auth.changePassword')"
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />
         </div>
     </div>

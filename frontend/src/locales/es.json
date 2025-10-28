@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "register": "Registrarse",
+    "changePassword": "Cambiar Contraseña",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "goBack": "Volver",
+    "sendEmail": "Envíame un correo",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "email": "Correo electrónico",
+    "errors": {
+      "activationInvalid": "El enlace de activación no es válido.",
+      "loginInvalid": "El usuario o la contraseña no son válidos.",
+      "registrationFailed": "Registro fallido. Inténtalo de nuevo.",
+      "forgotPasswordFailed": "Error al enviar el correo de restablecimiento de contraseña.",
+      "changePasswordInvalid": "El enlace de restablecimiento de contraseña no es válido.",
+      "changePasswordFailed": "Error al cambiar la contraseña."
+    },
+    "success": {
+      "passwordChanged": "La contraseña de la cuenta ha sido cambiada.",
+      "emailSent": "Se ha enviado el correo de restablecimiento de contraseña."
+    }
+  },
+  "settings": {
+    "title": "Configuración de Usuario",
+    "language": "Idioma",
+    "currency": "Moneda",
+    "nightMode": "Modo Nocturno",
+    "enableAlarm": "Activar Alarma",
+    "alarmTime": "Hora de Alarma",
+    "saveSettings": "Guardar Configuración",
+    "selectLanguage": "Selecciona un idioma",
+    "selectCurrency": "Selecciona una moneda",
+    "errors": {
+      "loadFailed": "Error al cargar la configuración.",
+      "updateFailed": "Error al actualizar la configuración."
+    },
+    "success": {
+      "updated": "Configuración actualizada correctamente."
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  }
+}

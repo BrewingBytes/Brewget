@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "signIn": "Se Connecter",
+    "signUp": "S'inscrire",
+    "register": "S'inscrire",
+    "changePassword": "Changer le Mot de Passe",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "forgotPassword": "Mot de passe oublié ?",
+    "goBack": "Retour",
+    "sendEmail": "Envoyez-moi un email",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "email": "Email",
+    "errors": {
+      "activationInvalid": "Le lien d'activation n'est pas valide.",
+      "loginInvalid": "Le nom d'utilisateur ou le mot de passe n'est pas valide.",
+      "registrationFailed": "Échec de l'inscription. Veuillez réessayer.",
+      "forgotPasswordFailed": "Échec de l'envoi de l'email de réinitialisation du mot de passe.",
+      "changePasswordInvalid": "Le lien de réinitialisation du mot de passe n'est pas valide.",
+      "changePasswordFailed": "Échec du changement de mot de passe."
+    },
+    "success": {
+      "passwordChanged": "Le mot de passe du compte a été modifié.",
+      "emailSent": "L'email de réinitialisation du mot de passe a été envoyé."
+    }
+  },
+  "settings": {
+    "title": "Paramètres Utilisateur",
+    "language": "Langue",
+    "currency": "Devise",
+    "nightMode": "Mode Nuit",
+    "enableAlarm": "Activer l'Alarme",
+    "alarmTime": "Heure de l'Alarme",
+    "saveSettings": "Enregistrer les Paramètres",
+    "selectLanguage": "Sélectionnez une langue",
+    "selectCurrency": "Sélectionnez une devise",
+    "errors": {
+      "loadFailed": "Échec du chargement des paramètres.",
+      "updateFailed": "Échec de la mise à jour des paramètres."
+    },
+    "success": {
+      "updated": "Paramètres mis à jour avec succès."
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  }
+}

@@ -8,6 +8,7 @@ import PrimeVue from "primevue/config";
 import { createApp } from "vue";
 
 import App from "@/App.vue";
+import { i18n } from "@/i18n";
 import router from "@/router";
 
 const app = createApp(App);
@@ -17,6 +18,7 @@ pinia.use(piniaPluginPersistedstate);
 
 app.use(pinia);
 app.use(router);
+app.use(i18n);
 app.use(ToastService);
 app.use(PrimeVue, {
   theme: {

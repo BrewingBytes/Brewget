@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useAuthStore } from "@/stores/auth";
+
+const { t } = useI18n();
 
 enum ShownPage {
     Login,
@@ -22,22 +25,22 @@ const texts = computed(() => {
     switch (shownPage.value) {
         case ShownPage.Login:
             return {
-                spanText: "Don't have an account?",
-                loginRegisterText: "Sign up",
-                buttonText: "Sign In",
+                spanText: t("auth.dontHaveAccount"),
+                loginRegisterText: t("auth.signUp"),
+                buttonText: t("auth.signIn"),
             };
         case ShownPage.Register:
             return {
-                spanText: "Already have an account?",
-                loginRegisterText: "Sign in",
-                buttonText: "Register",
+                spanText: t("auth.alreadyHaveAccount"),
+                loginRegisterText: t("auth.signIn"),
+                buttonText: t("auth.register"),
             };
         case ShownPage.ForgotPassword:
         default:
             return {
-                spanText: "Forgot your password?",
+                spanText: t("auth.forgotPassword"),
                 loginRegisterText: "",
-                buttonText: "Send me an email",
+                buttonText: t("auth.sendEmail"),
             };
     }
 });
@@ -104,28 +107,27 @@ async function buttonAction() {
                     <InputIcon class="pi pi-at text-white/70!" />
                     <InputText v-model="email" type="text"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Email" />
+                        :placeholder="t('auth.email')" />
                 </IconField>
                 <IconField v-if="!isForgotPassword">
                     <InputIcon class="pi pi-user text-white/70!" />
                     <InputText v-model="username" type="text"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Username" />
+                        :placeholder="t('auth.username')" />
                 </IconField>
                 <IconField v-if="!isForgotPassword">
                     <InputIcon class="pi pi-lock text-white/70!" />
                     <InputText v-model="password" type="password"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Password" />
+                        :placeholder="t('auth.password')" />
                 </IconField>
             </div>
             <Button @click="buttonAction" :label="texts.buttonText"
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />
         </div>
         <a v-if="isLogin" @click="shownPage = ShownPage.ForgotPassword"
-            class="text-white/80 cursor-pointer hover:text-white/90">Forgot
-            Password?</a>
+            class="text-white/80 cursor-pointer hover:text-white/90">{{ t("auth.forgotPassword") }}</a>
         <a v-if="isForgotPassword" @click="shownPage = ShownPage.Login"
-            class="text-white/80 cursor-pointer hover:text-white/90">Go back</a>
+            class="text-white/80 cursor-pointer hover:text-white/90">{{ t("auth.goBack") }}</a>
     </div>
 </template>

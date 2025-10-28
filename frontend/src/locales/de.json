@@ -1,0 +1,57 @@
+{
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "register": "Registrieren",
+    "changePassword": "Passwort Ändern",
+    "dontHaveAccount": "Noch kein Konto?",
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+    "forgotPassword": "Passwort vergessen?",
+    "goBack": "Zurück",
+    "sendEmail": "Senden Sie mir eine E-Mail",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "email": "E-Mail",
+    "errors": {
+      "activationInvalid": "Der Aktivierungslink ist ungültig.",
+      "loginInvalid": "Benutzername oder Passwort ist ungültig.",
+      "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "forgotPasswordFailed": "Fehler beim Senden der Passwort-Zurücksetzen-E-Mail.",
+      "changePasswordInvalid": "Der Link zum Zurücksetzen des Passworts ist ungültig.",
+      "changePasswordFailed": "Fehler beim Ändern des Passworts."
+    },
+    "success": {
+      "passwordChanged": "Das Kontokennwort wurde geändert.",
+      "emailSent": "Die E-Mail zum Zurücksetzen des Passworts wurde gesendet."
+    }
+  },
+  "settings": {
+    "title": "Benutzereinstellungen",
+    "language": "Sprache",
+    "currency": "Währung",
+    "nightMode": "Nachtmodus",
+    "enableAlarm": "Alarm aktivieren",
+    "alarmTime": "Alarmzeit",
+    "saveSettings": "Einstellungen Speichern",
+    "selectLanguage": "Wählen Sie eine Sprache",
+    "selectCurrency": "Wählen Sie eine Währung",
+    "errors": {
+      "loadFailed": "Fehler beim Laden der Einstellungen.",
+      "updateFailed": "Fehler beim Aktualisieren der Einstellungen."
+    },
+    "success": {
+      "updated": "Einstellungen erfolgreich aktualisiert."
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  }
+}

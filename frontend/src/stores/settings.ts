@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useToastStore } from "./toast";
 
@@ -12,6 +13,7 @@ import { ServerStatus } from "@/services/types";
 export const useSettingsStore = defineStore("settings", () => {
   const settings = ref<Settings | null>(null);
   const loading = ref(false);
+  const { t } = useI18n();
 
   async function loadSettings(): Promise<void> {
     loading.value = true;
@@ -19,7 +21,7 @@ export const useSettingsStore = defineStore("settings", () => {
       const response = await settingsService.getSettings();
 
       if (response.status !== ServerStatus.NO_ERROR) {
-        useToastStore().showError("Failed to load settings.");
+        useToastStore().showError(t("settings.errors.loadFailed"));
         return;
       }
 
@@ -35,12 +37,12 @@ export const useSettingsStore = defineStore("settings", () => {
       const response = await settingsService.updateSettings(updates);
 
       if (response.status !== ServerStatus.NO_ERROR) {
-        useToastStore().showError("Failed to update settings.");
+        useToastStore().showError(t("settings.errors.updateFailed"));
         return false;
       }
 
       settings.value = response.data;
-      useToastStore().showInfo("Settings updated successfully.");
+      useToastStore().showInfo(t("settings.success.updated"));
       return true;
     } finally {
       loading.value = false;
