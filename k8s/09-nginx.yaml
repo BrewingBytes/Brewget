@@ -108,8 +108,8 @@ spec:
         configMap:
           name: nginx-config
       - name: tls-certs
-        secret:
-          secretName: brewget-tls
-          optional: true
+        hostPath:
+          path: /etc/letsencrypt/live/brewget.brewingbytes.com
+          type: Directory
       - name: certbot-webroot
         emptyDir: {}
