@@ -46,6 +46,11 @@ kubectl port-forward -n brewget service/nginx 8080:80
 
 ## Database Operations
 
+**Note:** Replace `user-name` with your actual PostgreSQL username from the secrets. To get the username:
+```bash
+kubectl get secret brewget-secrets -n brewget -o jsonpath='{.data.postgres-user}' | base64 -d
+```
+
 ```bash
 # Connect to PostgreSQL
 kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_auth
