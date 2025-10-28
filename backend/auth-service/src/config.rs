@@ -121,8 +121,7 @@ impl Config {
             .expect("EMAIL_GRPC_PORT must be an u32.");
         let frontend_hostname =
             var("FRONTEND_HOSTNAME").expect("FRONTEND_HOSTNAME must be provided.");
-        let turnstile_secret =
-            var("TURNSTILE_SECRET").expect("TURNSTILE_SECRET must be provided.");
+        let turnstile_secret = var("TURNSTILE_SECRET").expect("TURNSTILE_SECRET must be provided.");
 
         Self {
             auth_http_port,

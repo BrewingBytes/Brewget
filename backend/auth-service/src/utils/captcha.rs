@@ -40,7 +40,7 @@ struct TurnstileVerifyResponse {
 /// ```
 pub async fn verify_turnstile(token: &str, secret: &str) -> Result<(), String> {
     let client = reqwest::Client::new();
-    
+
     let request_body = TurnstileVerifyRequest {
         secret: secret.to_string(),
         response: token.to_string(),
