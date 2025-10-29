@@ -66,9 +66,30 @@ kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_auth -c "
 
 # View tables in settings database
 kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_settings -c "\dt"
+```
 
-# Backup database
-kubectl exec postgres-0 -n brewget -- pg_dump -U user-name brewget_auth > backup.sql
+## Backup and Restore
+
+```bash
+# Create manual backup
+cd k8s
+./backup-postgres.sh
+
+# Restore from backup
+cd k8s
+./restore-postgres.sh
+
+# List available backups
+kubectl exec postgres-0 -n brewget -- ls -lh /backup/
+
+# Download backup to local machine
+kubectl cp brewget/postgres-0:/backup/latest ./postgres-backup-$(date +%Y%m%d)
+
+# View backup CronJob status
+kubectl get cronjob postgres-backup -n brewget
+
+# Trigger manual backup job
+kubectl create job --from=cronjob/postgres-backup manual-backup-$(date +%Y%m%d-%H%M%S) -n brewget
 ```
 
 ## Scaling

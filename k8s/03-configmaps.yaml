@@ -93,3 +93,34 @@ data:
         EOSQL
 
         echo "Databases created successfully"
+        
+        # Attempt to restore from backup if available
+        if [ -f /backup/latest/brewget_auth.sql ] || [ -f /backup/latest/brewget_settings.sql ]; then
+            echo "Backup found, checking if restoration is needed..."
+            
+            # Check if brewget_auth is empty
+            AUTH_TABLES=$(psql -U "$POSTGRES_USER" -d brewget_auth -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | xargs)
+            if [ "$AUTH_TABLES" = "0" ] || [ "$AUTH_TABLES" = "" ]; then
+                if [ -f /backup/latest/brewget_auth.sql ]; then
+                    echo "Restoring brewget_auth database from backup..."
+                    psql -U "$POSTGRES_USER" -d brewget_auth < /backup/latest/brewget_auth.sql
+                    echo "brewget_auth restored successfully"
+                fi
+            else
+                echo "brewget_auth already has data, skipping restore"
+            fi
+            
+            # Check if brewget_settings is empty
+            SETTINGS_TABLES=$(psql -U "$POSTGRES_USER" -d brewget_settings -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | xargs)
+            if [ "$SETTINGS_TABLES" = "0" ] || [ "$SETTINGS_TABLES" = "" ]; then
+                if [ -f /backup/latest/brewget_settings.sql ]; then
+                    echo "Restoring brewget_settings database from backup..."
+                    psql -U "$POSTGRES_USER" -d brewget_settings < /backup/latest/brewget_settings.sql
+                    echo "brewget_settings restored successfully"
+                fi
+            else
+                echo "brewget_settings already has data, skipping restore"
+            fi
+        else
+            echo "No backup found, starting with fresh databases"
+        fi

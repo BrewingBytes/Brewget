@@ -19,6 +19,24 @@ The BrewGet application consists of the following components:
 - `kubectl` CLI tool installed and configured
 - Access to pull the container images from GitHub Container Registry
 
+### Minikube-Specific Setup
+
+When using minikube, PostgreSQL backups are automatically configured to persist on the host filesystem. This ensures data survives minikube restarts:
+
+```bash
+# Start minikube (if not already running)
+minikube start
+
+# The backup directory will be automatically created at:
+# /mnt/data/brewget-postgres-backups (inside minikube VM)
+
+# To access this directory from your host machine:
+minikube ssh
+ls -la /mnt/data/brewget-postgres-backups/
+```
+
+**Important**: When you stop or delete minikube, the backup directory persists in the minikube profile. When you start minikube again and redeploy BrewGet, PostgreSQL will automatically restore from the latest backup.
+
 ## Quick Start
 
 ### 1. Deploy to Kubernetes
@@ -154,6 +172,92 @@ volumeClaimTemplates:
           storage: 1Gi
 ```
 
+## Automatic Backup and Restore
+
+BrewGet includes an automatic backup and restore system for PostgreSQL that ensures data persists even when minikube is stopped or deleted.
+
+### How It Works
+
+1. **Automatic Backups**: A Kubernetes CronJob runs every 6 hours to backup all PostgreSQL databases
+2. **Persistent Storage**: Backups are stored in `/mnt/data/brewget-postgres-backups` on the host (outside minikube VM)
+3. **Automatic Restore**: When PostgreSQL starts with empty databases, it automatically restores from the latest backup
+4. **Data Safety**: The restore only works on empty databases to prevent accidental data loss
+
+### Manual Backup
+
+To manually create a backup:
+
+```bash
+cd k8s
+./backup-postgres.sh
+```
+
+This will:
+- Connect to the PostgreSQL pod
+- Create backups of all databases (postgres, brewget_auth, brewget_settings)
+- Store them in `/backup/latest` with a timestamp
+- Keep the last 10 backups automatically
+
+### Manual Restore
+
+To manually restore from a backup:
+
+```bash
+cd k8s
+./restore-postgres.sh
+```
+
+**Note**: The restore script will only restore to empty databases to prevent data loss. If databases already contain data, you'll need to drop them manually first.
+
+### Backup Location
+
+- **Inside Pod**: `/backup/`
+- **On Host**: `/mnt/data/brewget-postgres-backups` (minikube)
+
+### Downloading Backups
+
+To download a backup to your local machine:
+
+```bash
+# List available backups
+kubectl exec postgres-0 -n brewget -- ls -lh /backup/
+
+# Download the latest backup
+kubectl cp brewget/postgres-0:/backup/latest ./postgres-backup-$(date +%Y%m%d)
+```
+
+### Uploading Backups
+
+To upload a backup to the pod:
+
+```bash
+# Create backup directory in pod if needed
+kubectl exec postgres-0 -n brewget -- mkdir -p /backup/manual
+
+# Upload backup files
+kubectl cp ./your-backup-directory brewget/postgres-0:/backup/manual
+
+# Create symlink to make it the latest
+kubectl exec postgres-0 -n brewget -- ln -sfn /backup/manual /backup/latest
+```
+
+### CronJob Schedule
+
+The automatic backup runs every 6 hours. To change the schedule:
+
+```bash
+# Edit the CronJob
+kubectl edit cronjob postgres-backup -n brewget
+
+# Or update the schedule in 04-postgres-backup.yaml and reapply
+```
+
+Common cron schedules:
+- `0 */6 * * *` - Every 6 hours (default)
+- `0 */2 * * *` - Every 2 hours
+- `0 0 * * *` - Daily at midnight
+- `0 0 * * 0` - Weekly on Sunday at midnight
+
 ### Increasing Storage
 
 To increase storage size, you may need to:
@@ -235,10 +339,46 @@ kubectl rollout undo deployment/auth-service -n brewget
 To remove the entire application:
 
 ```bash
+# Using the cleanup script (recommended)
+cd k8s
+./cleanup.sh
+
+# Or manually
 kubectl delete namespace brewget
 ```
 
-**⚠️ WARNING**: This will delete all data including the PostgreSQL database.
+**⚠️ Note**: When you delete the namespace, the PostgreSQL pod and its data volume will be removed. However, **backups stored in `/mnt/data/brewget-postgres-backups` are preserved** and will be automatically restored when you redeploy.
+
+### Removing Backups
+
+If you want to completely remove everything including backups:
+
+```bash
+# Delete the namespace
+kubectl delete namespace brewget
+
+# For minikube, also remove the backup directory
+minikube ssh
+sudo rm -rf /mnt/data/brewget-postgres-backups
+exit
+```
+
+### Starting Fresh
+
+To start with a completely clean slate:
+
+```bash
+# Stop minikube
+minikube stop
+
+# Delete minikube cluster (this removes everything)
+minikube delete
+
+# Start fresh
+minikube start
+cd k8s
+./deploy.sh
+```
 
 To delete specific components:
 

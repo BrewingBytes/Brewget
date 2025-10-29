@@ -20,8 +20,11 @@ if ! kubectl get namespace brewget &> /dev/null; then
 fi
 
 # Ask for confirmation
-echo "⚠️  WARNING: This will delete all BrewGet resources including the database!"
-echo "   All data will be permanently lost."
+echo "⚠️  WARNING: This will delete all BrewGet resources!"
+echo "   The namespace and all pods will be removed."
+echo ""
+echo "   NOTE: PostgreSQL backups stored in /mnt/data/brewget-postgres-backups"
+echo "   on the host will be preserved and can be used when redeploying."
 echo ""
 read -p "Are you sure you want to continue? (yes/no): " -r
 echo ""
@@ -37,3 +40,7 @@ kubectl delete namespace brewget
 echo ""
 echo "✅ Cleanup complete!"
 echo "   All BrewGet resources have been removed."
+echo ""
+echo "💡 Note: PostgreSQL backups on the host are preserved."
+echo "   Location: /mnt/data/brewget-postgres-backups (inside minikube)"
+echo "   These backups will be automatically restored when you redeploy."

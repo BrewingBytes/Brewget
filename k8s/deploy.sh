@@ -32,6 +32,9 @@ kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 echo "🗄️  Deploying PostgreSQL..."
 kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
 
+echo "💾 Setting up PostgreSQL backup system..."
+kubectl apply -f "$SCRIPT_DIR/04-postgres-backup.yaml"
+
 echo "📧 Deploying email service..."
 kubectl apply -f "$SCRIPT_DIR/05-email-service.yaml"
 

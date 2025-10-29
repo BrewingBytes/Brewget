@@ -1,0 +1,207 @@
+---
+# PersistentVolume for PostgreSQL backups (hostPath for minikube)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-backup-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/brewget-postgres-backups"
+    type: DirectoryOrCreate
+
+---
+# PersistentVolumeClaim for PostgreSQL backups
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backup-pvc
+  namespace: brewget
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+# ConfigMap with backup and restore scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-backup-scripts
+  namespace: brewget
+data:
+  backup.sh: |
+    #!/bin/bash
+    set -e
+    
+    BACKUP_DIR="/backup"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_PATH="$BACKUP_DIR/backup_$TIMESTAMP"
+    
+    echo "Starting PostgreSQL backup at $(date)"
+    
+    # Create backup directory if it doesn't exist
+    mkdir -p "$BACKUP_PATH"
+    
+    # Backup all databases
+    echo "Backing up main postgres database..."
+    pg_dump -U "$POSTGRES_USER" -d postgres > "$BACKUP_PATH/postgres.sql"
+    
+    echo "Backing up brewget_auth database..."
+    pg_dump -U "$POSTGRES_USER" -d brewget_auth > "$BACKUP_PATH/brewget_auth.sql"
+    
+    echo "Backing up brewget_settings database..."
+    pg_dump -U "$POSTGRES_USER" -d brewget_settings > "$BACKUP_PATH/brewget_settings.sql"
+    
+    # Create a latest symlink
+    rm -f "$BACKUP_DIR/latest"
+    ln -s "$BACKUP_PATH" "$BACKUP_DIR/latest"
+    
+    echo "Backup completed successfully at $BACKUP_PATH"
+    
+    # Clean up old backups (keep last 10)
+    cd "$BACKUP_DIR"
+    ls -t | grep "backup_" | tail -n +11 | xargs -r rm -rf
+    
+    echo "Backup retention: Kept last 10 backups, cleaned up older ones"
+
+  restore.sh: |
+    #!/bin/bash
+    set -e
+    
+    BACKUP_DIR="/backup"
+    
+    # Function to check if database has been initialized
+    database_is_empty() {
+      local dbname=$1
+      local table_count=$(psql -U "$POSTGRES_USER" -d "$dbname" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | xargs)
+      [ "$table_count" = "0" ] || [ "$table_count" = "" ]
+    }
+    
+    echo "Checking for existing backups to restore..."
+    
+    # Check if backup directory exists and has backups
+    if [ ! -d "$BACKUP_DIR/latest" ]; then
+      echo "No backup found at $BACKUP_DIR/latest. Starting with fresh database."
+      exit 0
+    fi
+    
+    echo "Found backup at $BACKUP_DIR/latest"
+    
+    # Wait for PostgreSQL to be ready
+    echo "Waiting for PostgreSQL to be ready..."
+    until pg_isready -U "$POSTGRES_USER" -d postgres; do
+      echo "PostgreSQL is not ready yet, waiting..."
+      sleep 2
+    done
+    
+    echo "PostgreSQL is ready"
+    
+    # Check if databases are empty before restoring
+    SHOULD_RESTORE=false
+    
+    # Check brewget_auth database
+    if database_is_empty "brewget_auth"; then
+      echo "brewget_auth database is empty, will restore from backup"
+      SHOULD_RESTORE=true
+    else
+      echo "brewget_auth database already has data, skipping restore"
+    fi
+    
+    # Check brewget_settings database
+    if database_is_empty "brewget_settings"; then
+      echo "brewget_settings database is empty, will restore from backup"
+      SHOULD_RESTORE=true
+    else
+      echo "brewget_settings database already has data, skipping restore"
+    fi
+    
+    if [ "$SHOULD_RESTORE" = "false" ]; then
+      echo "All databases already contain data. Skipping restore to prevent data loss."
+      echo "If you want to restore from backup, manually drop the databases first."
+      exit 0
+    fi
+    
+    # Restore databases
+    echo "Starting restoration from backup..."
+    
+    if [ -f "$BACKUP_DIR/latest/brewget_auth.sql" ] && database_is_empty "brewget_auth"; then
+      echo "Restoring brewget_auth database..."
+      psql -U "$POSTGRES_USER" -d brewget_auth < "$BACKUP_DIR/latest/brewget_auth.sql"
+      echo "brewget_auth restored successfully"
+    fi
+    
+    if [ -f "$BACKUP_DIR/latest/brewget_settings.sql" ] && database_is_empty "brewget_settings"; then
+      echo "Restoring brewget_settings database..."
+      psql -U "$POSTGRES_USER" -d brewget_settings < "$BACKUP_DIR/latest/brewget_settings.sql"
+      echo "brewget_settings restored successfully"
+    fi
+    
+    echo "Restoration completed successfully at $(date)"
+
+---
+# CronJob for automatic PostgreSQL backups (every 6 hours)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: brewget
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: postgres:16-alpine
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                # Source the backup script and execute it
+                . /scripts/backup.sh
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: brewget-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: brewget-secrets
+                  key: postgres-password
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: brewget-secrets
+                  key: postgres-password
+            - name: PGHOST
+              value: "db.brewget.svc.cluster.local"
+            - name: PGPORT
+              value: "5432"
+            volumeMounts:
+            - name: backup-volume
+              mountPath: /backup
+            - name: backup-scripts
+              mountPath: /scripts
+          volumes:
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: postgres-backup-pvc
+          - name: backup-scripts
+            configMap:
+              name: postgres-backup-scripts
+              defaultMode: 0755
