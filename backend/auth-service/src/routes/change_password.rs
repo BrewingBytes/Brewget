@@ -47,8 +47,8 @@ async fn change_password_handler(
     validate_password(&body.password)
         .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
 
-    // Check if the password has been used in the last 3 passwords
-    let password_history_limit = 3;
+    // Check if the password has been used in recent passwords
+    let password_history_limit = state.config.password_history_limit;
     let recent_passwords = database::password_history::get_recent_passwords(
         link.get_uuid(),
         password_history_limit,
@@ -81,6 +81,14 @@ async fn change_password_handler(
 
     // Store the new password in history
     database::password_history::insert(link.get_uuid(), new_hashed_password, pool).await?;
+
+    // Cleanup old password history entries beyond the limit
+    database::password_history::cleanup_old_passwords(
+        link.get_uuid(),
+        password_history_limit,
+        pool,
+    )
+    .await?;
 
     // Delete the forgot password link from the db
     if database::forgot_password_links::delete(body.id, pool).await? != 1 {

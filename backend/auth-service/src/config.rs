@@ -27,6 +27,9 @@ use std::env::var;
 ///
 /// ## Captcha Configuration
 /// * `turnstile_secret` - Cloudflare Turnstile secret key for captcha verification
+///
+/// ## Password Security Configuration
+/// * `password_history_limit` - Number of previous passwords to prevent reuse (default: 3)
 #[derive(Clone)]
 pub struct Config {
     pub auth_http_port: u32,
@@ -43,6 +46,7 @@ pub struct Config {
     pub email_grpc_port: u32,
     pub frontend_hostname: String,
     pub turnstile_secret: String,
+    pub password_history_limit: i64,
 }
 
 impl Config {
@@ -67,6 +71,8 @@ impl Config {
     /// - `EMAIL_HOSTNAME` - Email service hostname
     /// - `EMAIL_GRPC_PORT` - Must be a valid u32 port number
     /// - `FRONTEND_HOSTNAME` - Frontend application hostname
+    /// - `TURNSTILE_SECRET` - Cloudflare Turnstile secret key
+    /// - `PASSWORD_HISTORY_LIMIT` - Number of previous passwords to prevent reuse (optional, defaults to 3)
     ///
     /// # Panics
     ///
@@ -122,6 +128,10 @@ impl Config {
         let frontend_hostname =
             var("FRONTEND_HOSTNAME").expect("FRONTEND_HOSTNAME must be provided.");
         let turnstile_secret = var("TURNSTILE_SECRET").expect("TURNSTILE_SECRET must be provided.");
+        let password_history_limit = var("PASSWORD_HISTORY_LIMIT")
+            .ok()
+            .and_then(|limit| limit.parse::<i64>().ok())
+            .unwrap_or(3);
 
         Self {
             auth_http_port,
@@ -138,6 +148,7 @@ impl Config {
             email_grpc_port,
             frontend_hostname,
             turnstile_secret,
+            password_history_limit,
         }
     }
 }

@@ -75,15 +75,16 @@ pub fn validate_password(password: &str) -> Result<(), String> {
 /// * `false` - If the password doesn't match any of the hashes
 ///
 /// # Note
-/// This function intentionally treats verification errors as non-matches (fail-open).
-/// This ensures availability - if there's a hash corruption or verification error,
-/// we still allow the user to set a new password rather than blocking them.
+/// This function treats hash verification failures as non-matches (fail-open).
+/// While this could theoretically allow password reuse if a hash is corrupted,
+/// it prevents users from being locked out. Hash corruption should be extremely
+/// rare with Argon2, and the database has integrity constraints to prevent
+/// corruption. This is a pragmatic balance between security and availability.
 pub fn is_password_in_history(password: &str, password_hashes: &[String]) -> bool {
     password_hashes
         .iter()
         .any(|hash| verify_password(password, hash).is_ok())
 }
-
 
 #[cfg(test)]
 mod tests {
