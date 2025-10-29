@@ -38,6 +38,7 @@ pub mod email_service {
 ///
 /// * `Ok(String)` - Successfully rendered HTML template
 /// * `Err(String)` - Error occurred during template rendering
+#[cfg(test)]
 pub fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
     Handlebars::new()
         .render_template(
@@ -59,6 +60,7 @@ pub fn render_activate_account_template(activation_link: &str) -> Result<String,
 ///
 /// * `Ok(String)` - Successfully rendered HTML template
 /// * `Err(String)` - Error occurred during template rendering
+#[cfg(test)]
 pub fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
     Handlebars::new()
         .render_template(
