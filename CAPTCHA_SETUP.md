@@ -14,16 +14,20 @@ This application uses Cloudflare Turnstile for captcha protection on authenticat
 
 ### Frontend Configuration
 
-Update the site key in `/frontend/src/components/AuthGlass.vue`:
+Set the `VITE_TURNSTILE_SITE_KEY` environment variable:
 
-```vue
-<VueTurnstile
-    v-model="captchaToken"
-    site-key="YOUR_SITE_KEY_HERE"
-    @verify="onCaptchaVerify"
-    theme="dark"
-/>
+**Option 1: Using .env file (recommended)**
+Create a `.env` file in the `frontend/` directory (or copy `.env.example`):
+```bash
+VITE_TURNSTILE_SITE_KEY=your_site_key_here
 ```
+
+**Option 2: Using environment variable**
+```bash
+export VITE_TURNSTILE_SITE_KEY=your_site_key_here
+```
+
+The site key defaults to the test key `1x00000000000000000000AA` if not set.
 
 ### Backend Configuration
 

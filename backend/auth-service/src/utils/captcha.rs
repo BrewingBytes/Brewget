@@ -32,7 +32,7 @@ struct TurnstileVerifyResponse {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,no_run
 /// use auth_service::utils::captcha::verify_turnstile;
 ///
 /// let result = verify_turnstile("token", "secret").await;

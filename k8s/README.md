@@ -119,7 +119,7 @@ For detailed captcha setup instructions, see [CAPTCHA_SETUP.md](../CAPTCHA_SETUP
 
 ### ConfigMaps
 
-The `02-configmaps.yaml` file contains:
+The `03-configmaps.yaml` file contains:
 
 1. **nginx-config**: Nginx configuration files
 2. **postgres-init**: Database initialization script

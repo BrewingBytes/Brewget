@@ -136,7 +136,7 @@ async function buttonAction() {
             <div class="flex justify-center w-full">
                 <VueTurnstile
                     v-model="captchaToken"
-                    site-key="1x00000000000000000000AA"
+                    :site-key="import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'"
                     @verify="onCaptchaVerify"
                     theme="dark"
                 />
