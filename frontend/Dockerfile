@@ -18,21 +18,19 @@ ENV NODE_ENV=production
 # Build the application
 RUN bun run build-only
 
-# Production stage - using lightweight static server
-FROM busybox:1.36
-
-# Install basic HTTP server
-RUN adduser -D static
-USER static
-WORKDIR /home/static
+# Production stage - using nginx for SPA routing
+FROM nginx:alpine
 
 # Copy built assets from builder
-COPY --from=builder /app/dist .
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration with SPA routing support
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port
 EXPOSE 80
 
-# Start simple HTTP server
-CMD ["busybox", "httpd", "-f", "-v", "-p", "80", "-h", "/home/static"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
 
 LABEL org.opencontainers.image.source=https://github.com/BrewingBytes/BrewGet
