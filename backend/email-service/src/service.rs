@@ -26,50 +26,6 @@ pub mod email_service {
     tonic::include_proto!("email_service");
 }
 
-/// Renders the activation account email template with the given link
-///
-/// This is a helper function for testing template rendering logic.
-///
-/// # Arguments
-///
-/// * `activation_link` - The activation link to include in the email
-///
-/// # Returns
-///
-/// * `Ok(String)` - Successfully rendered HTML template
-/// * `Err(String)` - Error occurred during template rendering
-#[cfg(test)]
-fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
-    Handlebars::new()
-        .render_template(
-            ACTIVATE_ACCOUNT_TEMPLATE,
-            &json!({"activation_link": activation_link}),
-        )
-        .map_err(|e| format!("Template rendering error: {}", e))
-}
-
-/// Renders the forgot password email template with the given link
-///
-/// This is a helper function for testing template rendering logic.
-///
-/// # Arguments
-///
-/// * `forgot_password_link` - The password reset link to include in the email
-///
-/// # Returns
-///
-/// * `Ok(String)` - Successfully rendered HTML template
-/// * `Err(String)` - Error occurred during template rendering
-#[cfg(test)]
-fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
-    Handlebars::new()
-        .render_template(
-            FORGOT_PASSWORD_TEMPLATE,
-            &json!({"forgot_password_link": forgot_password_link}),
-        )
-        .map_err(|e| format!("Template rendering error: {}", e))
-}
-
 /// Email service implementation
 ///
 /// This struct contains the configuration and SMTP transport needed to send emails.
@@ -312,6 +268,48 @@ impl EmailService for Service {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Renders the activation account email template with the given link
+    ///
+    /// This is a helper function for testing template rendering logic.
+    ///
+    /// # Arguments
+    ///
+    /// * `activation_link` - The activation link to include in the email
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(String)` - Successfully rendered HTML template
+    /// * `Err(String)` - Error occurred during template rendering
+    fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
+        Handlebars::new()
+            .render_template(
+                ACTIVATE_ACCOUNT_TEMPLATE,
+                &json!({"activation_link": activation_link}),
+            )
+            .map_err(|e| format!("Template rendering error: {}", e))
+    }
+
+    /// Renders the forgot password email template with the given link
+    ///
+    /// This is a helper function for testing template rendering logic.
+    ///
+    /// # Arguments
+    ///
+    /// * `forgot_password_link` - The password reset link to include in the email
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(String)` - Successfully rendered HTML template
+    /// * `Err(String)` - Error occurred during template rendering
+    fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
+        Handlebars::new()
+            .render_template(
+                FORGOT_PASSWORD_TEMPLATE,
+                &json!({"forgot_password_link": forgot_password_link}),
+            )
+            .map_err(|e| format!("Template rendering error: {}", e))
+    }
 
     #[test]
     fn test_render_activate_account_template() {
