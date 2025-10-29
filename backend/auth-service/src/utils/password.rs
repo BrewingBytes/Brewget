@@ -63,3 +63,115 @@ pub fn validate_password(password: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hash_password_success() {
+        let password = "TestPassword123";
+        let result = hash_password(password);
+        assert!(result.is_ok());
+        
+        let hash = result.unwrap();
+        assert!(!hash.is_empty());
+        assert!(hash.starts_with("$argon2"));
+    }
+
+    #[test]
+    fn test_hash_password_generates_different_hashes() {
+        let password = "TestPassword123";
+        let hash1 = hash_password(password).unwrap();
+        let hash2 = hash_password(password).unwrap();
+        
+        // Different salts should produce different hashes
+        assert_ne!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_verify_password_success() {
+        let password = "TestPassword123";
+        let hash = hash_password(password).unwrap();
+        
+        let result = verify_password(password, &hash);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_verify_password_wrong_password() {
+        let password = "TestPassword123";
+        let wrong_password = "WrongPassword456";
+        let hash = hash_password(password).unwrap();
+        
+        let result = verify_password(wrong_password, &hash);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_verify_password_invalid_hash() {
+        let password = "TestPassword123";
+        let invalid_hash = "not_a_valid_hash";
+        
+        let result = verify_password(password, invalid_hash);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_password_success() {
+        let password = "ValidPass123";
+        let result = validate_password(password);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_password_too_short() {
+        let password = "Short1";
+        let result = validate_password(password);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            "Password must be at least 8 characters long"
+        );
+    }
+
+    #[test]
+    fn test_validate_password_no_uppercase() {
+        let password = "lowercase123";
+        let result = validate_password(password);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            "Password must contain at least one uppercase letter"
+        );
+    }
+
+    #[test]
+    fn test_validate_password_no_number() {
+        let password = "NoNumbersHere";
+        let result = validate_password(password);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            "Password must contain at least one number"
+        );
+    }
+
+    #[test]
+    fn test_validate_password_only_lowercase_and_number() {
+        let password = "lowercase1";
+        let result = validate_password(password);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            "Password must contain at least one uppercase letter"
+        );
+    }
+
+    #[test]
+    fn test_validate_password_minimum_valid() {
+        let password = "Minimum1";
+        let result = validate_password(password);
+        assert!(result.is_ok());
+    }
+}

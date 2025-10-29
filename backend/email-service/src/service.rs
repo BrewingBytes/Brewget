@@ -26,6 +26,48 @@ pub mod email_service {
     tonic::include_proto!("email_service");
 }
 
+/// Renders the activation account email template with the given link
+///
+/// This is a public helper function for testing template rendering logic.
+///
+/// # Arguments
+///
+/// * `activation_link` - The activation link to include in the email
+///
+/// # Returns
+///
+/// * `Ok(String)` - Successfully rendered HTML template
+/// * `Err(String)` - Error occurred during template rendering
+pub fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
+    Handlebars::new()
+        .render_template(
+            ACTIVATE_ACCOUNT_TEMPLATE,
+            &json!({"activation_link": activation_link}),
+        )
+        .map_err(|e| format!("Template rendering error: {}", e))
+}
+
+/// Renders the forgot password email template with the given link
+///
+/// This is a public helper function for testing template rendering logic.
+///
+/// # Arguments
+///
+/// * `forgot_password_link` - The password reset link to include in the email
+///
+/// # Returns
+///
+/// * `Ok(String)` - Successfully rendered HTML template
+/// * `Err(String)` - Error occurred during template rendering
+pub fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
+    Handlebars::new()
+        .render_template(
+            FORGOT_PASSWORD_TEMPLATE,
+            &json!({"forgot_password_link": forgot_password_link}),
+        )
+        .map_err(|e| format!("Template rendering error: {}", e))
+}
+
 /// Email service implementation
 ///
 /// This struct contains the configuration and SMTP transport needed to send emails.
@@ -262,5 +304,75 @@ impl EmailService for Service {
 
         let reply = ForgotPasswordResponse { success: true };
         Ok(Response::new(reply))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_render_activate_account_template() {
+        let activation_link = "https://example.com/activate?token=abc123";
+        let result = render_activate_account_template(activation_link);
+        
+        assert!(result.is_ok());
+        let rendered = result.unwrap();
+        // Template uses {{activation_link}} which Handlebars will replace
+        // Just verify the template renders successfully and contains HTML structure
+        assert!(rendered.contains("html"));
+        assert!(rendered.contains("Activate"));
+    }
+
+    #[test]
+    fn test_render_activate_account_template_with_special_chars() {
+        let activation_link = "https://example.com/activate?token=abc123&param=value";
+        let result = render_activate_account_template(activation_link);
+        
+        assert!(result.is_ok());
+        let rendered = result.unwrap();
+        // Handlebars escapes special characters by default
+        assert!(rendered.contains("abc123"));
+    }
+
+    #[test]
+    fn test_render_forgot_password_template() {
+        let reset_link = "https://example.com/reset?token=xyz789";
+        let result = render_forgot_password_template(reset_link);
+        
+        assert!(result.is_ok());
+        let rendered = result.unwrap();
+        // Template uses {{forgot_password_link}} which Handlebars will replace
+        // Just verify the template renders successfully and contains HTML structure
+        assert!(rendered.contains("html"));
+        assert!(rendered.contains("Reset"));
+    }
+
+    #[test]
+    fn test_render_forgot_password_template_with_special_chars() {
+        let reset_link = "https://example.com/reset?token=xyz789&param=value";
+        let result = render_forgot_password_template(reset_link);
+        
+        assert!(result.is_ok());
+        let rendered = result.unwrap();
+        assert!(rendered.contains("xyz789"));
+    }
+
+    #[test]
+    fn test_render_activate_account_template_empty_link() {
+        let result = render_activate_account_template("");
+        assert!(result.is_ok());
+        // Even with empty link, template should render
+        let rendered = result.unwrap();
+        assert!(rendered.contains("html"));
+    }
+
+    #[test]
+    fn test_render_forgot_password_template_empty_link() {
+        let result = render_forgot_password_template("");
+        assert!(result.is_ok());
+        // Even with empty link, template should render
+        let rendered = result.unwrap();
+        assert!(rendered.contains("html"));
     }
 }
