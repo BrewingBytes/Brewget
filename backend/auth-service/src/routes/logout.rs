@@ -49,10 +49,15 @@ async fn logout_handler(
     State(state): State<Arc<AppState>>,
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!("Logout request for user_id: {}", user_uuid);
+
     // Delete all tokens for the user
     let pool = state.get_database_pool();
-    database::tokens::delete_by_uuid(Uuid::from_str(&user_uuid)?, pool).await?;
+    let uuid = Uuid::from_str(&user_uuid)?;
+    tracing::debug!("Deleting tokens for user_id: {}", user_uuid);
+    database::tokens::delete_by_uuid(uuid, pool).await?;
 
+    tracing::info!("Logout successful for user_id: {}", user_uuid);
     // Return success message
     Ok(Json(Message {
         message: "Ok".into(),

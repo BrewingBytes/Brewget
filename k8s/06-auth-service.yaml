@@ -35,7 +35,7 @@ spec:
     spec:
       initContainers:
         - name: wait-for-db
-          image: postgres:16-alpine
+          image: postgres:17-alpine
           command:
             - sh
             - -c
@@ -51,7 +51,7 @@ spec:
                   name: brewget-secrets
                   key: postgres-user
         - name: wait-for-email-service
-          image: busybox:1.36
+          image: busybox:1.37
           command:
             - sh
             - -c
@@ -71,7 +71,7 @@ spec:
         - name: ghcr-login-secret
       containers:
         - name: auth-service
-          image: ghcr.io/brewingbytes/brewget-auth-service:0.0.10
+          image: ghcr.io/brewingbytes/brewget-auth-service:0.0.11
           ports:
             - containerPort: 8000
               name: http

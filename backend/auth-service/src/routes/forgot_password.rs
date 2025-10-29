@@ -34,10 +34,17 @@ async fn forgot_password_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<ForgotPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!("Forgot password request for email: {}", body.email);
+
     // Verify captcha token
+    tracing::debug!("Verifying captcha token for forgot password");
     crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
         .await
         .map_err(|_| -> Error {
+            tracing::warn!(
+                "Captcha verification failed for forgot password: {}",
+                body.email
+            );
             (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
         })?;
 
@@ -48,11 +55,13 @@ async fn forgot_password_handler(
     tokio::spawn(async move {
         let pool = state_clone.get_database_pool();
         if let Ok(user) = database::users::filter_by_email(&email, pool).await {
+            tracing::debug!("User found for forgot password: {}", user.get_uuid());
             let new_forgot_password_link = NewForgotPasswordLink::new(user.get_uuid());
             if database::forgot_password_links::insert(new_forgot_password_link.clone(), pool)
                 .await
                 .is_ok()
             {
+                tracing::debug!("Forgot password link created, sending email to: {}", email);
                 // Prepare and send email
                 let request = ForgotPasswordRequest {
                     username: user.get_username(),
@@ -61,9 +70,18 @@ async fn forgot_password_handler(
                 };
 
                 if let Err(e) = state_clone.send_forgot_password(request).await {
-                    println!("Failed to send forgot password email: {}", e);
+                    tracing::error!("Failed to send forgot password email: {}", e);
+                } else {
+                    tracing::info!("Forgot password email sent successfully to: {}", email);
                 }
+            } else {
+                tracing::error!(
+                    "Failed to insert forgot password link for user: {}",
+                    user.get_uuid()
+                );
             }
+        } else {
+            tracing::debug!("No user found for forgot password email: {}", email);
         }
     });
 
