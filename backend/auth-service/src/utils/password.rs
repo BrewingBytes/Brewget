@@ -73,6 +73,11 @@ pub fn validate_password(password: &str) -> Result<(), String> {
 /// # Returns
 /// * `true` - If the password matches any of the hashes
 /// * `false` - If the password doesn't match any of the hashes
+///
+/// # Note
+/// This function intentionally treats verification errors as non-matches (fail-open).
+/// This ensures availability - if there's a hash corruption or verification error,
+/// we still allow the user to set a new password rather than blocking them.
 pub fn is_password_in_history(password: &str, password_hashes: &[String]) -> bool {
     password_hashes
         .iter()

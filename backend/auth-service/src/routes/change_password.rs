@@ -48,8 +48,13 @@ async fn change_password_handler(
         .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
 
     // Check if the password has been used in the last 3 passwords
-    let recent_passwords = database::password_history::get_recent_passwords(link.get_uuid(), 3, pool)
-        .await?;
+    let password_history_limit = 3;
+    let recent_passwords = database::password_history::get_recent_passwords(
+        link.get_uuid(),
+        password_history_limit,
+        pool,
+    )
+    .await?;
     let recent_hashes: Vec<String> = recent_passwords
         .iter()
         .map(|ph| ph.get_password_hash())
@@ -58,7 +63,7 @@ async fn change_password_handler(
     if is_password_in_history(&body.password, &recent_hashes) {
         return Err((
             StatusCode::BAD_REQUEST,
-            "Password cannot be the same as any of the last 3 passwords.",
+            "Password cannot be the same as any of your recently used passwords.",
         )
             .into());
     }
