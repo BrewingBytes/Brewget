@@ -14,7 +14,8 @@ use serde::Deserialize;
 /// {
 ///     "username": "user",
 ///     "email": "user@example.com",
-///     "password": "secretpassword123"
+///     "password": "secretpassword123",
+///     "captchaToken": "token123"
 /// }
 /// ```
 #[derive(Deserialize)]
@@ -22,4 +23,6 @@ pub struct RegisterInfo {
     pub username: String,
     pub email: String,
     pub password: String,
+    #[serde(rename = "captchaToken")]
+    pub captcha_token: String,
 }

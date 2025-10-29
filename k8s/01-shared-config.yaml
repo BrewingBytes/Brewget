@@ -18,6 +18,3 @@ data:
 
   # CORS configuration
   CORS_URL: "http://brewget.brewingbytes.com"
-
-  # API endpoint
-  VITE_API_ENDPOINT: "http://brewget.brewingbytes.com"

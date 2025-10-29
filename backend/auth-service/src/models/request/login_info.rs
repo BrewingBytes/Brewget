@@ -12,11 +12,14 @@ use serde::Deserialize;
 /// ```json
 /// {
 ///     "username": "user",
-///     "password": "secretpassword123"
+///     "password": "secretpassword123",
+///     "captchaToken": "token123"
 /// }
 /// ```
 #[derive(Deserialize)]
 pub struct LoginInfo {
     pub username: String,
     pub password: String,
+    #[serde(rename = "captchaToken")]
+    pub captcha_token: String,
 }

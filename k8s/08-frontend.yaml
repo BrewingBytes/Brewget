@@ -52,7 +52,7 @@ spec:
         - name: ghcr-login-secret
       containers:
         - name: frontend
-          image: ghcr.io/brewingbytes/brewget-frontend:0.0.6
+          image: ghcr.io/brewingbytes/brewget-frontend:0.0.7
           ports:
             - containerPort: 80
               name: http

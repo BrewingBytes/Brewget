@@ -24,6 +24,9 @@ use std::env::var;
 /// * `email_hostname` - Hostname of the email service for gRPC communication
 /// * `email_grpc_port` - Port number for the email service gRPC server
 /// * `frontend_hostname` - Hostname of the frontend application for URL generation
+///
+/// ## Captcha Configuration
+/// * `turnstile_secret` - Cloudflare Turnstile secret key for captcha verification
 #[derive(Clone)]
 pub struct Config {
     pub auth_http_port: u32,
@@ -39,6 +42,7 @@ pub struct Config {
     pub email_hostname: String,
     pub email_grpc_port: u32,
     pub frontend_hostname: String,
+    pub turnstile_secret: String,
 }
 
 impl Config {
@@ -117,6 +121,7 @@ impl Config {
             .expect("EMAIL_GRPC_PORT must be an u32.");
         let frontend_hostname =
             var("FRONTEND_HOSTNAME").expect("FRONTEND_HOSTNAME must be provided.");
+        let turnstile_secret = var("TURNSTILE_SECRET").expect("TURNSTILE_SECRET must be provided.");
 
         Self {
             auth_http_port,
@@ -132,6 +137,7 @@ impl Config {
             email_hostname,
             email_grpc_port,
             frontend_hostname,
+            turnstile_secret,
         }
     }
 }

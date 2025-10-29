@@ -11,9 +11,12 @@ use serde::Deserialize;
 /// ```json
 /// {
 ///     "email": "test@test.com",
+///     "captchaToken": "token123"
 /// }
 /// ```
 #[derive(Deserialize)]
 pub struct ForgotPasswordInfo {
     pub email: String,
+    #[serde(rename = "captchaToken")]
+    pub captcha_token: String,
 }

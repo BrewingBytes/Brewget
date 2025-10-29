@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import VueTurnstile from "vue-turnstile";
 
 import { useAuthStore } from "@/stores/auth";
+import { TURNSTILE_SITE_KEY } from "@/utils/consts";
 
 enum ShownPage {
     Login,
@@ -17,6 +19,7 @@ const isForgotPassword = computed(() => shownPage.value === ShownPage.ForgotPass
 const username = ref("");
 const password = ref("");
 const email = ref("");
+const captchaToken = ref("");
 
 const texts = computed(() => {
     switch (shownPage.value) {
@@ -54,15 +57,25 @@ function resetToLogin() {
     email.value = "";
     username.value = "";
     password.value = "";
+    captchaToken.value = "";
 
     shownPage.value = ShownPage.Login;
 }
 
+function onCaptchaVerify(token: string) {
+    captchaToken.value = token;
+}
+
 async function buttonAction() {
+    if (!captchaToken.value) {
+        return;
+    }
+
     if (isLogin.value) {
         await useAuthStore().login({
             username: username.value,
             password: password.value,
+            captchaToken: captchaToken.value,
         });
     } else if (isRegister.value) {
         if (
@@ -70,6 +83,7 @@ async function buttonAction() {
                 email: email.value,
                 username: username.value,
                 password: password.value,
+                captchaToken: captchaToken.value,
             })) {
             resetToLogin();
         }
@@ -77,6 +91,7 @@ async function buttonAction() {
         if (
             await useAuthStore().forgotPassword({
                 email: email.value,
+                captchaToken: captchaToken.value,
             })) {
             resetToLogin();
         }
@@ -118,6 +133,10 @@ async function buttonAction() {
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
                         placeholder="Password" />
                 </IconField>
+            </div>
+            <div class="flex justify-center w-full">
+                <VueTurnstile v-model="captchaToken" :site-key="TURNSTILE_SITE_KEY" @verify="onCaptchaVerify"
+                    theme="dark" />
             </div>
             <Button @click="buttonAction" :label="texts.buttonText"
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />

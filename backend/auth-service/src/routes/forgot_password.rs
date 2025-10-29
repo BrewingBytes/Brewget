@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, response::IntoResponse, routing::post};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
 
 use crate::{
     AppState, database,
@@ -34,6 +34,13 @@ async fn forgot_password_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<ForgotPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Verify captcha token
+    crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
+        .await
+        .map_err(|_| -> Error {
+            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+        })?;
+
     // Clone necessary data for the async processing
     let email = body.email.clone();
     let state_clone = state.clone();

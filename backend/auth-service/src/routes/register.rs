@@ -60,6 +60,13 @@ async fn register_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    // Verify captcha token
+    crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
+        .await
+        .map_err(|_| -> Error {
+            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+        })?;
+
     // Validate username length
     if body.username.len() <= 3 {
         return Err((

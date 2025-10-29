@@ -88,17 +88,18 @@ Then access at `http://localhost:8080`
 
 ### Secrets
 
-The application requires several secrets configured in `01-secrets.yaml`:
+The application requires several secrets configured in `02-secrets.yaml`:
 
 - **Database credentials**: `postgres-user`, `postgres-password`
 - **JWT configuration**: `jwt-secret`
 - **SMTP credentials**: `smtp-email`, `smtp-name`, `smtp-relay`, `smtp-username`, `smtp-password`
+- **Captcha configuration**: `turnstile-secret` (Cloudflare Turnstile secret key)
 
 **⚠️ IMPORTANT**: Before deploying to production, update the secrets with secure values:
 
 ```bash
 # Edit the secrets file
-nano k8s/01-secrets.yaml
+nano k8s/02-secrets.yaml
 
 # Or create a secret from command line
 kubectl create secret generic brewget-secrets \
@@ -110,12 +111,15 @@ kubectl create secret generic brewget-secrets \
   --from-literal=smtp-relay=<your-smtp-server> \
   --from-literal=smtp-username=<your-smtp-user> \
   --from-literal=smtp-password=<your-smtp-password> \
-  -n brewget --dry-run=client -o yaml > k8s/01-secrets.yaml
+  --from-literal=turnstile-secret=<your-turnstile-secret> \
+  -n brewget --dry-run=client -o yaml > k8s/02-secrets.yaml
 ```
+
+For detailed captcha setup instructions, see [CAPTCHA_SETUP.md](../CAPTCHA_SETUP.md).
 
 ### ConfigMaps
 
-The `02-configmaps.yaml` file contains:
+The `03-configmaps.yaml` file contains:
 
 1. **nginx-config**: Nginx configuration files
 2. **postgres-init**: Database initialization script
