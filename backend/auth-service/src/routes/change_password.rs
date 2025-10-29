@@ -8,7 +8,7 @@ use crate::{
         request::reset_password_info::ResetPasswordInfo,
         response::{Error, Message},
     },
-    utils::password::{hash_password, validate_password},
+    utils::password::{hash_password, is_password_in_history, validate_password},
 };
 
 /// Creates a router for the change password routes
@@ -46,6 +46,28 @@ async fn change_password_handler(
     // Check if the password is ok and hash it
     validate_password(&body.password)
         .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
+
+    // Check if the password has been used in recent passwords
+    let password_history_limit = state.config.password_history_limit;
+    let recent_passwords = database::password_history::get_recent_passwords(
+        link.get_uuid(),
+        password_history_limit,
+        pool,
+    )
+    .await?;
+    let recent_hashes: Vec<String> = recent_passwords
+        .iter()
+        .map(|ph| ph.get_password_hash())
+        .collect();
+
+    if is_password_in_history(&body.password, &recent_hashes) {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "Password cannot be the same as any of your recently used passwords.",
+        )
+            .into());
+    }
+
     let new_hashed_password = hash_password(&body.password).map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -54,8 +76,38 @@ async fn change_password_handler(
             .into()
     })?;
 
+    // Use a transaction to ensure atomicity of password update and history insertion
+    let mut tx = pool.begin().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Database transaction error.",
+        )
+            .into()
+    })?;
+
     // Change the password of the user
-    database::users::change_password(link.get_uuid(), new_hashed_password, pool).await?;
+    database::users::change_password(link.get_uuid(), new_hashed_password.clone(), &mut *tx)
+        .await?;
+
+    // Store the new password in history
+    database::password_history::insert(link.get_uuid(), new_hashed_password, &mut *tx).await?;
+
+    // Cleanup old password history entries beyond the limit
+    database::password_history::cleanup_old_passwords(
+        link.get_uuid(),
+        password_history_limit,
+        &mut *tx,
+    )
+    .await?;
+
+    // Commit the transaction
+    tx.commit().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to commit transaction.",
+        )
+            .into()
+    })?;
 
     // Delete the forgot password link from the db
     if database::forgot_password_links::delete(body.id, pool).await? != 1 {

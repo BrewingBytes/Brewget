@@ -108,12 +108,37 @@ async fn register_handler(
                 .into()
         })?;
 
+    // Store the password hash for the initial password history entry
+    let user_uuid = new_user.get_uuid();
+    let password_hash = new_user.get_password_hash();
+
     // Create new activation link
-    let new_activation_link = NewActivationLink::new(new_user.get_uuid());
+    let new_activation_link = NewActivationLink::new(user_uuid);
     let link = new_activation_link.get_link(&state.config);
 
-    database::users::insert(new_user, pool).await?;
-    database::activation_links::insert(new_activation_link, pool).await?;
+    // Use a transaction to ensure atomicity of user creation, activation link, and password history
+    let mut tx = pool.begin().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Database transaction error.",
+        )
+            .into()
+    })?;
+
+    database::users::insert(new_user, &mut *tx).await?;
+    database::activation_links::insert(new_activation_link, &mut *tx).await?;
+
+    // Store initial password in history
+    database::password_history::insert(user_uuid, password_hash, &mut *tx).await?;
+
+    // Commit the transaction
+    tx.commit().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to commit transaction.",
+        )
+            .into()
+    })?;
 
     // Send confirmation email
     let request = ActivateAccountRequest {
