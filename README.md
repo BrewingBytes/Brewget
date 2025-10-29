@@ -17,10 +17,11 @@ BrewGet consists of the following services:
 
 For local development with hot-reloading:
 
-```bash
-cp .env.example .env
-docker compose watch
-```
+1. Set up infrastructure (PostgreSQL, etc.) - see [DEVELOPMENT.md](DEVELOPMENT.md) for details
+2. Copy environment file: `cp .env.example .env`
+3. Run services: `./dev.sh`
+
+The dev script uses cargo-watch to automatically rebuild Rust services when code changes.
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed local development instructions.
 
