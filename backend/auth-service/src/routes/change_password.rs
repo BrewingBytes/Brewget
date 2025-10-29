@@ -76,19 +76,38 @@ async fn change_password_handler(
             .into()
     })?;
 
+    // Use a transaction to ensure atomicity of password update and history insertion
+    let mut tx = pool.begin().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Database transaction error.",
+        )
+            .into()
+    })?;
+
     // Change the password of the user
-    database::users::change_password(link.get_uuid(), new_hashed_password.clone(), pool).await?;
+    database::users::change_password(link.get_uuid(), new_hashed_password.clone(), &mut *tx)
+        .await?;
 
     // Store the new password in history
-    database::password_history::insert(link.get_uuid(), new_hashed_password, pool).await?;
+    database::password_history::insert(link.get_uuid(), new_hashed_password, &mut *tx).await?;
 
     // Cleanup old password history entries beyond the limit
     database::password_history::cleanup_old_passwords(
         link.get_uuid(),
         password_history_limit,
-        pool,
+        &mut *tx,
     )
     .await?;
+
+    // Commit the transaction
+    tx.commit().await.map_err(|_| -> Error {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to commit transaction.",
+        )
+            .into()
+    })?;
 
     // Delete the forgot password link from the db
     if database::forgot_password_links::delete(body.id, pool).await? != 1 {

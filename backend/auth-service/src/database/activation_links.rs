@@ -1,5 +1,5 @@
 use axum::http::StatusCode;
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres};
 use uuid::Uuid;
 
 use crate::models::{
@@ -11,12 +11,18 @@ use crate::models::{
 ///
 /// # Arguments
 /// * `new_activation_link` - The activation link record to insert
-/// * `pool` - Database connection pool
+/// * `executor` - Database connection pool or transaction
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn insert(new_activation_link: NewActivationLink, pool: &PgPool) -> Result<usize, Error> {
+pub async fn insert<'a, E>(
+    new_activation_link: NewActivationLink,
+    executor: E,
+) -> Result<usize, Error>
+where
+    E: sqlx::Executor<'a, Database = Postgres>,
+{
     sqlx::query(
         r#"
         INSERT INTO activation_links (id, user_id)
@@ -25,7 +31,7 @@ pub async fn insert(new_activation_link: NewActivationLink, pool: &PgPool) -> Re
     )
     .bind(new_activation_link.id)
     .bind(new_activation_link.user_id)
-    .execute(pool)
+    .execute(executor)
     .await
     .map(|result| result.rows_affected() as usize)
     .map_err(|e| e.into())

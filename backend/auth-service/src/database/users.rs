@@ -1,5 +1,5 @@
 use axum::http::StatusCode;
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres};
 use uuid::Uuid;
 
 use crate::models::{
@@ -11,12 +11,15 @@ use crate::models::{
 ///
 /// # Arguments
 /// * `new_user` - The user record to insert
-/// * `pool` - Database connection pool
+/// * `executor` - Database connection pool or transaction
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn insert(new_user: NewUser, pool: &PgPool) -> Result<usize, Error> {
+pub async fn insert<'a, E>(new_user: NewUser, executor: E) -> Result<usize, Error>
+where
+    E: sqlx::Executor<'a, Database = Postgres>,
+{
     sqlx::query(
         r#"
         INSERT INTO users (id, username, password, email)
@@ -27,7 +30,7 @@ pub async fn insert(new_user: NewUser, pool: &PgPool) -> Result<usize, Error> {
     .bind(new_user.username)
     .bind(new_user.password)
     .bind(new_user.email)
-    .execute(pool)
+    .execute(executor)
     .await
     .map(|result| result.rows_affected() as usize)
     .map_err(|e| e.into())
@@ -162,16 +165,19 @@ pub async fn set_verified(find_uuid: Uuid, pool: &PgPool) -> Result<usize, Error
 /// # Arguments
 /// * `find_uuid` - The user account to update
 /// * `new_hashed_password` - The new hashed password for the user account
-/// * `pool` - Database connection pool
+/// * `executor` - Database connection pool or transaction
 ///
 /// # Returns
 /// * `Ok(usize)` - The amount of users set as verified, 1 means successfull
 /// * `Err(Error)` - Database operation error
-pub async fn change_password(
+pub async fn change_password<'a, E>(
     find_uuid: Uuid,
     new_hashed_password: String,
-    pool: &PgPool,
-) -> Result<usize, Error> {
+    executor: E,
+) -> Result<usize, Error>
+where
+    E: sqlx::Executor<'a, Database = Postgres>,
+{
     sqlx::query(
         r#"
         UPDATE users
@@ -181,7 +187,7 @@ pub async fn change_password(
     )
     .bind(new_hashed_password)
     .bind(find_uuid)
-    .execute(pool)
+    .execute(executor)
     .await
     .map(|result| result.rows_affected() as usize)
     .map_err(|_| {

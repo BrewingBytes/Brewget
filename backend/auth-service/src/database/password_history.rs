@@ -1,5 +1,5 @@
 use axum::http::StatusCode;
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres};
 use uuid::Uuid;
 
 use crate::models::{password_history::PasswordHistory, response::Error};
@@ -9,12 +9,19 @@ use crate::models::{password_history::PasswordHistory, response::Error};
 /// # Arguments
 /// * `user_id` - The UUID of the user
 /// * `password_hash` - The hashed password to store in history
-/// * `pool` - Database connection pool
+/// * `executor` - Database connection pool or transaction
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows inserted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn insert(user_id: Uuid, password_hash: String, pool: &PgPool) -> Result<usize, Error> {
+pub async fn insert<'a, E>(
+    user_id: Uuid,
+    password_hash: String,
+    executor: E,
+) -> Result<usize, Error>
+where
+    E: sqlx::Executor<'a, Database = Postgres>,
+{
     sqlx::query(
         r#"
         INSERT INTO password_history (user_id, password_hash)
@@ -23,7 +30,7 @@ pub async fn insert(user_id: Uuid, password_hash: String, pool: &PgPool) -> Resu
     )
     .bind(user_id)
     .bind(password_hash)
-    .execute(pool)
+    .execute(executor)
     .await
     .map(|result| result.rows_affected() as usize)
     .map_err(|e| e.into())
@@ -37,16 +44,19 @@ pub async fn insert(user_id: Uuid, password_hash: String, pool: &PgPool) -> Resu
 /// # Arguments
 /// * `user_id` - The UUID of the user
 /// * `keep_limit` - Number of recent passwords to keep
-/// * `pool` - Database connection pool
+/// * `executor` - Database connection pool or transaction
 ///
 /// # Returns
 /// * `Ok(usize)` - Number of rows deleted
 /// * `Err(Error)` - Database operation error
-pub async fn cleanup_old_passwords(
+pub async fn cleanup_old_passwords<'a, E>(
     user_id: Uuid,
     keep_limit: i64,
-    pool: &PgPool,
-) -> Result<usize, Error> {
+    executor: E,
+) -> Result<usize, Error>
+where
+    E: sqlx::Executor<'a, Database = Postgres>,
+{
     sqlx::query(
         r#"
         DELETE FROM password_history
@@ -61,7 +71,7 @@ pub async fn cleanup_old_passwords(
     )
     .bind(user_id)
     .bind(keep_limit)
-    .execute(pool)
+    .execute(executor)
     .await
     .map(|result| result.rows_affected() as usize)
     .map_err(|e| e.into())
