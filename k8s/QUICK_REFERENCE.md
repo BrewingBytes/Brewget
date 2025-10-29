@@ -84,8 +84,18 @@ kubectl get hpa -n brewget
 ## Updates
 
 ```bash
-# Update image
-kubectl set image deployment/auth-service auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.9 -n brewget
+# Update all services with new versions (recommended)
+./update.sh
+
+# Update image for a specific service
+kubectl set image deployment/auth-service auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.10 -n brewget
+
+# Force restart a deployment - Method 1: Using rollout restart (requires kubectl 1.15+)
+kubectl rollout restart deployment/auth-service -n brewget
+
+# Force restart a deployment - Method 2: Using patch annotation (works with all kubectl versions)
+kubectl patch deployment auth-service -n brewget -p \
+  "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%s)\"}}}}}"
 
 # Check rollout status
 kubectl rollout status deployment/auth-service -n brewget
@@ -96,6 +106,8 @@ kubectl rollout history deployment/auth-service -n brewget
 # Rollback to previous version
 kubectl rollout undo deployment/auth-service -n brewget
 ```
+
+**Note:** The update.sh script uses the annotation patch method for maximum compatibility across kubectl versions.
 
 ## Troubleshooting
 
