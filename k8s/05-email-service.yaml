@@ -30,6 +30,8 @@ spec:
       labels:
         app: email-service
     spec:
+      imagePullSecrets:
+      - name: ghcr-login-secret
       containers:
       - name: email-service
         image: ghcr.io/brewingbytes/brewget-email-service:0.0.6

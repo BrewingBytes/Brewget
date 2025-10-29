@@ -67,6 +67,8 @@ spec:
           limits:
             memory: "64Mi"
             cpu: "100m"
+      imagePullSecrets:
+      - name: ghcr-login-secret
       containers:
       - name: auth-service
         image: ghcr.io/brewingbytes/brewget-auth-service:0.0.8
