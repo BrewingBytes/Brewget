@@ -46,6 +46,7 @@ struct TestFixture {
     test_server: TestServer,
     _grpc_server_handle: tokio::task::JoinHandle<()>,
     test_user_id: String,
+    grpc_port: u16,
 }
 
 impl TestFixture {
@@ -82,8 +83,16 @@ impl TestFixture {
 
         let test_user_id = uuid::Uuid::new_v4().to_string();
 
+        // Use a dynamic port by binding to port 0
+        let grpc_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("Failed to bind to address");
+        let grpc_port = grpc_listener.local_addr().unwrap().port();
+        drop(grpc_listener); // Release the listener so the server can bind to the same port
+
+        let grpc_addr = format!("127.0.0.1:{}", grpc_port).parse().unwrap();
+
         // Start mock gRPC auth service
-        let grpc_addr = "127.0.0.1:50054".parse().unwrap();
         let auth_service = MockAuthService {
             valid_user_id: test_user_id.clone(),
         };
@@ -102,7 +111,7 @@ impl TestFixture {
         // Create auth service client
         let auth_service_client =
             settings_service::grpc::auth_service::service::auth_service_client::AuthServiceClient::connect(
-                "http://127.0.0.1:50054",
+                format!("http://127.0.0.1:{}", grpc_port),
             )
             .await
             .expect("Failed to connect to mock auth service");
@@ -116,7 +125,7 @@ impl TestFixture {
             pg_database: "postgres".to_string(),
             cors_url: "http://localhost:3000".to_string(),
             auth_hostname: "127.0.0.1".to_string(),
-            auth_grpc_port: 50054,
+            auth_grpc_port: grpc_port as u32,
         };
 
         let state = Arc::new(AppState::new(config.clone(), db_pool, auth_service_client));
@@ -155,6 +164,7 @@ impl TestFixture {
             test_server,
             _grpc_server_handle: grpc_server_handle,
             test_user_id,
+            grpc_port,
         }
     }
 }
@@ -168,8 +178,8 @@ async fn test_health_endpoint() {
     assert_eq!(response.status_code(), axum::http::StatusCode::OK);
 
     let body: serde_json::Value = response.json();
-    assert_eq!(body["status"], "healthy");
-    assert_eq!(body["database"], "connected");
+    assert_eq!(body["status"], "Healthy");
+    assert_eq!(body["database"], "Connected");
 }
 
 #[tokio::test]
