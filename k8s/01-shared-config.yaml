@@ -14,10 +14,10 @@ data:
   AUTH_HOSTNAME: "http://auth-service"
   EMAIL_HOSTNAME: "http://email-service"
   SETTINGS_HOSTNAME: "http://settings-service"
-  FRONTEND_HOSTNAME: "https://brewget.brewingbytes.com"
+  FRONTEND_HOSTNAME: "http://brewget.brewingbytes.com"
 
   # CORS configuration
-  CORS_URL: "https://brewget.brewingbytes.com"
+  CORS_URL: "http://brewget.brewingbytes.com"
 
   # API endpoint
-  VITE_API_ENDPOINT: "https://brewget.brewingbytes.com"
+  VITE_API_ENDPOINT: "http://brewget.brewingbytes.com"
