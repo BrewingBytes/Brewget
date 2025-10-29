@@ -116,4 +116,12 @@ impl NewUser {
     pub fn get_uuid(&self) -> Uuid {
         self.id
     }
+
+    /// Get the hashed password
+    ///
+    /// # Returns
+    /// * `String` - The hashed password
+    pub fn get_password_hash(&self) -> String {
+        self.password.clone()
+    }
 }

@@ -64,6 +64,22 @@ pub fn validate_password(password: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Checks if a password matches any of the provided password hashes
+///
+/// # Arguments
+/// * `password` - Plain text password to check
+/// * `password_hashes` - List of password hashes to check against
+///
+/// # Returns
+/// * `true` - If the password matches any of the hashes
+/// * `false` - If the password doesn't match any of the hashes
+pub fn is_password_in_history(password: &str, password_hashes: &[String]) -> bool {
+    password_hashes
+        .iter()
+        .any(|hash| verify_password(password, hash).is_ok())
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -173,5 +189,48 @@ mod tests {
         let password = "Minimum1";
         let result = validate_password(password);
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_is_password_in_history_empty_list() {
+        let password = "TestPassword123";
+        let hashes = vec![];
+        assert!(!is_password_in_history(password, &hashes));
+    }
+
+    #[test]
+    fn test_is_password_in_history_match_found() {
+        let password = "TestPassword123";
+        let hash = hash_password(password).unwrap();
+        let hashes = vec![hash];
+        assert!(is_password_in_history(password, &hashes));
+    }
+
+    #[test]
+    fn test_is_password_in_history_no_match() {
+        let password1 = "TestPassword123";
+        let password2 = "DifferentPassword456";
+        let hash = hash_password(password1).unwrap();
+        let hashes = vec![hash];
+        assert!(!is_password_in_history(password2, &hashes));
+    }
+
+    #[test]
+    fn test_is_password_in_history_multiple_hashes() {
+        let password1 = "TestPassword123";
+        let password2 = "TestPassword456";
+        let password3 = "TestPassword789";
+        let hash1 = hash_password(password1).unwrap();
+        let hash2 = hash_password(password2).unwrap();
+        let hash3 = hash_password(password3).unwrap();
+        let hashes = vec![hash1, hash2, hash3];
+
+        // Test matching each password
+        assert!(is_password_in_history(password1, &hashes));
+        assert!(is_password_in_history(password2, &hashes));
+        assert!(is_password_in_history(password3, &hashes));
+
+        // Test non-matching password
+        assert!(!is_password_in_history("NonMatchingPassword1", &hashes));
     }
 }

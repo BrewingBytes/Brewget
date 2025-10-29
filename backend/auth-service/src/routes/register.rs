@@ -108,12 +108,19 @@ async fn register_handler(
                 .into()
         })?;
 
+    // Store the password hash for the initial password history entry
+    let user_uuid = new_user.get_uuid();
+    let password_hash = new_user.get_password_hash();
+
     // Create new activation link
-    let new_activation_link = NewActivationLink::new(new_user.get_uuid());
+    let new_activation_link = NewActivationLink::new(user_uuid);
     let link = new_activation_link.get_link(&state.config);
 
     database::users::insert(new_user, pool).await?;
     database::activation_links::insert(new_activation_link, pool).await?;
+
+    // Store initial password in history
+    database::password_history::insert(user_uuid, password_hash, pool).await?;
 
     // Send confirmation email
     let request = ActivateAccountRequest {
