@@ -89,3 +89,61 @@ impl From<Box<dyn std::error::Error>> for Error {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_error_new() {
+        let error = Error::new(StatusCode::BAD_REQUEST, "Test error message");
+        let response = error.into_response();
+        
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn test_error_from_tuple() {
+        let error: Error = (StatusCode::NOT_FOUND, "Resource not found").into();
+        let response = error.into_response();
+        
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn test_error_from_jwt_error() {
+        use jsonwebtoken::errors::{Error as JwtError, ErrorKind};
+        
+        let jwt_error = JwtError::from(ErrorKind::InvalidToken);
+        let error: Error = jwt_error.into();
+        let response = error.into_response();
+        
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn test_error_from_uuid_error() {
+        use uuid::Uuid;
+        
+        // Create a UUID error by trying to parse an invalid string
+        let parse_result = Uuid::parse_str("invalid-uuid");
+        assert!(parse_result.is_err());
+        
+        let uuid_error = parse_result.unwrap_err();
+        let error: Error = uuid_error.into();
+        let response = error.into_response();
+        
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn test_error_from_tonic_status() {
+        use tonic::Status;
+        
+        let grpc_status = Status::internal("gRPC error");
+        let error: Error = grpc_status.into();
+        let response = error.into_response();
+        
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+}

@@ -30,3 +30,6 @@ shared-types = { path = "../shared-types" }
 
 [build-dependencies]
 tonic-prost-build = "0.14.1"
+
+[dev-dependencies]
+serde_json = "1.0"

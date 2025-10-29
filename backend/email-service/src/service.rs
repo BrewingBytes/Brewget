@@ -264,3 +264,110 @@ impl EmailService for Service {
         Ok(Response::new(reply))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use handlebars::Handlebars;
+
+    #[test]
+    fn test_activate_account_template_renders() {
+        let handlebars = Handlebars::new();
+        let activation_link = "https://example.com/activate?token=abc123";
+        
+        let result = handlebars.render_template(
+            ACTIVATE_ACCOUNT_TEMPLATE,
+            &json!({"activation_link": activation_link}),
+        );
+        
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        // Check that the template rendered successfully and contains the domain
+        assert!(html.contains("example.com"));
+        assert!(html.contains("Activate account"));
+    }
+
+    #[test]
+    fn test_forgot_password_template_renders() {
+        let handlebars = Handlebars::new();
+        let reset_link = "https://example.com/reset?token=xyz789";
+        
+        let result = handlebars.render_template(
+            FORGOT_PASSWORD_TEMPLATE,
+            &json!({"forgot_password_link": reset_link}),
+        );
+        
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        // Check that the template rendered successfully and contains the domain
+        assert!(html.contains("example.com"));
+        assert!(html.contains("Reset password"));
+    }
+
+    #[test]
+    fn test_activate_account_template_empty_link() {
+        let handlebars = Handlebars::new();
+        let empty_link = "";
+        
+        let result = handlebars.render_template(
+            ACTIVATE_ACCOUNT_TEMPLATE,
+            &json!({"activation_link": empty_link}),
+        );
+        
+        // Template should still render even with empty link
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_forgot_password_template_special_characters() {
+        let handlebars = Handlebars::new();
+        // Test with URL that has special characters
+        let reset_link = "https://example.com/reset?token=xyz&user=test%40example.com";
+        
+        let result = handlebars.render_template(
+            FORGOT_PASSWORD_TEMPLATE,
+            &json!({"forgot_password_link": reset_link}),
+        );
+        
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        // The link should be properly escaped in HTML
+        assert!(html.contains("example.com"));
+    }
+
+    #[test]
+    fn test_activate_account_template_valid_html() {
+        let handlebars = Handlebars::new();
+        let activation_link = "https://brewget.com/activate?token=test123";
+        
+        let result = handlebars.render_template(
+            ACTIVATE_ACCOUNT_TEMPLATE,
+            &json!({"activation_link": activation_link}),
+        );
+        
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        // Check for basic HTML structure
+        assert!(html.contains("<!DOCTYPE html>"));
+        assert!(html.contains("<html"));
+        assert!(html.contains("</html>"));
+    }
+
+    #[test]
+    fn test_forgot_password_template_valid_html() {
+        let handlebars = Handlebars::new();
+        let reset_link = "https://brewget.com/reset?token=test456";
+        
+        let result = handlebars.render_template(
+            FORGOT_PASSWORD_TEMPLATE,
+            &json!({"forgot_password_link": reset_link}),
+        );
+        
+        assert!(result.is_ok());
+        let html = result.unwrap();
+        // Check for basic HTML structure
+        assert!(html.contains("<!DOCTYPE html>"));
+        assert!(html.contains("<html"));
+        assert!(html.contains("</html>"));
+    }
+}
