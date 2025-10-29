@@ -216,10 +216,10 @@ kubectl logs postgres-0 -n brewget | grep -i "restore\|backup"
 
 ```bash
 # Get the latest backup job
-LATEST_JOB=$(kubectl get jobs -n brewget -l job-name --sort-by=.metadata.creationTimestamp | grep backup | tail -1 | awk '{print $1}')
+LATEST_JOB=$(kubectl get jobs -n brewget --sort-by=.metadata.creationTimestamp -o name | grep postgres-backup | tail -1)
 
 # View logs
-kubectl logs -n brewget job/$LATEST_JOB
+kubectl logs -n brewget $LATEST_JOB
 ```
 
 ### Verify backup volume is mounted
