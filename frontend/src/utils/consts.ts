@@ -1,0 +1,1 @@
+export const TURNSTILE_SITE_KEY = import.meta.env.PROD ? "0x4AAAAAAB9ZxtlQg7zwM2p0" : "1x00000000000000000000AA";

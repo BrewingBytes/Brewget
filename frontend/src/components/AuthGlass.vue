@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import VueTurnstile from "vue-turnstile";
 
 import { useAuthStore } from "@/stores/auth";
+import { TURNSTILE_SITE_KEY } from "@/utils/consts";
 
 enum ShownPage {
     Login,
@@ -134,12 +135,8 @@ async function buttonAction() {
                 </IconField>
             </div>
             <div class="flex justify-center w-full">
-                <VueTurnstile
-                    v-model="captchaToken"
-                    :site-key="import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'"
-                    @verify="onCaptchaVerify"
-                    theme="dark"
-                />
+                <VueTurnstile v-model="captchaToken" :site-key="TURNSTILE_SITE_KEY" @verify="onCaptchaVerify"
+                    theme="dark" />
             </div>
             <Button @click="buttonAction" :label="texts.buttonText"
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />
