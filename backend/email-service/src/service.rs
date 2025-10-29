@@ -28,7 +28,7 @@ pub mod email_service {
 
 /// Renders the activation account email template with the given link
 ///
-/// This is a public helper function for testing template rendering logic.
+/// This is a helper function for testing template rendering logic.
 ///
 /// # Arguments
 ///
@@ -39,7 +39,7 @@ pub mod email_service {
 /// * `Ok(String)` - Successfully rendered HTML template
 /// * `Err(String)` - Error occurred during template rendering
 #[cfg(test)]
-pub fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
+fn render_activate_account_template(activation_link: &str) -> Result<String, String> {
     Handlebars::new()
         .render_template(
             ACTIVATE_ACCOUNT_TEMPLATE,
@@ -50,7 +50,7 @@ pub fn render_activate_account_template(activation_link: &str) -> Result<String,
 
 /// Renders the forgot password email template with the given link
 ///
-/// This is a public helper function for testing template rendering logic.
+/// This is a helper function for testing template rendering logic.
 ///
 /// # Arguments
 ///
@@ -61,7 +61,7 @@ pub fn render_activate_account_template(activation_link: &str) -> Result<String,
 /// * `Ok(String)` - Successfully rendered HTML template
 /// * `Err(String)` - Error occurred during template rendering
 #[cfg(test)]
-pub fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
+fn render_forgot_password_template(forgot_password_link: &str) -> Result<String, String> {
     Handlebars::new()
         .render_template(
             FORGOT_PASSWORD_TEMPLATE,
