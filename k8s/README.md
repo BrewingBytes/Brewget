@@ -219,12 +219,30 @@ kubectl scale deployment settings-service -n brewget --replicas=2
 
 ## Updating
 
-To update to a new version of a service:
+### Using the Update Script (Recommended)
+
+The easiest way to update all services with new versions is to use the provided update script:
+
+```bash
+./k8s/update.sh
+```
+
+This script will:
+1. Apply any configuration changes from manifests
+2. Force restart all deployments to create new pods with the latest images
+3. Wait for all rollouts to complete
+4. Show the status of all pods
+
+This is useful when you want to ensure all services pick up new versions, even if the image tags haven't changed.
+
+### Manual Update of Individual Services
+
+To update a specific service to a new version:
 
 ```bash
 # Update the image
 kubectl set image deployment/auth-service \
-  auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.9 \
+  auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.10 \
   -n brewget
 
 # Check rollout status
@@ -232,6 +250,14 @@ kubectl rollout status deployment/auth-service -n brewget
 
 # Rollback if needed
 kubectl rollout undo deployment/auth-service -n brewget
+```
+
+### Force Restart Without Image Change
+
+To restart a deployment without changing the image:
+
+```bash
+kubectl rollout restart deployment/auth-service -n brewget
 ```
 
 ## Cleanup

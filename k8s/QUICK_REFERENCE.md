@@ -84,8 +84,14 @@ kubectl get hpa -n brewget
 ## Updates
 
 ```bash
-# Update image
-kubectl set image deployment/auth-service auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.9 -n brewget
+# Update all services with new versions (recommended)
+./update.sh
+
+# Update image for a specific service
+kubectl set image deployment/auth-service auth-service=ghcr.io/brewingbytes/brewget-auth-service:0.0.10 -n brewget
+
+# Force restart a deployment (recreates pods even if image hasn't changed)
+kubectl rollout restart deployment/auth-service -n brewget
 
 # Check rollout status
 kubectl rollout status deployment/auth-service -n brewget
@@ -96,6 +102,8 @@ kubectl rollout history deployment/auth-service -n brewget
 # Rollback to previous version
 kubectl rollout undo deployment/auth-service -n brewget
 ```
+
+**Note:** You cannot directly restart pods with `kubectl rollout restart pods`. You must restart the deployment or statefulset that manages the pods.
 
 ## Troubleshooting
 
