@@ -36,6 +36,15 @@ environment:
   - TURNSTILE_SECRET=your_secret_key_here
 ```
 
+**For Kubernetes:**
+Edit `k8s/02-secrets.yaml` and update the turnstile-secret value:
+```yaml
+stringData:
+  turnstile-secret: your_secret_key_here
+```
+
+The secret is automatically mounted to the auth-service deployment via the `TURNSTILE_SECRET` environment variable.
+
 **For Local Development:**
 Set the environment variable:
 ```bash

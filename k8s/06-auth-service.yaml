@@ -131,6 +131,11 @@ spec:
             configMapKeyRef:
               name: shared-config
               key: FRONTEND_HOSTNAME
+        - name: TURNSTILE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: turnstile-secret
         resources:
           requests:
             memory: "256Mi"
