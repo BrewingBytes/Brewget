@@ -2,9 +2,8 @@
 # Update BrewGet Kubernetes deployments
 # This script forces recreation of all pods with new versions, even if images haven't changed
 #
-# Note: kubectl rollout restart works on deployments/statefulsets, not on pods directly
-# Correct: kubectl rollout restart deployment/<name>
-# Incorrect: kubectl rollout restart pods
+# Note: This script uses patch with restart annotation to force pod recreation
+# This method works with all kubectl versions and doesn't require rollout restart support
 
 set -e
 
@@ -36,26 +35,35 @@ kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 echo "🗄️  Updating PostgreSQL configuration..."
 kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
 
+# Function to restart a deployment by patching with a restart annotation
+restart_deployment() {
+    local deployment=$1
+    local timestamp=$(date +%s)
+    echo "   Adding restart annotation to force pod recreation..."
+    kubectl patch deployment "$deployment" -n brewget -p \
+        "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$timestamp\"}}}}}"
+}
+
 # Force restart all service deployments to pick up new images/configs
 echo "📧 Restarting email service..."
 kubectl apply -f "$SCRIPT_DIR/05-email-service.yaml"
-kubectl rollout restart deployment/email-service -n brewget
+restart_deployment email-service
 
 echo "🔑 Restarting auth service..."
 kubectl apply -f "$SCRIPT_DIR/06-auth-service.yaml"
-kubectl rollout restart deployment/auth-service -n brewget
+restart_deployment auth-service
 
 echo "⚙️  Restarting settings service..."
 kubectl apply -f "$SCRIPT_DIR/07-settings-service.yaml"
-kubectl rollout restart deployment/settings-service -n brewget
+restart_deployment settings-service
 
 echo "🎨 Restarting frontend..."
 kubectl apply -f "$SCRIPT_DIR/08-frontend.yaml"
-kubectl rollout restart deployment/frontend -n brewget
+restart_deployment frontend
 
 echo "🌐 Restarting nginx..."
 kubectl apply -f "$SCRIPT_DIR/09-nginx.yaml"
-kubectl rollout restart deployment/nginx -n brewget
+restart_deployment nginx
 
 echo ""
 echo "⏳ Waiting for rollouts to complete..."

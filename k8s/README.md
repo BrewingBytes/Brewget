@@ -217,7 +217,7 @@ kubectl scale deployment settings-service -n brewget --replicas=2
 
 **Note**: PostgreSQL is deployed as a StatefulSet with 1 replica. For high availability, you would need to configure PostgreSQL replication.
 
-## Updating
+## Updates
 
 ### Using the Update Script (Recommended)
 
@@ -229,7 +229,7 @@ The easiest way to update all services with new versions is to use the provided 
 
 This script will:
 1. Apply any configuration changes from manifests
-2. Force restart all deployments to create new pods with the latest images
+2. Force restart all deployments to create new pods with the latest images (using annotation patch method)
 3. Wait for all rollouts to complete
 4. Show the status of all pods
 
@@ -254,11 +254,20 @@ kubectl rollout undo deployment/auth-service -n brewget
 
 ### Force Restart Without Image Change
 
-To restart a deployment without changing the image:
+To restart a deployment without changing the image, you can use one of these methods:
 
+#### Method 1: Using rollout restart (requires kubectl 1.15+)
 ```bash
 kubectl rollout restart deployment/auth-service -n brewget
 ```
+
+#### Method 2: Using patch with annotation (works with all kubectl versions)
+```bash
+kubectl patch deployment auth-service -n brewget -p \
+  "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%s)\"}}}}}"
+```
+
+The update script uses Method 2 for maximum compatibility.
 
 ## Cleanup
 
