@@ -117,3 +117,139 @@ impl NewUser {
         self.id
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_user_creation() {
+        let username = "testuser";
+        let password = "TestPass123";
+        let email = "test@example.com";
+        
+        let new_user = NewUser::new(username, password, email);
+        
+        assert!(new_user.is_ok());
+        let user = new_user.unwrap();
+        assert_eq!(user.username, username);
+        assert_eq!(user.email, email);
+        // Password should be hashed, not plaintext
+        assert_ne!(user.password, password);
+        assert!(user.password.starts_with("$argon2"));
+    }
+
+    #[test]
+    fn test_new_user_get_uuid() {
+        let new_user = NewUser::new("testuser", "TestPass123", "test@example.com").unwrap();
+        let uuid = new_user.get_uuid();
+        
+        // UUID should be valid
+        assert_ne!(uuid, Uuid::nil());
+    }
+
+    #[test]
+    fn test_new_user_unique_uuids() {
+        let user1 = NewUser::new("user1", "TestPass123", "user1@example.com").unwrap();
+        let user2 = NewUser::new("user2", "TestPass123", "user2@example.com").unwrap();
+        
+        // Each user should get a unique UUID
+        assert_ne!(user1.get_uuid(), user2.get_uuid());
+    }
+
+    #[test]
+    fn test_new_user_different_passwords_hash_differently() {
+        let user1 = NewUser::new("user1", "Password123", "user1@example.com").unwrap();
+        let user2 = NewUser::new("user2", "DifferentPass456", "user2@example.com").unwrap();
+        
+        // Different passwords should produce different hashes
+        assert_ne!(user1.password, user2.password);
+    }
+
+    #[test]
+    fn test_user_getters() {
+        // Create a test user directly (would normally come from database)
+        let user = User {
+            id: Uuid::new_v4(),
+            username: "testuser".to_string(),
+            password: "$argon2id$v=19$m=19456,t=2,p=1$test$hash".to_string(),
+            email: "test@example.com".to_string(),
+            is_verified: true,
+            is_active: true,
+        };
+        
+        assert_eq!(user.get_username(), "testuser");
+        assert_eq!(user.get_email(), "test@example.com");
+        assert_ne!(user.get_uuid(), Uuid::nil());
+    }
+
+    #[test]
+    fn test_user_is_account_verified() {
+        let verified_user = User {
+            id: Uuid::new_v4(),
+            username: "verified".to_string(),
+            password: "hash".to_string(),
+            email: "verified@example.com".to_string(),
+            is_verified: true,
+            is_active: true,
+        };
+        
+        let unverified_user = User {
+            id: Uuid::new_v4(),
+            username: "unverified".to_string(),
+            password: "hash".to_string(),
+            email: "unverified@example.com".to_string(),
+            is_verified: false,
+            is_active: true,
+        };
+        
+        assert!(verified_user.is_account_verified());
+        assert!(!unverified_user.is_account_verified());
+    }
+
+    #[test]
+    fn test_user_is_account_active() {
+        let active_user = User {
+            id: Uuid::new_v4(),
+            username: "active".to_string(),
+            password: "hash".to_string(),
+            email: "active@example.com".to_string(),
+            is_verified: true,
+            is_active: true,
+        };
+        
+        let inactive_user = User {
+            id: Uuid::new_v4(),
+            username: "inactive".to_string(),
+            password: "hash".to_string(),
+            email: "inactive@example.com".to_string(),
+            is_verified: true,
+            is_active: false,
+        };
+        
+        assert!(active_user.is_account_active());
+        assert!(!inactive_user.is_account_active());
+    }
+
+    #[test]
+    fn test_user_password_validation() {
+        let password = "TestPassword123";
+        let new_user = NewUser::new("testuser", password, "test@example.com").unwrap();
+        
+        // Create a User with the hashed password
+        let user = User {
+            id: new_user.id,
+            username: new_user.username.clone(),
+            password: new_user.password.clone(),
+            email: new_user.email.clone(),
+            is_verified: false,
+            is_active: true,
+        };
+        
+        // Correct password should validate
+        assert!(user.is_password_valid(password));
+        
+        // Incorrect password should not validate
+        assert!(!user.is_password_valid("WrongPassword456"));
+    }
+}

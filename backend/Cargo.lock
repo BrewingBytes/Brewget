@@ -109,6 +109,7 @@ dependencies = [
  "jsonwebtoken",
  "prost",
  "serde",
+ "serde_json",
  "shared-types",
  "sqlx",
  "tokio",
