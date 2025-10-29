@@ -213,14 +213,20 @@ impl EmailService for Service {
         &self,
         request: Request<ActivateAccountRequest>,
     ) -> Result<Response<ActivateAccountResponse>, Status> {
-        let message = self
-            .create_activate_account_mail(&request.into_inner())
-            .await
-            .map_err(|_| Status::internal("Could not create email."))?;
+        let req = request.into_inner();
+        tracing::info!("Sending activation email to: {}", req.email);
 
-        self.send_email(message)
-            .map_err(|_| Status::internal("Could not send email."))?;
+        let message = self.create_activate_account_mail(&req).await.map_err(|_| {
+            tracing::error!("Failed to create activation email for: {}", req.email);
+            Status::internal("Could not create email.")
+        })?;
 
+        self.send_email(message).map_err(|_| {
+            tracing::error!("Failed to send activation email to: {}", req.email);
+            Status::internal("Could not send email.")
+        })?;
+
+        tracing::info!("Activation email sent successfully to: {}", req.email);
         let reply = ActivateAccountResponse { success: true };
         Ok(Response::new(reply))
     }
@@ -252,14 +258,20 @@ impl EmailService for Service {
         &self,
         request: Request<ForgotPasswordRequest>,
     ) -> Result<Response<ForgotPasswordResponse>, Status> {
-        let message = self
-            .create_forgot_password_mail(&request.into_inner())
-            .await
-            .map_err(|_| Status::internal("Could not create email."))?;
+        let req = request.into_inner();
+        tracing::info!("Sending forgot password email to: {}", req.email);
 
-        self.send_email(message)
-            .map_err(|_| Status::internal("Could not send email."))?;
+        let message = self.create_forgot_password_mail(&req).await.map_err(|_| {
+            tracing::error!("Failed to create forgot password email for: {}", req.email);
+            Status::internal("Could not create email.")
+        })?;
 
+        self.send_email(message).map_err(|_| {
+            tracing::error!("Failed to send forgot password email to: {}", req.email);
+            Status::internal("Could not send email.")
+        })?;
+
+        tracing::info!("Forgot password email sent successfully to: {}", req.email);
         let reply = ForgotPasswordResponse { success: true };
         Ok(Response::new(reply))
     }

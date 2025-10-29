@@ -60,15 +60,27 @@ async fn register_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!(
+        "Registration attempt for username: {}, email: {}",
+        body.username,
+        body.email
+    );
+
     // Verify captcha token
+    tracing::debug!("Verifying captcha token for registration");
     crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
         .await
         .map_err(|_| -> Error {
+            tracing::warn!(
+                "Captcha verification failed for registration: {}",
+                body.username
+            );
             (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
         })?;
 
     // Validate username length
     if body.username.len() <= 3 {
+        tracing::warn!("Username too short for registration: {}", body.username);
         return Err((
             StatusCode::BAD_REQUEST,
             "Username length cannot be less or equal to 3 characters.",
@@ -77,20 +89,32 @@ async fn register_handler(
     }
 
     // Validate password length
-    validate_password(&body.password)
-        .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
+    validate_password(&body.password).map_err(|s| -> Error {
+        tracing::warn!(
+            "Invalid password format for registration: {}",
+            body.username
+        );
+        (StatusCode::BAD_REQUEST, s.as_str()).into()
+    })?;
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {
+        tracing::warn!("Invalid email format for registration: {}", body.email);
         return Err((StatusCode::BAD_REQUEST, "Email address is not valid.").into());
     }
 
     // Check for existing username or email
     let pool = state.get_database_pool();
+    tracing::debug!("Checking for existing username or email");
     if database::users::filter_by_username_or_email(&body.username, &body.email, pool)
         .await
         .is_ok()
     {
+        tracing::warn!(
+            "Username or email already exists: {}, {}",
+            body.username,
+            body.email
+        );
         return Err((
             StatusCode::BAD_REQUEST,
             "Username or email is already used.",
@@ -99,8 +123,10 @@ async fn register_handler(
     }
 
     // Create new user record
+    tracing::debug!("Creating new user record for: {}", body.username);
     let new_user =
         NewUser::new(&body.username, &body.password, &body.email).map_err(|_| -> Error {
+            tracing::error!("Failed to create user record for: {}", body.username);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Could not create account.",
@@ -133,6 +159,10 @@ async fn register_handler(
 
     // Commit the transaction
     tx.commit().await.map_err(|_| -> Error {
+        tracing::error!(
+            "Failed to commit registration transaction for: {}",
+            body.username
+        );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "Failed to commit transaction.",
@@ -141,15 +171,26 @@ async fn register_handler(
     })?;
 
     // Send confirmation email
+    tracing::debug!("Sending activation email to: {}", body.email);
     let request = ActivateAccountRequest {
-        username: body.username,
-        email: body.email,
+        username: body.username.clone(),
+        email: body.email.clone(),
         link,
     };
     if let Err(status) = state.send_activate_account(request).await {
+        tracing::error!(
+            "Failed to send activation email to: {}, error: {}",
+            body.email,
+            status.message()
+        );
         return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into());
     }
 
+    tracing::info!(
+        "Registration successful for username: {}, email: {}",
+        body.username,
+        body.email
+    );
     // Return success message
     Ok(Json(Message {
         message: "Account has been created.".into(),
