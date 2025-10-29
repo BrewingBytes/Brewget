@@ -13,6 +13,17 @@ BrewGet consists of the following services:
 - **nginx**: Reverse proxy and API gateway
 - **postgres**: PostgreSQL database
 
+## Local Development
+
+For local development with hot-reloading:
+
+```bash
+cp .env.example .env
+docker compose watch
+```
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed local development instructions.
+
 ## Deployment
 
 ### Kubernetes
@@ -28,6 +39,7 @@ See [k8s/README.md](k8s/README.md) for detailed instructions.
 
 ## Documentation
 
+- [Local Development Guide](DEVELOPMENT.md)
 - [Kubernetes Deployment Guide](k8s/README.md)
 - [Database Migrations](backend/MIGRATIONS.md)
 - [Separate Databases Configuration](backend/SEPARATE_DATABASES.md)
