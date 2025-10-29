@@ -31,53 +31,53 @@ spec:
         app: frontend
     spec:
       initContainers:
-      - name: wait-for-auth-service
-        image: busybox:1.36
-        command:
-          - sh
-          - -c
-          - |
-            until nc -z auth-service 8000; do
-              echo "Waiting for auth service..."
-              sleep 2
-            done
-        resources:
-          requests:
-            memory: "32Mi"
-            cpu: "50m"
-          limits:
-            memory: "64Mi"
-            cpu: "100m"
+        - name: wait-for-auth-service
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z auth-service 8000; do
+                echo "Waiting for auth service..."
+                sleep 2
+              done
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
       imagePullSecrets:
-      - name: ghcr-login-secret
+        - name: ghcr-login-secret
       containers:
-      - name: frontend
-        image: ghcr.io/brewingbytes/brewget-frontend:0.0.5
-        ports:
-        - containerPort: 80
-          name: http
-        env:
-        - name: VITE_API_ENDPOINT
-          valueFrom:
-            configMapKeyRef:
-              name: shared-config
-              key: VITE_API_ENDPOINT
-        resources:
-          requests:
-            memory: "64Mi"
-            cpu: "100m"
-          limits:
-            memory: "128Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: frontend
+          image: ghcr.io/brewingbytes/brewget-frontend:0.0.6
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: VITE_API_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: shared-config
+                  key: VITE_API_ENDPOINT
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
