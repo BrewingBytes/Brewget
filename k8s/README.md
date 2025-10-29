@@ -139,36 +139,6 @@ The PostgreSQL initialization script (`postgres-init` ConfigMap) creates the sep
 
 This ensures each service has its own isolated database for security and maintainability.
 
-## TLS/HTTPS Configuration
-
-The nginx service is configured to support HTTPS with TLS certificates. For production deployments, you should configure Let's Encrypt certificates.
-
-**See [TLS_SETUP.md](TLS_SETUP.md) for detailed instructions on:**
-- Setting up Let's Encrypt certificates using cert-manager (recommended)
-- Manual certificate generation with certbot
-- Certificate renewal automation
-- Troubleshooting TLS issues
-
-The nginx configuration includes:
-- HTTP to HTTPS redirect
-- SSL/TLS best practices (TLSv1.2, TLSv1.3)
-- Security headers (HSTS, X-Frame-Options, etc.)
-- Support for ACME challenges (Let's Encrypt verification)
-
-**Quick Setup:**
-```bash
-# Option 1: Using cert-manager (recommended)
-# See TLS_SETUP.md for full instructions
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
-
-# Option 2: Manual certificate with certbot
-# Generate certificate and create secret
-kubectl create secret tls brewget-tls \
-  --cert=/path/to/fullchain.pem \
-  --key=/path/to/privkey.pem \
-  -n brewget
-```
-
 ## Persistent Storage
 
 The PostgreSQL database uses a PersistentVolumeClaim for data persistence:
