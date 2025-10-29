@@ -104,7 +104,7 @@ mod tests {
         let response: TurnstileVerifyResponse = serde_json::from_str(json).unwrap();
         assert!(!response.success);
         assert!(response.error_codes.is_some());
-        
+
         let errors = response.error_codes.unwrap();
         assert_eq!(errors.len(), 2);
         assert_eq!(errors[0], "invalid-input-response");

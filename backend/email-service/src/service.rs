@@ -315,7 +315,7 @@ mod tests {
     fn test_render_activate_account_template() {
         let activation_link = "https://example.com/activate?token=abc123";
         let result = render_activate_account_template(activation_link);
-        
+
         assert!(result.is_ok());
         let rendered = result.unwrap();
         // Template uses {{activation_link}} which Handlebars will replace
@@ -328,7 +328,7 @@ mod tests {
     fn test_render_activate_account_template_with_special_chars() {
         let activation_link = "https://example.com/activate?token=abc123&param=value";
         let result = render_activate_account_template(activation_link);
-        
+
         assert!(result.is_ok());
         let rendered = result.unwrap();
         // Handlebars escapes special characters by default
@@ -339,7 +339,7 @@ mod tests {
     fn test_render_forgot_password_template() {
         let reset_link = "https://example.com/reset?token=xyz789";
         let result = render_forgot_password_template(reset_link);
-        
+
         assert!(result.is_ok());
         let rendered = result.unwrap();
         // Template uses {{forgot_password_link}} which Handlebars will replace
@@ -352,7 +352,7 @@ mod tests {
     fn test_render_forgot_password_template_with_special_chars() {
         let reset_link = "https://example.com/reset?token=xyz789&param=value";
         let result = render_forgot_password_template(reset_link);
-        
+
         assert!(result.is_ok());
         let rendered = result.unwrap();
         assert!(rendered.contains("xyz789"));

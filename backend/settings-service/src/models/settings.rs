@@ -60,7 +60,7 @@ mod tests {
     fn test_settings_serialization() {
         let user_id = Uuid::new_v4();
         let alarm_time = NaiveTime::from_hms_opt(8, 0, 0).unwrap();
-        
+
         let settings = Settings {
             user_id,
             language: "en".to_string(),
@@ -70,7 +70,7 @@ mod tests {
             alarm_offset_minutes: 15,
             night_mode: false,
         };
-        
+
         let serialized = serde_json::to_string(&settings).unwrap();
         assert!(serialized.contains("en"));
         assert!(serialized.contains("USD"));
@@ -87,7 +87,7 @@ mod tests {
             "alarm_offset_minutes": 30,
             "night_mode": true
         }"#;
-        
+
         let update: UpdateSettings = serde_json::from_str(json).unwrap();
         assert_eq!(update.language, Some("es".to_string()));
         assert_eq!(update.currency, Some("EUR".to_string()));
@@ -103,7 +103,7 @@ mod tests {
             "language": "fr",
             "night_mode": false
         }"#;
-        
+
         let update: UpdateSettings = serde_json::from_str(json).unwrap();
         assert_eq!(update.language, Some("fr".to_string()));
         assert_eq!(update.night_mode, Some(false));
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn test_update_settings_deserialization_empty() {
         let json = r#"{}"#;
-        
+
         let update: UpdateSettings = serde_json::from_str(json).unwrap();
         assert_eq!(update.language, None);
         assert_eq!(update.currency, None);
@@ -130,7 +130,7 @@ mod tests {
     fn test_settings_clone() {
         let user_id = Uuid::new_v4();
         let alarm_time = NaiveTime::from_hms_opt(10, 30, 0).unwrap();
-        
+
         let settings = Settings {
             user_id,
             language: "de".to_string(),
@@ -140,9 +140,9 @@ mod tests {
             alarm_offset_minutes: 0,
             night_mode: true,
         };
-        
+
         let cloned = settings.clone();
-        
+
         // Verify cloned values match original
         let serialized_original = serde_json::to_string(&settings).unwrap();
         let serialized_cloned = serde_json::to_string(&cloned).unwrap();

@@ -73,7 +73,7 @@ mod tests {
         let password = "TestPassword123";
         let result = hash_password(password);
         assert!(result.is_ok());
-        
+
         let hash = result.unwrap();
         assert!(!hash.is_empty());
         assert!(hash.starts_with("$argon2"));
@@ -84,7 +84,7 @@ mod tests {
         let password = "TestPassword123";
         let hash1 = hash_password(password).unwrap();
         let hash2 = hash_password(password).unwrap();
-        
+
         // Different salts should produce different hashes
         assert_ne!(hash1, hash2);
     }
@@ -93,7 +93,7 @@ mod tests {
     fn test_verify_password_success() {
         let password = "TestPassword123";
         let hash = hash_password(password).unwrap();
-        
+
         let result = verify_password(password, &hash);
         assert!(result.is_ok());
     }
@@ -103,7 +103,7 @@ mod tests {
         let password = "TestPassword123";
         let wrong_password = "WrongPassword456";
         let hash = hash_password(password).unwrap();
-        
+
         let result = verify_password(wrong_password, &hash);
         assert!(result.is_err());
     }
@@ -112,7 +112,7 @@ mod tests {
     fn test_verify_password_invalid_hash() {
         let password = "TestPassword123";
         let invalid_hash = "not_a_valid_hash";
-        
+
         let result = verify_password(password, invalid_hash);
         assert!(result.is_err());
     }
