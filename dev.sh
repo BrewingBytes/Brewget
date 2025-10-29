@@ -17,8 +17,10 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# Load environment variables
-export $(grep -v '^#' .env | xargs)
+# Load environment variables safely
+set -a
+source .env
+set +a
 
 # Check if cargo-watch is installed
 if ! command -v cargo-watch &> /dev/null; then
@@ -100,26 +102,33 @@ echo ""
 echo -e "${YELLOW}📝 Logs are being written to .dev-logs/${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop all services${NC}"
 
+# Function to safely kill a process
+safe_kill() {
+    local pid_file=$1
+    local service_name=$2
+    
+    if [ -f "$pid_file" ]; then
+        local pid=$(cat "$pid_file")
+        # Validate PID is a number
+        if [[ "$pid" =~ ^[0-9]+$ ]]; then
+            # Check if process exists and belongs to our user
+            if ps -p "$pid" > /dev/null 2>&1; then
+                kill "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$pid_file"
+    fi
+}
+
 # Trap SIGINT and SIGTERM to cleanup on exit
 cleanup() {
     echo ""
     echo -e "${YELLOW}🛑 Stopping all services...${NC}"
     
-    if [ -f .dev-logs/email.pid ]; then
-        kill $(cat .dev-logs/email.pid) 2>/dev/null || true
-    fi
-    if [ -f .dev-logs/auth.pid ]; then
-        kill $(cat .dev-logs/auth.pid) 2>/dev/null || true
-    fi
-    if [ -f .dev-logs/settings.pid ]; then
-        kill $(cat .dev-logs/settings.pid) 2>/dev/null || true
-    fi
-    if [ -f .dev-logs/frontend.pid ]; then
-        kill $(cat .dev-logs/frontend.pid) 2>/dev/null || true
-    fi
-    
-    # Clean up PID files
-    rm -f .dev-logs/*.pid
+    safe_kill .dev-logs/email.pid "Email Service"
+    safe_kill .dev-logs/auth.pid "Auth Service"
+    safe_kill .dev-logs/settings.pid "Settings Service"
+    safe_kill .dev-logs/frontend.pid "Frontend"
     
     echo -e "${GREEN}✅ All services stopped${NC}"
     exit 0

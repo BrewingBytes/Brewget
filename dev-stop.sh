@@ -11,30 +11,30 @@ NC='\033[0m' # No Color
 
 echo -e "${YELLOW}🛑 Stopping BrewGet Development Services${NC}"
 
+# Function to safely kill a process
+safe_kill() {
+    local pid_file=$1
+    local service_name=$2
+    
+    if [ -f "$pid_file" ]; then
+        local pid=$(cat "$pid_file")
+        # Validate PID is a number
+        if [[ "$pid" =~ ^[0-9]+$ ]]; then
+            # Check if process exists before killing
+            if ps -p "$pid" > /dev/null 2>&1; then
+                echo -e "Stopping $service_name..."
+                kill "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$pid_file"
+    fi
+}
+
 # Stop cargo-watch processes
-if [ -f .dev-logs/email.pid ]; then
-    echo -e "Stopping Email Service..."
-    kill $(cat .dev-logs/email.pid) 2>/dev/null || true
-    rm -f .dev-logs/email.pid
-fi
-
-if [ -f .dev-logs/auth.pid ]; then
-    echo -e "Stopping Auth Service..."
-    kill $(cat .dev-logs/auth.pid) 2>/dev/null || true
-    rm -f .dev-logs/auth.pid
-fi
-
-if [ -f .dev-logs/settings.pid ]; then
-    echo -e "Stopping Settings Service..."
-    kill $(cat .dev-logs/settings.pid) 2>/dev/null || true
-    rm -f .dev-logs/settings.pid
-fi
-
-if [ -f .dev-logs/frontend.pid ]; then
-    echo -e "Stopping Frontend..."
-    kill $(cat .dev-logs/frontend.pid) 2>/dev/null || true
-    rm -f .dev-logs/frontend.pid
-fi
+safe_kill .dev-logs/email.pid "Email Service"
+safe_kill .dev-logs/auth.pid "Auth Service"
+safe_kill .dev-logs/settings.pid "Settings Service"
+safe_kill .dev-logs/frontend.pid "Frontend"
 
 # Also kill any remaining cargo-watch processes
 pkill -f "cargo watch" || true

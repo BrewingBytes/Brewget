@@ -15,12 +15,14 @@ This guide will help you set up and run BrewGet locally with hot-reloading for a
 
 **Rust:**
 ```bash
+# Visit https://rustup.rs for the latest installation instructions
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 **Node.js:**
 ```bash
-# Using nvm (recommended)
+# Using nvm (recommended) - visit https://github.com/nvm-sh/nvm for latest version
+# Verify the script before running or use your system's package manager
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install 20
 ```
@@ -104,8 +106,11 @@ For testing email functionality:
 brew install mailhog
 mailhog &
 
-# Linux - download and run
+# Linux - download from official releases
+# Visit https://github.com/mailhog/MailHog/releases for latest version
+# Verify checksums after download
 wget https://github.com/mailhog/MailHog/releases/download/v1.0.1/MailHog_linux_amd64
+# Optional: verify checksum before running
 chmod +x MailHog_linux_amd64
 ./MailHog_linux_amd64 &
 ```
