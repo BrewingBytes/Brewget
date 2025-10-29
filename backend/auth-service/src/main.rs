@@ -1,16 +1,8 @@
-mod app_state;
-mod config;
-mod database;
-mod grpc;
-mod models;
-mod routes;
-mod utils;
-
-pub use app_state::AppState;
-pub use config::Config;
-
-use crate::routes::make_app;
-use grpc::auth_service::{AuthServiceImpl, service::auth_service_server::AuthServiceServer};
+use auth_service::{
+    AppState, Config,
+    grpc::auth_service::{AuthServiceImpl, service::auth_service_server::AuthServiceServer},
+    routes::make_app,
+};
 
 #[tokio::main]
 async fn main() {
@@ -70,7 +62,7 @@ async fn main() {
         // Create state for gRPC service (we need to recreate it as app consumed the first one)
         let grpc_config = Config::init();
 
-        use grpc::email_service::service::email_service_client::EmailServiceClient;
+        use auth_service::grpc::email_service::service::email_service_client::EmailServiceClient;
         use sqlx::postgres::PgPoolOptions;
 
         tracing::debug!("Creating database connection pool for gRPC service");

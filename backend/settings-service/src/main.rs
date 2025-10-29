@@ -1,13 +1,4 @@
-use crate::{config::Config, routes::make_app};
-
-mod app_state;
-mod config;
-mod database;
-mod grpc;
-mod models;
-mod routes;
-
-pub use app_state::AppState;
+use settings_service::{Config, routes::make_app};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

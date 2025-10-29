@@ -1,11 +1,11 @@
-mod activate;
-mod change_password;
-mod forgot_password;
-mod health;
-mod login;
-mod logout;
-mod middlewares;
-mod register;
+pub mod activate;
+pub mod change_password;
+pub mod forgot_password;
+pub mod health;
+pub mod login;
+pub mod logout;
+pub mod middlewares;
+pub mod register;
 
 use std::sync::Arc;
 

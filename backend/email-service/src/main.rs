@@ -1,12 +1,9 @@
 use tonic::transport::Server;
 
-use crate::{
-    config::Config,
+use email_service::{
+    Config,
     service::{Service, email_service::email_service_server::EmailServiceServer},
 };
-
-mod config;
-mod service;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

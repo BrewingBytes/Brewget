@@ -1,6 +1,6 @@
-mod health;
-mod middlewares;
-mod user;
+pub mod health;
+pub mod middlewares;
+pub mod user;
 
 use std::sync::Arc;
 
