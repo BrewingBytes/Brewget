@@ -1,15 +1,23 @@
-'Workflow':
-- changed-files:
-  - any-glob-to-any-file: '.github/workflows/**'
+"Workflow":
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
 
-'Frontend':
-- changed-files:
-  - any-glob-to-any-file: 'frontend/**'
+"Frontend":
+  - changed-files:
+      - any-glob-to-any-file: "frontend/**"
 
-'AuthService':
-- changed-files:
-  - any-glob-to-any-file: 'backend/auth-service/**'
+"AuthService":
+  - changed-files:
+      - any-glob-to-any-file: "backend/auth-service/**"
 
-'EmailService':
-- changed-files:
-  - any-glob-to-any-file: 'backend/email-service/**'
+"EmailService":
+  - changed-files:
+      - any-glob-to-any-file: "backend/email-service/**"
+
+"SettingsService":
+  - changed-files:
+      - any-glob-to-any-file: "backend/settings-service/**"
+
+"SharedTypes":
+  - changed-files:
+      - any-glob-to-any-file: "backend/shared-types/**"
