@@ -81,9 +81,9 @@ pub fn validate_password(password: &str) -> Result<(), String> {
 /// rare with Argon2, and the database has integrity constraints to prevent
 /// corruption. This is a pragmatic balance between security and availability.
 pub fn is_password_in_history(password: &str, password_hashes: &[String]) -> bool {
-    password_hashes
-        .iter()
-        .any(|hash| verify_password(password, hash).is_ok())
+    password_hashes.iter().fold(false, |acc, hash| {
+        acc | verify_password(password, hash).is_ok()
+    })
 }
 
 #[cfg(test)]
