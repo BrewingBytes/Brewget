@@ -56,7 +56,8 @@ data:
 
     # HTTPS server
     server {
-        listen 443 ssl http2;
+        listen 443 ssl;
+        http2 on;
         server_name brewget.brewingbytes.com;
 
         # SSL certificate configuration

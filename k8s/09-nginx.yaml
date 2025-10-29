@@ -37,6 +37,41 @@ spec:
         app: nginx
     spec:
       initContainers:
+      - name: setup-certs
+        image: alpine:3.18
+        command:
+          - sh
+          - -c
+          - |
+            # Install OpenSSL
+            apk add --no-cache openssl
+            
+            # Check if Let's Encrypt certificates exist
+            if [ -f /etc/nginx/ssl/fullchain.pem ] && [ -f /etc/nginx/ssl/privkey.pem ]; then
+              echo "Let's Encrypt certificates found, using them"
+              exit 0
+            fi
+            
+            echo "Let's Encrypt certificates not found, generating self-signed certificates"
+            
+            # Generate self-signed certificate
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+              -keyout /etc/nginx/ssl/privkey.pem \
+              -out /etc/nginx/ssl/fullchain.pem \
+              -subj "/C=US/ST=State/L=City/O=Organization/CN=brewget.brewingbytes.com"
+            
+            echo "Self-signed certificates generated successfully"
+            echo "WARNING: Using self-signed certificates. Please configure Let's Encrypt for production use."
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /etc/nginx/ssl
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
       - name: wait-for-frontend
         image: busybox:1.36
         command:
@@ -110,6 +145,6 @@ spec:
       - name: tls-certs
         hostPath:
           path: /etc/letsencrypt/live/brewget.brewingbytes.com
-          type: Directory
+          type: DirectoryOrCreate
       - name: certbot-webroot
         emptyDir: {}
