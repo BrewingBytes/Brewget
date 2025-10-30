@@ -26,8 +26,8 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Activates the account if the id is valid
 ///
 /// # Returns
-/// * JSON response with translation key "ACCOUNT_VERIFIED" if sucessfull
-/// * JSON response with error message if unsucessfull
+/// * JSON response with translation key "ACCOUNT_VERIFIED" if successful
+/// * JSON response with error message if unsuccessful
 ///
 /// # Example Response
 /// ```json
