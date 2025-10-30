@@ -7,6 +7,31 @@ use axum::{
 use crate::i18n::{TranslationKey, Translator};
 use crate::response::Message;
 
+/// Extracts language code from Accept-Language header
+///
+/// Parses the Accept-Language header value and returns the first supported language code.
+/// Falls back to "en" if the header is not present or cannot be parsed.
+///
+/// # Arguments
+/// * `headers` - Optional HTTP headers containing Accept-Language
+///
+/// # Returns
+/// Language code string (e.g., "en", "es", "fr", "de", "ro")
+pub fn extract_language_from_headers(headers: Option<&HeaderMap>) -> &str {
+    headers
+        .and_then(|h| h.get("accept-language"))
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| {
+            // Extract first language code from Accept-Language header
+            // Format: "en-US,en;q=0.9,es;q=0.8"
+            s.split(',')
+                .next()
+                .and_then(|l| l.split(';').next())
+                .map(|l| l.trim())
+        })
+        .unwrap_or("en")
+}
+
 /// Custom error type for handling API errors across all services
 ///
 /// Combines an HTTP status code with a JSON message response
@@ -47,19 +72,7 @@ impl Error {
     /// # Returns
     /// Returns a new `Error` instance with translated message
     pub fn translated(code: StatusCode, key: TranslationKey, headers: Option<&HeaderMap>) -> Self {
-        let lang = headers
-            .and_then(|h| h.get("accept-language"))
-            .and_then(|v| v.to_str().ok())
-            .map(|s| {
-                // Extract first language code from Accept-Language header
-                s.split(',')
-                    .next()
-                    .and_then(|l| l.split(';').next())
-                    .map(|l| l.trim())
-                    .unwrap_or("en")
-            })
-            .unwrap_or("en");
-
+        let lang = extract_language_from_headers(headers);
         let translator = Translator::from_code(lang);
         let message = translator.translate(key);
 

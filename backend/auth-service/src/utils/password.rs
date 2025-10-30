@@ -2,6 +2,7 @@ use argon2::{
     Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
+use shared_types::TranslationKey;
 
 /// Hashes a password using Argon2 with the provided salt
 ///
@@ -47,18 +48,22 @@ pub fn verify_password(password: &str, hash: &str) -> Result<(), ()> {
 ///
 /// # Returns
 /// * `Ok(())` - If the password is valid
-/// * `Err(String)` - If the password is not valid and an error message
-pub fn validate_password(password: &str) -> Result<(), String> {
+/// * `Err(TranslationKey)` - If the password is not valid with a translation key
+pub fn validate_password(password: &str) -> Result<(), TranslationKey> {
     if password.len() < 8 {
-        return Err("Password must be at least 8 characters long".into());
+        return Err(TranslationKey::PasswordTooShort);
     }
 
     if !password.chars().any(|c| c.is_uppercase()) {
-        return Err("Password must contain at least one uppercase letter".into());
+        return Err(TranslationKey::PasswordNoUppercase);
+    }
+
+    if !password.chars().any(|c| c.is_lowercase()) {
+        return Err(TranslationKey::PasswordNoLowercase);
     }
 
     if !password.chars().any(|c| c.is_numeric()) {
-        return Err("Password must contain at least one number".into());
+        return Err(TranslationKey::PasswordNoDigit);
     }
 
     Ok(())
@@ -151,10 +156,7 @@ mod tests {
         let password = "Short1";
         let result = validate_password(password);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "Password must be at least 8 characters long"
-        );
+        assert_eq!(result.unwrap_err(), TranslationKey::PasswordTooShort);
     }
 
     #[test]
@@ -162,10 +164,7 @@ mod tests {
         let password = "lowercase123";
         let result = validate_password(password);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "Password must contain at least one uppercase letter"
-        );
+        assert_eq!(result.unwrap_err(), TranslationKey::PasswordNoUppercase);
     }
 
     #[test]
@@ -173,10 +172,7 @@ mod tests {
         let password = "NoNumbersHere";
         let result = validate_password(password);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "Password must contain at least one number"
-        );
+        assert_eq!(result.unwrap_err(), TranslationKey::PasswordNoDigit);
     }
 
     #[test]
@@ -184,10 +180,7 @@ mod tests {
         let password = "lowercase1";
         let result = validate_password(password);
         assert!(result.is_err());
-        assert_eq!(
-            result.unwrap_err(),
-            "Password must contain at least one uppercase letter"
-        );
+        assert_eq!(result.unwrap_err(), TranslationKey::PasswordNoUppercase);
     }
 
     #[test]

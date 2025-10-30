@@ -1,15 +1,20 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::post,
+};
+use shared_types::{Error, TranslationKey};
 
 use crate::{
     AppState, database,
     grpc::email_service::service::ActivateAccountRequest,
     models::{
-        activation_link::NewActivationLink,
-        request::register_info::RegisterInfo,
-        response::{Error, Message},
-        user::NewUser,
+        activation_link::NewActivationLink, request::register_info::RegisterInfo,
+        response::Message, user::NewUser,
     },
     utils::password::validate_password,
 };
@@ -58,6 +63,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn register_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!(
@@ -70,31 +76,35 @@ async fn register_handler(
     tracing::debug!("Verifying captcha token for registration");
     crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
         .await
-        .map_err(|_| -> Error {
+        .map_err(|_| {
             tracing::warn!(
                 "Captcha verification failed for registration: {}",
                 body.username
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            Error::translated(
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaFailed,
+                Some(&headers),
+            )
         })?;
 
     // Validate username length
     if body.username.len() <= 3 {
         tracing::warn!("Username too short for registration: {}", body.username);
-        return Err((
+        return Err(Error::translated(
             StatusCode::BAD_REQUEST,
-            "Username length cannot be less or equal to 3 characters.",
-        )
-            .into());
+            TranslationKey::UsernameTooShort,
+            Some(&headers),
+        ));
     }
 
     // Validate password length
-    validate_password(&body.password).map_err(|s| -> Error {
+    validate_password(&body.password).map_err(|key| {
         tracing::warn!(
             "Invalid password format for registration: {}",
             body.username
         );
-        (StatusCode::BAD_REQUEST, s.as_str()).into()
+        Error::translated(StatusCode::BAD_REQUEST, key, Some(&headers))
     })?;
 
     // Validate email format

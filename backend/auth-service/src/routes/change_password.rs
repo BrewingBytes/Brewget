@@ -7,7 +7,7 @@ use axum::{
     response::IntoResponse,
     routing::post,
 };
-use shared_types::{Error, Message, TranslationKey};
+use shared_types::{Error, Message, TranslationKey, extract_language_from_headers};
 
 use crate::{
     AppState, database,
@@ -60,12 +60,12 @@ async fn change_password_handler(
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password).map_err(|s| {
+    validate_password(&body.password).map_err(|key| {
         tracing::warn!(
             "Invalid password format for password change, link_id: {}",
             body.id
         );
-        Error::new(StatusCode::BAD_REQUEST, s.as_str())
+        Error::translated(StatusCode::BAD_REQUEST, key, Some(&headers))
     })?;
 
     // Check if the password has been used in recent passwords
@@ -152,13 +152,10 @@ async fn change_password_handler(
         "Password change successful for user_id: {}",
         link.get_uuid()
     );
-    let translator = shared_types::Translator::from_code(
-        headers
-            .get("accept-language")
-            .and_then(|v| v.to_str().ok())
-            .and_then(|s| s.split(',').next())
-            .unwrap_or("en"),
-    );
+
+    // Use centralized language extraction
+    let lang = extract_language_from_headers(Some(&headers));
+    let translator = shared_types::Translator::from_code(lang);
     Ok(Json(Message {
         message: translator.translate(TranslationKey::PasswordChanged),
     }))

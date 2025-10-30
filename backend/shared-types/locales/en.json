@@ -22,6 +22,6 @@
   "token_invalid": "Token is invalid",
   "user_not_exist": "User does not exist.",
   "account_verified": "Account has been verified.",
-  "username_too_short": "Username length cannot be less or equal to 3 characters.",
+  "username_too_short": "Username length cannot be less than or equal to 3 characters.",
   "forgot_password_sent": "Forgot password link sent to the email, if an account is registered and verified with that email."
 }

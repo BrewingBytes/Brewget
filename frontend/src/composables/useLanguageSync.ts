@@ -19,8 +19,20 @@ export function useLanguageSync() {
 
   // Get browser language or default to English
   function getBrowserLanguage(): string {
-    const browserLang = navigator.language.split("-")[0];
     const supportedLanguages = ["en", "es", "fr", "de", "ro"];
+    
+    // Try to find first supported language from browser's language preferences
+    if (navigator.languages) {
+      for (const lang of navigator.languages) {
+        const langCode = lang.split("-")[0];
+        if (langCode && supportedLanguages.includes(langCode)) {
+          return langCode;
+        }
+      }
+    }
+    
+    // Fallback to navigator.language
+    const browserLang = navigator.language?.split("-")[0];
     return browserLang && supportedLanguages.includes(browserLang) ? browserLang : "en";
   }
 
