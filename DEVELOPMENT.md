@@ -221,6 +221,9 @@ overmind stop
 - **Automatic restart notifications** - Clearly shows when services restart due to code changes
 - **Interactive mode** - Connect to individual services with `overmind connect <service>`
 - **Process management** - Clean shutdown of all processes with proper signal handling
+- **Dependency management** - Services automatically wait for their dependencies:
+  - `auth` waits for `email` service (port 9001) to be ready
+  - `settings` waits for `auth` service (port 8000) to be ready
 
 **Watched paths:**
 - **auth-service**: `backend/auth-service/src`, `backend/shared-types/src`, `backend/proto`
@@ -230,27 +233,31 @@ overmind stop
 
 ### Manual Mode (Individual Services)
 
-If you prefer to run services individually in separate terminals:
+If you prefer to run services individually in separate terminals, start them in the correct order to respect dependencies:
 
-1. **Start Email Service** (terminal 1):
+1. **Start Email Service** (terminal 1) - No dependencies:
    ```bash
    cd backend
    cargo watch -w email-service/src -w proto -x "run --package email-service"
    ```
 
-2. **Start Auth Service** (terminal 2):
+2. **Start Auth Service** (terminal 2) - Depends on email-service:
    ```bash
+   # Wait for email service to be ready first
+   scripts/wait-for-port.sh localhost 9001 60
    cd backend
    cargo watch -w auth-service/src -w shared-types/src -w proto -x "run --package auth-service"
    ```
 
-3. **Start Settings Service** (terminal 3):
+3. **Start Settings Service** (terminal 3) - Depends on auth-service:
    ```bash
+   # Wait for auth service to be ready first
+   scripts/wait-for-port.sh localhost 8000 60
    cd backend
    cargo watch -w settings-service/src -w shared-types/src -w proto -x "run --package settings-service"
    ```
 
-4. **Start Frontend** (terminal 4):
+4. **Start Frontend** (terminal 4) - No dependencies:
    ```bash
    cd frontend
    npm run dev
@@ -262,17 +269,20 @@ If you prefer to run services individually in separate terminals:
 
 The backend uses `cargo-watch` to automatically rebuild when source files change:
 
+- **email-service**: 
+  - gRPC Port: 9001
+  - Dependencies: None
+  
 - **auth-service**: 
   - HTTP Port: 8000
   - gRPC Port: 9000
   - Database: brewget_auth
-  
-- **email-service**: 
-  - gRPC Port: 9001
+  - Dependencies: email-service (for sending emails)
   
 - **settings-service**: 
   - HTTP Port: 8001
   - Database: brewget_settings
+  - Dependencies: auth-service (for JWT validation)
 
 ### Frontend
 
