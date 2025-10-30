@@ -17,10 +17,10 @@ function handleAccept(): void {
       :draggable="false"
       header="Cookie Consent"
       class="cookie-consent-dialog"
+      aria-describedby="cookie-consent-message"
     >
-      <p class="mb-4">
-        We use cookies to enhance your experience on our website. By continuing to use this site,
-        you consent to our use of cookies.
+      <p id="cookie-consent-message" class="mb-4">
+        We use cookies to enhance your experience on our website. You must accept cookies to use this site.
       </p>
       <template #footer>
         <Button label="Accept" icon="pi pi-check" @click="handleAccept" autofocus />
