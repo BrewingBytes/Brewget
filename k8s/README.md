@@ -172,6 +172,36 @@ For minikube, the hostPath `/data/brewget-postgres` is created inside the miniku
 - ✅ Data persists through `minikube stop` and `minikube start`
 - ❌ Data is lost when running `minikube delete`
 
+### Using Mounted Host Folder for Better Persistence
+
+For better persistence that survives `minikube delete`, you can mount a host folder into the minikube VM. This ensures your data persists even when minikube is completely deleted and recreated.
+
+**Step 1: Mount a host folder to minikube**
+
+```bash
+# Start or restart minikube with a mount
+minikube start --mount --mount-string="/path/on/host:/data/brewget-postgres"
+
+# Or mount to an existing minikube instance
+minikube mount /path/on/host:/data/brewget-postgres &
+```
+
+Replace `/path/on/host` with the actual path on your host machine where you want to store the data (e.g., `$HOME/brewget-data`).
+
+**Step 2: Deploy as usual**
+
+```bash
+./k8s/deploy.sh
+```
+
+The PersistentVolume will use `/data/brewget-postgres` inside minikube, which is now mounted to your host machine, providing true persistence across minikube deletions.
+
+**Benefits of this approach:**
+- ✅ Data persists through `minikube stop` and `minikube start`
+- ✅ Data persists even when running `minikube delete`
+- ✅ Easy to backup (just copy the host folder)
+- ✅ Can access data directly from host machine
+
 ### Manual Backup and Restore
 
 If you need to backup data manually before deleting minikube:

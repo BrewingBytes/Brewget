@@ -18,6 +18,10 @@ spec:
 ---
 # PersistentVolume using hostPath to store data on the host machine
 # This ensures data persists even when minikube is stopped or restarted
+# 
+# For better persistence across minikube deletion:
+# Mount a host folder: minikube start --mount --mount-string="/path/on/host:/data/brewget-postgres"
+# See k8s/README.md for more details on using mounted host folders
 apiVersion: v1
 kind: PersistentVolume
 metadata:
