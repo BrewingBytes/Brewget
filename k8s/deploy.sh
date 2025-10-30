@@ -38,8 +38,15 @@ if command -v minikube &> /dev/null; then
             echo "   Host path: $HOST_DATA_PATH"
             echo "   Minikube path: /data/brewget-postgres"
             minikube mount "$HOST_DATA_PATH:/data/brewget-postgres" &
-            sleep 3  # Give the mount a moment to establish
-            echo "✅ Host folder mounted successfully"
+            MOUNT_PID=$!
+            sleep 5  # Give the mount time to establish
+            
+            # Verify mount process is still running
+            if ps -p $MOUNT_PID > /dev/null 2>&1; then
+                echo "✅ Host folder mounted successfully"
+            else
+                echo "⚠️  Mount process may have failed, but continuing deployment"
+            fi
         else
             echo "✅ Host folder already mounted"
         fi
