@@ -6,7 +6,7 @@ use crate::{
     AppState, database,
     models::{
         request::reset_password_info::ResetPasswordInfo,
-        response::{Error, Message},
+        response::{Error, TranslationKey, TranslationKeyMessage},
     },
     utils::password::{hash_password, is_password_in_history, validate_password},
 };
@@ -21,12 +21,12 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Change password endpoint handler
 ///
 /// # Returns
-/// JSON response with "Password sucessfully changed." if the password was changed.
+/// JSON response with translation key "PASSWORD_SUCCESSFULLY_CHANGED" if the password was changed.
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Password sucessfully changed."
+///     "translation_key": "PASSWORD_SUCCESSFULLY_CHANGED"
 /// }
 /// ```
 async fn change_password_handler(
@@ -143,7 +143,7 @@ async fn change_password_handler(
         "Password change successful for user_id: {}",
         link.get_uuid()
     );
-    Ok(Json(Message {
-        message: "Password sucessfully changed.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::PasswordSuccessfullyChanged,
     }))
 }

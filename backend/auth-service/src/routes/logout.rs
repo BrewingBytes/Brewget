@@ -2,7 +2,7 @@ use std::{str::FromStr, sync::Arc};
 
 use crate::{
     AppState, database,
-    models::response::{Error, Message},
+    models::response::{Error, TranslationKey, TranslationKeyMessage},
     routes::middlewares::auth_guard::auth_guard,
 };
 use axum::{
@@ -36,13 +36,13 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// * `user_uuid` - User ID from auth middleware
 ///
 /// # Returns
-/// * `Ok(Json<Message>)` - Success message on logout
+/// * `Ok(Json<TranslationKeyMessage>)` - Success message on logout
 /// * `Err(Error)` - Database errors
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Ok"
+///     "translation_key": "OK"
 /// }
 /// ```
 async fn logout_handler(
@@ -59,7 +59,7 @@ async fn logout_handler(
 
     tracing::info!("Logout successful for user_id: {}", user_uuid);
     // Return success message
-    Ok(Json(Message {
-        message: "Ok".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::Ok,
     }))
 }

@@ -8,7 +8,7 @@ use crate::{
     models::{
         forgot_password_link::NewForgotPasswordLink,
         request::forgot_password_info::ForgotPasswordInfo,
-        response::{Error, Message},
+        response::{Error, TranslationKey, TranslationKeyMessage},
     },
 };
 
@@ -22,12 +22,12 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Forgot password endpoint handler
 ///
 /// # Returns
-/// JSON response with "Forgot password link sent to the email, if an account is registered and verified with that email."
+/// JSON response with translation key "FORGOT_PASSWORD_LINK_SENT"
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Forgot password link sent to the email, if an account is registered and verified with that email."
+///     "translation_key": "FORGOT_PASSWORD_LINK_SENT"
 /// }
 /// ```
 async fn forgot_password_handler(
@@ -85,7 +85,7 @@ async fn forgot_password_handler(
         }
     });
 
-    Ok(Json(Message {
-        message: "Forgot password link sent to the email, if an account is registered and verified with that email.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::ForgotPasswordLinkSent,
     }))
 }

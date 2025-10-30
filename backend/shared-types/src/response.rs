@@ -1,8 +1,44 @@
 use serde::Serialize;
 
-/// A generic message response structure
+/// Translation keys for frontend localization
 ///
-/// This struct is used to serialize response messages into JSON format
+/// Each variant represents a specific message that the frontend should translate
+#[derive(Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum TranslationKey {
+    /// Password successfully changed message
+    PasswordSuccessfullyChanged,
+    /// Generic OK message
+    Ok,
+    /// Account created message
+    AccountCreated,
+    /// Forgot password link sent message
+    ForgotPasswordLinkSent,
+    /// Account verified message
+    AccountVerified,
+}
+
+/// A message response structure containing a translation key
+///
+/// This struct is used to tell the frontend which translation key to use
+///
+/// # Fields
+/// * `translation_key` - The translation key indicating which message to display
+///
+/// # Example
+/// ```json
+/// {
+///     "translation_key": "ACCOUNT_CREATED"
+/// }
+/// ```
+#[derive(Serialize)]
+pub struct TranslationKeyMessage {
+    pub translation_key: TranslationKey,
+}
+
+/// A generic message response structure for dynamic messages
+///
+/// This struct is used for error messages and other dynamic content
 ///
 /// # Fields
 /// * `message` - The message content to be sent in the response
@@ -10,7 +46,7 @@ use serde::Serialize;
 /// # Example
 /// ```json
 /// {
-///     "message": "Operation completed successfully"
+///     "message": "An error occurred"
 /// }
 /// ```
 #[derive(Serialize)]
@@ -70,4 +106,57 @@ pub enum DatabaseConnection {
 #[derive(Serialize)]
 pub struct Token {
     pub token: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_translation_key_serialization() {
+        let test_cases = vec![
+            (TranslationKey::AccountCreated, "ACCOUNT_CREATED"),
+            (
+                TranslationKey::PasswordSuccessfullyChanged,
+                "PASSWORD_SUCCESSFULLY_CHANGED",
+            ),
+            (TranslationKey::Ok, "OK"),
+            (
+                TranslationKey::ForgotPasswordLinkSent,
+                "FORGOT_PASSWORD_LINK_SENT",
+            ),
+            (TranslationKey::AccountVerified, "ACCOUNT_VERIFIED"),
+        ];
+
+        for (key, expected) in test_cases {
+            let msg = TranslationKeyMessage {
+                translation_key: key,
+            };
+            let json = serde_json::to_string(&msg).unwrap();
+            assert!(
+                json.contains(expected),
+                "Expected '{}' to contain '{}'",
+                json,
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn test_translation_key_message_format() {
+        let msg = TranslationKeyMessage {
+            translation_key: TranslationKey::AccountCreated,
+        };
+        let json = serde_json::to_string(&msg).unwrap();
+        assert_eq!(json, r#"{"translation_key":"ACCOUNT_CREATED"}"#);
+    }
+
+    #[test]
+    fn test_message_serialization() {
+        let msg = Message {
+            message: "Test error message".into(),
+        };
+        let json = serde_json::to_string(&msg).unwrap();
+        assert_eq!(json, r#"{"message":"Test error message"}"#);
+    }
 }

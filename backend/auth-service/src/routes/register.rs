@@ -8,7 +8,7 @@ use crate::{
     models::{
         activation_link::NewActivationLink,
         request::register_info::RegisterInfo,
-        response::{Error, Message},
+        response::{Error, TranslationKey, TranslationKeyMessage},
         user::NewUser,
     },
     utils::password::validate_password,
@@ -38,7 +38,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// * `body` - JSON request body containing registration information
 ///
 /// # Returns
-/// * `Ok(Json<Message>)` - Success message on account creation
+/// * `Ok(Json<TranslationKeyMessage>)` - Success message on account creation
 /// * `Err(Error)` - Validation or database errors
 ///
 /// # Example Request
@@ -53,7 +53,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Account has been created."
+///     "translation_key": "ACCOUNT_CREATED"
 /// }
 /// ```
 async fn register_handler(
@@ -192,7 +192,7 @@ async fn register_handler(
         body.email
     );
     // Return success message
-    Ok(Json(Message {
-        message: "Account has been created.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::AccountCreated,
     }))
 }

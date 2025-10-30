@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use crate::{
     AppState, database,
-    models::response::{Error, Message},
+    models::response::{Error, TranslationKey, TranslationKeyMessage},
 };
 
 /// Creates a router for the activate routes
@@ -26,13 +26,13 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Activates the account if the id is valid
 ///
 /// # Returns
-/// * JSON response with message "Account has been verified." if sucessfull
-/// * JSON response with message "Account link is invalid." if unsucessfull
+/// * JSON response with translation key "ACCOUNT_VERIFIED" if sucessfull
+/// * JSON response with error message if unsucessfull
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Account has been verified."
+///     "translation_key": "ACCOUNT_VERIFIED"
 /// }
 /// ```
 async fn activate_account_handler(
@@ -60,7 +60,7 @@ async fn activate_account_handler(
         "Account activation successful for user_id: {}",
         activation_link.get_uuid()
     );
-    Ok(Json(Message {
-        message: "Account has been verified.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::AccountVerified,
     }))
 }
