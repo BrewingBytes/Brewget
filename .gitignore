@@ -2,4 +2,4 @@
 **/target
 app.css
 .DS_Store
-.dev-logs
+.overmind.sock

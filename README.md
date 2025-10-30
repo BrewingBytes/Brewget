@@ -18,10 +18,11 @@ BrewGet consists of the following services:
 For local development with hot-reloading:
 
 1. Set up infrastructure (PostgreSQL, etc.) - see [DEVELOPMENT.md](DEVELOPMENT.md) for details
-2. Copy environment file: `cp .env.example .env`
-3. Run services: `./dev.sh`
+2. Install overmind: `brew install overmind` (macOS) or see [DEVELOPMENT.md](DEVELOPMENT.md)
+3. Copy environment file: `cp .env.example .env`
+4. Run services: `overmind start`
 
-The dev script uses cargo-watch to automatically rebuild Rust services when code changes.
+Overmind manages all services with automatic rebuilding and displays unified logs with restart notifications.
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed local development instructions.
 

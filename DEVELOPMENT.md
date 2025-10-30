@@ -1,13 +1,14 @@
 # Local Development Setup
 
-This guide will help you set up and run BrewGet locally with hot-reloading for all microservices using cargo-watch.
+This guide will help you set up and run BrewGet locally with hot-reloading for all microservices using overmind and cargo-watch.
 
 ## Prerequisites
 
 - **Rust** (latest stable version)
 - **Node.js** (v20 or later) and npm
 - **PostgreSQL** (v13 or later)
-- **cargo-watch** (will be installed automatically by dev script)
+- **overmind** (process manager)
+- **cargo-watch** (for Rust hot-reloading)
 - **protobuf-compiler** (libprotoc)
 - Git
 
@@ -25,6 +26,27 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Verify the script before running or use your system's package manager
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install 20
+```
+
+**overmind:**
+```bash
+# macOS
+brew install overmind
+
+# Linux (from releases)
+# Visit https://github.com/DarthSim/overmind/releases for latest version
+curl -L https://github.com/DarthSim/overmind/releases/latest/download/overmind-v2.5.1-linux-amd64.gz -o overmind.gz
+gunzip overmind.gz
+chmod +x overmind
+sudo mv overmind /usr/local/bin/
+
+# Or install from source (requires Go)
+go install github.com/DarthSim/overmind/v2@latest
+```
+
+**cargo-watch:**
+```bash
+cargo install cargo-watch
 ```
 
 **PostgreSQL:**
@@ -151,14 +173,12 @@ Access MailHog UI at http://localhost:8025
    cd ../..
    ```
 
-5. **Start all services with watch mode**:
+5. **Start all services with overmind**:
    ```bash
-   ./dev.sh
+   overmind start
    ```
 
-   This script will:
-   - Start all three Rust microservices with `cargo-watch` (automatic rebuild on changes)
-   - Start the Vue.js frontend with Vite's hot-reloading
+   This will start all microservices with automatic rebuilding and display a unified output showing all service logs and restart events.
 
 6. **Access the application**:
    - **Frontend**: http://localhost:5173
@@ -168,17 +188,39 @@ Access MailHog UI at http://localhost:8025
 
 7. **Stop all services**:
    ```bash
-   ./dev-stop.sh
+   # Press Ctrl+C in the terminal running overmind
+   # Or in a separate terminal:
+   overmind stop
    ```
-   Or press `Ctrl+C` in the terminal running `./dev.sh`
 
 ## Development Workflow
 
-### Watch Mode (Automatic Reloading)
+### Using Overmind (Recommended)
 
-The `./dev.sh` script uses:
-- **cargo-watch** for Rust services - automatically rebuilds and restarts when source files change
-- **Vite dev server** for frontend - hot module replacement (HMR) for instant updates
+Overmind is a process manager that runs all services in parallel with a unified terminal UI:
+
+```bash
+# Start all services
+overmind start
+
+# Start specific services only
+overmind start email auth
+
+# Connect to a specific service (see its logs interactively)
+overmind connect auth
+
+# Restart a specific service
+overmind restart auth
+
+# Stop all services
+overmind stop
+```
+
+**Features:**
+- **Unified output** - See all service logs in one place with color-coded prefixes
+- **Automatic restart notifications** - Clearly shows when services restart due to code changes
+- **Interactive mode** - Connect to individual services with `overmind connect <service>`
+- **Process management** - Clean shutdown of all processes with proper signal handling
 
 **Watched paths:**
 - **auth-service**: `backend/auth-service/src`, `backend/shared-types/src`, `backend/proto`
@@ -272,20 +314,48 @@ TURNSTILE_SECRET=1x0000000000000000000000000000000AA  # Test key
 
 ## Logs
 
-When using `./dev.sh`, logs are written to `.dev-logs/` directory:
+When using `overmind`, logs are displayed in the unified terminal output with color-coded prefixes for each service.
+
+**Overmind log commands:**
 
 ```bash
-# View logs in real-time
-tail -f .dev-logs/auth-service.log
-tail -f .dev-logs/email-service.log
-tail -f .dev-logs/settings-service.log
-tail -f .dev-logs/frontend.log
+# View all logs in real-time (default with overmind start)
+overmind start
 
-# View all logs
-tail -f .dev-logs/*.log
+# Connect to a specific service to see only its logs
+overmind connect auth
+overmind connect email
+overmind connect settings
+overmind connect frontend
+
+# Disconnect from a service view (press Ctrl+B then D)
 ```
 
+Overmind also writes logs to `.overmind.sock` for advanced debugging.
+
 ## Useful Commands
+
+### Overmind Commands
+
+```bash
+# Start all services
+overmind start
+
+# Start specific services
+overmind start auth settings
+
+# Stop all services
+overmind stop
+
+# Restart a service
+overmind restart auth
+
+# Check process status
+overmind ps
+
+# Run a one-off command
+overmind run auth "cargo build --package auth-service"
+```
 
 ### Build and Test
 
