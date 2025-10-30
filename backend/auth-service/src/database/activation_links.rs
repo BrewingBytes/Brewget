@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::models::{
     activation_link::{ActivationLink, NewActivationLink},
-    response::Error,
+    response::{Error, TranslationKey},
 };
 
 /// Inserts a new activation link into the database
@@ -62,9 +62,11 @@ pub async fn filter_and_delete_by_id(
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::BAD_REQUEST, "Activation link not found.").into()
-            }
+            sqlx::Error::RowNotFound => (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::ActivationLinkNotFound,
+            )
+                .into(),
             _ => e.into(),
         }
     })?;

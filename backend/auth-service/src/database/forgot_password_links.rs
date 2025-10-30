@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::models::{
     forgot_password_link::{ForgotPasswordLink, NewForgotPasswordLink},
-    response::Error,
+    response::{Error, TranslationKey},
 };
 
 /// Inserts a new forgot password link into the database
@@ -57,9 +57,11 @@ pub async fn filter_by_id(find_id: Uuid, pool: &PgPool) -> Result<ForgotPassword
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::BAD_REQUEST, "Activation link not found.").into()
-            }
+            sqlx::Error::RowNotFound => (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::ForgotPasswordLinkNotFound,
+            )
+                .into(),
             _ => e.into(),
         }
     })
@@ -88,7 +90,7 @@ pub async fn delete(find_id: Uuid, pool: &PgPool) -> Result<usize, Error> {
     .map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not delete from database",
+            TranslationKey::CouldNotDeleteFromDatabase,
         )
             .into()
     })

@@ -75,32 +75,36 @@ async fn register_handler(
                 "Captcha verification failed for registration: {}",
                 body.username
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaVerificationFailed,
+            )
+                .into()
         })?;
 
     // Validate username length
     if body.username.len() <= 3 {
         tracing::warn!("Username too short for registration: {}", body.username);
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Username length cannot be less or equal to 3 characters.",
-        )
-            .into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::UsernameTooShort).into());
     }
 
     // Validate password length
-    validate_password(&body.password).map_err(|s| -> Error {
+    validate_password(&body.password).map_err(|_s| -> Error {
         tracing::warn!(
             "Invalid password format for registration: {}",
             body.username
         );
-        (StatusCode::BAD_REQUEST, s.as_str()).into()
+        (
+            StatusCode::BAD_REQUEST,
+            TranslationKey::PasswordValidationError,
+        )
+            .into()
     })?;
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {
         tracing::warn!("Invalid email format for registration: {}", body.email);
-        return Err((StatusCode::BAD_REQUEST, "Email address is not valid.").into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::EmailAddressInvalid).into());
     }
 
     // Check for existing username or email
@@ -117,7 +121,7 @@ async fn register_handler(
         );
         return Err((
             StatusCode::BAD_REQUEST,
-            "Username or email is already used.",
+            TranslationKey::UsernameOrEmailAlreadyUsed,
         )
             .into());
     }
@@ -129,7 +133,7 @@ async fn register_handler(
             tracing::error!("Failed to create user record for: {}", body.username);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not create account.",
+                TranslationKey::CouldNotCreateAccount,
             )
                 .into()
         })?;
@@ -146,7 +150,7 @@ async fn register_handler(
     let mut tx = pool.begin().await.map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Database transaction error.",
+            TranslationKey::DatabaseTransactionError,
         )
             .into()
     })?;
@@ -165,7 +169,7 @@ async fn register_handler(
         );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to commit transaction.",
+            TranslationKey::FailedToCommitTransaction,
         )
             .into()
     })?;
@@ -183,7 +187,11 @@ async fn register_handler(
             body.email,
             status.message()
         );
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into());
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
+            .into());
     }
 
     tracing::info!(

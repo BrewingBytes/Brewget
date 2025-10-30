@@ -16,6 +16,60 @@ pub enum TranslationKey {
     ForgotPasswordLinkSent,
     /// Account verified message
     AccountVerified,
+    /// User does not exist error
+    UserDoesNotExist,
+    /// Link is expired error
+    LinkIsExpired,
+    /// Password cannot be reused error
+    PasswordCannotBeReused,
+    /// Something went wrong generic error
+    SomethingWentWrong,
+    /// Database transaction error
+    DatabaseTransactionError,
+    /// Failed to commit transaction error
+    FailedToCommitTransaction,
+    /// Could not delete from database error
+    CouldNotDeleteFromDatabase,
+    /// Captcha verification failed error
+    CaptchaVerificationFailed,
+    /// Username or password is invalid error
+    UsernameOrPasswordInvalid,
+    /// Email has not been verified error
+    EmailNotVerified,
+    /// Account has been deleted temporarily error
+    AccountDeletedTemporarily,
+    /// Username length too short error
+    UsernameTooShort,
+    /// Email address is not valid error
+    EmailAddressInvalid,
+    /// Username or email already used error
+    UsernameOrEmailAlreadyUsed,
+    /// Could not create account error
+    CouldNotCreateAccount,
+    /// You are not logged in error
+    NotLoggedIn,
+    /// Token has expired error
+    TokenExpired,
+    /// Token is invalid error
+    TokenInvalid,
+    /// Internal server error
+    InternalServerError,
+    /// Password validation error
+    PasswordValidationError,
+    /// Username not found error
+    UsernameNotFound,
+    /// Username or email not found error
+    UsernameOrEmailNotFound,
+    /// Could not verify account error
+    CouldNotVerifyAccount,
+    /// Could not update password error
+    CouldNotUpdatePassword,
+    /// Activation link not found error
+    ActivationLinkNotFound,
+    /// Forgot password link not found error
+    ForgotPasswordLinkNotFound,
+    /// Failed to retrieve password history error
+    FailedToRetrievePasswordHistory,
 }
 
 /// A message response structure containing a translation key
@@ -34,24 +88,6 @@ pub enum TranslationKey {
 #[derive(Serialize)]
 pub struct TranslationKeyMessage {
     pub translation_key: TranslationKey,
-}
-
-/// A generic message response structure for dynamic messages
-///
-/// This struct is used for error messages and other dynamic content
-///
-/// # Fields
-/// * `message` - The message content to be sent in the response
-///
-/// # Example
-/// ```json
-/// {
-///     "message": "An error occurred"
-/// }
-/// ```
-#[derive(Serialize)]
-pub struct Message {
-    pub message: String,
 }
 
 /// The response for the /health route
@@ -149,14 +185,5 @@ mod tests {
         };
         let json = serde_json::to_string(&msg).unwrap();
         assert_eq!(json, r#"{"translation_key":"ACCOUNT_CREATED"}"#);
-    }
-
-    #[test]
-    fn test_message_serialization() {
-        let msg = Message {
-            message: "Test error message".into(),
-        };
-        let json = serde_json::to_string(&msg).unwrap();
-        assert_eq!(json, r#"{"message":"Test error message"}"#);
     }
 }

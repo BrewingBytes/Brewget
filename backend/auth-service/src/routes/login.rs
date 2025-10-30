@@ -8,7 +8,7 @@ use crate::{
     AppState, database,
     models::{
         request::login_info::LoginInfo,
-        response::{Error, Token},
+        response::{Error, Token, TranslationKey},
         token::NewToken,
         token_claim::TokenClaim,
     },
@@ -68,7 +68,11 @@ async fn login_handler(
                 "Captcha verification failed for username: {}",
                 body.username
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaVerificationFailed,
+            )
+                .into()
         })?;
 
     // Query database for user with matching username
@@ -79,7 +83,11 @@ async fn login_handler(
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
         tracing::warn!("Invalid password for username: {}", body.username);
-        return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
+        return Err((
+            StatusCode::BAD_REQUEST,
+            TranslationKey::UsernameOrPasswordInvalid,
+        )
+            .into());
     }
 
     // Check if user has activated his account
@@ -88,11 +96,7 @@ async fn login_handler(
             "Unverified account login attempt for username: {}",
             body.username
         );
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            "Email has not been verified, please check your inbox.",
-        )
-            .into());
+        return Err((StatusCode::UNAUTHORIZED, TranslationKey::EmailNotVerified).into());
     }
 
     // Check if the account is deleted temporarily
@@ -103,7 +107,7 @@ async fn login_handler(
         );
         return Err((
             StatusCode::UNAUTHORIZED,
-            "Account has been deleted temporarily",
+            TranslationKey::AccountDeletedTemporarily,
         )
             .into());
     }

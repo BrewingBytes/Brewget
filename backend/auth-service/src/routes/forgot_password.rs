@@ -45,7 +45,11 @@ async fn forgot_password_handler(
                 "Captcha verification failed for forgot password: {}",
                 body.email
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaVerificationFailed,
+            )
+                .into()
         })?;
 
     // Clone necessary data for the async processing

@@ -4,35 +4,33 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-use crate::response::Message;
+use crate::response::{TranslationKey, TranslationKeyMessage};
 
 /// Custom error type for handling API errors across all services
 ///
-/// Combines an HTTP status code with a JSON message response
+/// Combines an HTTP status code with a JSON message response using translation keys
 ///
 /// # Fields
 /// * `code` - HTTP status code for the error response
-/// * `body` - JSON message containing error details
+/// * `body` - JSON message containing error translation key
 pub struct Error {
     code: StatusCode,
-    body: Json<Message>,
+    body: Json<TranslationKeyMessage>,
 }
 
 impl Error {
-    /// Creates a new Error instance with the specified status code and message
+    /// Creates a new Error instance with the specified status code and translation key
     ///
     /// # Arguments
     /// * `code` - The HTTP status code to return
-    /// * `message` - The error message to include in the response
+    /// * `translation_key` - The translation key for the error message
     ///
     /// # Returns
     /// Returns a new `Error` instance
-    pub fn new(code: StatusCode, message: &str) -> Self {
+    pub fn new(code: StatusCode, translation_key: TranslationKey) -> Self {
         Self {
             code,
-            body: Json(Message {
-                message: message.into(),
-            }),
+            body: Json(TranslationKeyMessage { translation_key }),
         }
     }
 }
@@ -46,46 +44,61 @@ impl IntoResponse for Error {
     }
 }
 
-/// Implements conversion from a tuple of (StatusCode, &str)
+/// Implements conversion from a tuple of (StatusCode, TranslationKey)
 ///
-/// Provides a convenient way to create errors from status codes and messages
-impl From<(StatusCode, &str)> for Error {
-    fn from(value: (StatusCode, &str)) -> Self {
+/// Provides a convenient way to create errors from status codes and translation keys
+impl From<(StatusCode, TranslationKey)> for Error {
+    fn from(value: (StatusCode, TranslationKey)) -> Self {
         Self::new(value.0, value.1)
     }
 }
 
 /// Converts JWT errors into the application Error type
 impl From<jsonwebtoken::errors::Error> for Error {
-    fn from(value: jsonwebtoken::errors::Error) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    fn from(_value: jsonwebtoken::errors::Error) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     }
 }
 
 /// Converts SQLX database errors into the application Error type
 impl From<sqlx::Error> for Error {
-    fn from(value: sqlx::Error) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    fn from(_value: sqlx::Error) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     }
 }
 
 /// Converts Uuid errors into the application Error type
 impl From<uuid::Error> for Error {
-    fn from(value: uuid::Error) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    fn from(_value: uuid::Error) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     }
 }
 
 /// Converts tonic gRPC errors into the application Error type
 impl From<tonic::Status> for Error {
-    fn from(value: tonic::Status) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, value.message())
+    fn from(_value: tonic::Status) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     }
 }
 
 /// Converts general std::error::Error into the application Error type
 impl From<Box<dyn std::error::Error>> for Error {
-    fn from(value: Box<dyn std::error::Error>) -> Self {
-        Self::new(StatusCode::INTERNAL_SERVER_ERROR, &value.to_string())
+    fn from(_value: Box<dyn std::error::Error>) -> Self {
+        Self::new(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     }
 }

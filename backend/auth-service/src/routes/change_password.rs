@@ -47,16 +47,20 @@ async fn change_password_handler(
     if link.is_expired() {
         tracing::warn!("Expired forgot password link used: {}", body.id);
         database::forgot_password_links::delete(body.id, pool).await?;
-        return Err((StatusCode::BAD_REQUEST, "Link is expired.").into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::LinkIsExpired).into());
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password).map_err(|s| -> Error {
+    validate_password(&body.password).map_err(|_s| -> Error {
         tracing::warn!(
             "Invalid password format for password change, link_id: {}",
             body.id
         );
-        (StatusCode::BAD_REQUEST, s.as_str()).into()
+        (
+            StatusCode::BAD_REQUEST,
+            TranslationKey::PasswordValidationError,
+        )
+            .into()
     })?;
 
     // Check if the password has been used in recent passwords
@@ -76,7 +80,7 @@ async fn change_password_handler(
         tracing::warn!("Password reuse attempt for user_id: {}", link.get_uuid());
         return Err((
             StatusCode::BAD_REQUEST,
-            "Password cannot be the same as any of your recently used passwords.",
+            TranslationKey::PasswordCannotBeReused,
         )
             .into());
     }
@@ -86,7 +90,7 @@ async fn change_password_handler(
         tracing::error!("Failed to hash password for user_id: {}", link.get_uuid());
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Something went wrong, please try again!",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -95,7 +99,7 @@ async fn change_password_handler(
     let mut tx = pool.begin().await.map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Database transaction error.",
+            TranslationKey::DatabaseTransactionError,
         )
             .into()
     })?;
@@ -123,7 +127,7 @@ async fn change_password_handler(
         );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to commit transaction.",
+            TranslationKey::FailedToCommitTransaction,
         )
             .into()
     })?;
@@ -134,7 +138,7 @@ async fn change_password_handler(
         tracing::error!("Failed to delete forgot password link: {}", body.id);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not delete from the database.",
+            TranslationKey::CouldNotDeleteFromDatabase,
         )
             .into());
     }

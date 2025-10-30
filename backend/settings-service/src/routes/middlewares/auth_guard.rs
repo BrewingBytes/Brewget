@@ -8,7 +8,11 @@ use axum::{
 };
 use uuid::Uuid;
 
-use crate::{AppState, grpc::auth_service::service::VerifyTokenRequest, models::response::Error};
+use crate::{
+    AppState,
+    grpc::auth_service::service::VerifyTokenRequest,
+    models::response::{Error, TranslationKey},
+};
 
 /// Authentication middleware guard for protected routes
 ///
@@ -49,10 +53,7 @@ pub async fn auth_guard(
         .and_then(|header| header.strip_prefix("Bearer "))
         .ok_or_else(|| {
             tracing::warn!("Auth guard: No Authorization token provided");
-            (
-                StatusCode::UNAUTHORIZED,
-                "You are not logged in, please provide token",
-            )
+            (StatusCode::UNAUTHORIZED, TranslationKey::NotLoggedIn)
         })?;
 
     tracing::debug!("Auth guard: Token extracted from header");
@@ -69,19 +70,22 @@ pub async fn auth_guard(
 
     let response = client.verify_token(request).await.map_err(|e| {
         tracing::error!("Auth guard: Failed to verify token: {}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "Failed to verify token")
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
     })?;
 
     // Check if token is valid (auth service returns Some(user_id) if valid)
     let user_id = response.into_inner().user_id.ok_or_else(|| {
         tracing::warn!("Auth guard: Token validation failed - invalid or expired token");
-        (StatusCode::UNAUTHORIZED, "Invalid or expired token")
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid)
     })?;
 
     // Parse user_id as UUID
     let user_uuid = Uuid::parse_str(&user_id).map_err(|e| {
         tracing::error!("Auth guard: Invalid user ID format: {}", e);
-        (StatusCode::UNAUTHORIZED, "Invalid user ID format")
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid)
     })?;
 
     tracing::info!(

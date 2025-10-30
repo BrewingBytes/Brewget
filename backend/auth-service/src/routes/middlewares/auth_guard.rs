@@ -10,7 +10,7 @@ use jsonwebtoken::{DecodingKey, Validation, decode};
 
 use crate::{
     AppState, database,
-    models::{response::Error, token_claim::TokenClaim},
+    models::{response::Error, response::TranslationKey, token_claim::TokenClaim},
 };
 
 /// Authentication middleware guard for protected routes
@@ -50,10 +50,7 @@ pub async fn auth_guard(
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok())
         .and_then(|header| header.strip_prefix("Bearer "))
-        .ok_or((
-            StatusCode::UNAUTHORIZED,
-            "You are not logged in, please provide token",
-        ))?;
+        .ok_or((StatusCode::UNAUTHORIZED, TranslationKey::NotLoggedIn))?;
 
     // Decode and validate JWT token
     let decoded_token = decode::<TokenClaim>(
@@ -69,12 +66,12 @@ pub async fn auth_guard(
     // Verify token is not expired
     if token_res.is_expired() {
         database::tokens::delete_by_token(token_res.get_token(), pool).await?;
-        return Err((StatusCode::UNAUTHORIZED, "Token has expired").into());
+        return Err((StatusCode::UNAUTHORIZED, TranslationKey::TokenExpired).into());
     }
 
     // Verify token belongs to correct user
     if token_res.get_uuid().to_string() != *decoded_token.claims.sub {
-        return Err((StatusCode::UNAUTHORIZED, "Token is invalid").into());
+        return Err((StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into());
     }
 
     // Add user ID to request extensions and continue
