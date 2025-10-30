@@ -34,6 +34,10 @@ fi
 echo "🗑️  Deleting all resources in brewget namespace..."
 kubectl delete namespace brewget
 
+echo ""
+echo "🗑️  Deleting PersistentVolume..."
+kubectl delete pv brewget-postgres-pv --ignore-not-found=true
+
 # Delete minikube if it exists
 if command -v minikube &> /dev/null; then
     if minikube status &> /dev/null; then

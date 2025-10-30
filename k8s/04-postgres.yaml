@@ -15,64 +15,6 @@ spec:
   selector:
     app: postgres
 
----
-# PersistentVolume using hostPath to store data
-# The deploy.sh script automatically mounts ~/.brewget-data/postgres (host machine)
-# to /data/brewget-postgres (inside minikube) for true persistence across minikube deletions
-# 
-# This ensures data persists even when minikube is completely deleted and recreated
-# See k8s/README.md for more details on persistent storage
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: brewget-postgres-pv
-  labels:
-    type: local
-    app: postgres
-spec:
-  # Empty storageClassName explicitly opts out of dynamic provisioning
-  # This allows manual binding using the label selector below
-  storageClassName: ""
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    # This path is inside minikube and is mounted to ~/.brewget-data/postgres on host
-    # The deploy.sh script handles the mounting automatically
-    path: "/data/brewget-postgres"
-    type: DirectoryOrCreate
-  persistentVolumeReclaimPolicy: Retain
-
----
-# PersistentVolumeClaim that binds to the hostPath PV
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: brewget-postgres-pvc
-  namespace: brewget
-spec:
-  # Empty storageClassName must match the PV to enable manual binding
-  storageClassName: ""
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 2Gi
-  selector:
-    matchLabels:
-      type: local
-      app: postgres
-
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-  namespace: brewget
-spec:
-  serviceName: db
-  replicas: 1
   selector:
     matchLabels:
       app: postgres

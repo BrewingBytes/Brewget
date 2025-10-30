@@ -78,6 +78,13 @@ echo "📝 Creating configmaps..."
 kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 
 echo "🗄️  Deploying PostgreSQL..."
+echo "  Creating PersistentVolume first..."
+kubectl apply -f "$SCRIPT_DIR/04-postgres-pv.yaml"
+
+echo "  Waiting for PV to be available..."
+sleep 2  # Give PV time to be created
+
+echo "  Creating PostgreSQL service, PVC, and StatefulSet..."
 kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
 
 echo "⏳ Waiting for PostgreSQL PVC to be bound..."
