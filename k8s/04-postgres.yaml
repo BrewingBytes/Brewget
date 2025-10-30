@@ -15,6 +15,35 @@ spec:
   selector:
     app: postgres
 
+---
+# PersistentVolumeClaim that binds to the hostPath PV
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: brewget-postgres-pvc
+  namespace: brewget
+spec:
+  # Empty storageClassName must match the PV to enable manual binding
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  selector:
+    matchLabels:
+      type: local
+      app: postgres
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: brewget
+spec:
+  serviceName: db
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
