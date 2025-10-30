@@ -122,19 +122,19 @@ async function buttonAction() {
                     <InputIcon class="pi pi-at text-white/70!" />
                     <InputText v-model="email" type="text"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Email" />
+                        :placeholder="t('auth.email')" />
                 </IconField>
                 <IconField v-if="!isForgotPassword">
                     <InputIcon class="pi pi-user text-white/70!" />
                     <InputText v-model="username" type="text"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Username" />
+                        :placeholder="t('auth.username')" />
                 </IconField>
                 <IconField v-if="!isForgotPassword">
                     <InputIcon class="pi pi-lock text-white/70!" />
                     <InputText v-model="password" type="password"
                         class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
-                        placeholder="Password" />
+                        :placeholder="t('auth.password')" />
                 </IconField>
             </div>
             <div class="flex justify-center w-full">
@@ -145,9 +145,8 @@ async function buttonAction() {
                 class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />
         </div>
         <a v-if="isLogin" @click="shownPage = ShownPage.ForgotPassword"
-            class="text-white/80 cursor-pointer hover:text-white/90">Forgot
-            Password?</a>
+            class="text-white/80 cursor-pointer hover:text-white/90">{{ t('auth.forgotPasswordLink') }}</a>
         <a v-if="isForgotPassword" @click="shownPage = ShownPage.Login"
-            class="text-white/80 cursor-pointer hover:text-white/90">Go back</a>
+            class="text-white/80 cursor-pointer hover:text-white/90">{{ t('auth.goBack') }}</a>
     </div>
 </template>

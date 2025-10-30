@@ -8,6 +8,8 @@
     "dontHaveAccount": "Nu ai un cont?",
     "alreadyHaveAccount": "Ai deja un cont?",
     "forgotPassword": "Ai uitat parola?",
+    "forgotPasswordLink": "Ai uitat parola?",
+    "goBack": "Înapoi",
     "sendMeEmail": "Trimite-mi un e-mail",
     "username": "Nume de utilizator",
     "email": "E-mail",
@@ -40,5 +42,11 @@
     "fr": "Français",
     "de": "Deutsch",
     "ro": "Română"
+  },
+  "navbar": {
+    "dashboard": "Panou",
+    "wallets": "Portofele",
+    "analytics": "Analiză",
+    "settings": "Setări"
   }
 }

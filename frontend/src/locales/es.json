@@ -8,6 +8,8 @@
     "dontHaveAccount": "¿No tienes una cuenta?",
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+    "goBack": "Volver",
     "sendMeEmail": "Envíame un correo",
     "username": "Nombre de usuario",
     "email": "Correo electrónico",
@@ -40,5 +42,11 @@
     "fr": "Français",
     "de": "Deutsch",
     "ro": "Română"
+  },
+  "navbar": {
+    "dashboard": "Tablero",
+    "wallets": "Carteras",
+    "analytics": "Analítica",
+    "settings": "Configuración"
   }
 }
