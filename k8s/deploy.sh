@@ -1,11 +1,30 @@
 #!/bin/bash
 # Deploy BrewGet to Kubernetes
 # This script applies all Kubernetes manifests in the correct order
+#
+# Usage: ./deploy.sh [--no-backup]
+#   --no-backup: Skip automatic database backup before deployment
 
 set -e
 
 echo "🚀 Deploying BrewGet to Kubernetes..."
 echo ""
+
+# Parse command line arguments
+SKIP_BACKUP=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-backup)
+            SKIP_BACKUP=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--no-backup]"
+            exit 1
+            ;;
+    esac
+done
 
 # Check if kubectl is available
 if ! command -v kubectl &> /dev/null; then
@@ -15,6 +34,87 @@ fi
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Automatically backup databases if they exist (unless --no-backup is specified)
+if [ "$SKIP_BACKUP" = false ]; then
+    if kubectl get namespace brewget &> /dev/null && kubectl get pod postgres-0 -n brewget &> /dev/null 2>&1; then
+        POD_STATUS=$(kubectl get pod postgres-0 -n brewget -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+        if [ "$POD_STATUS" = "Running" ]; then
+            echo "💾 Existing deployment detected. Creating automatic backup..."
+            echo "   (Use --no-backup to skip this step)"
+            echo ""
+            
+            # Give user a chance to cancel
+            echo "⏳ Starting backup in 3 seconds... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo "⏳ Starting backup in 2 seconds... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo "⏳ Starting backup in 1 second... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo ""
+            
+            "$SCRIPT_DIR/backup-db.sh" || echo "⚠️  Backup failed, continuing with deployment..."
+            echo ""
+        else
+            echo "ℹ️  PostgreSQL pod exists but is not running (status: $POD_STATUS), skipping backup."
+            echo ""
+        fi
+    else
+        echo "ℹ️  No existing deployment found, skipping backup."
+        echo ""
+    fi
+else
+    echo "⏩ Skipping automatic backup (--no-backup flag provided)."
+    echo ""
+fi
+
+# Set up persistent storage on host machine if minikube is available
+if command -v minikube &> /dev/null; then
+    # Define the host path for persistent storage
+    HOST_DATA_PATH="${HOME}/.brewget-data/postgres"
+    
+    # Create the directory on host if it doesn't exist
+    if [ ! -d "$HOST_DATA_PATH" ]; then
+        echo "📁 Creating host data directory at $HOST_DATA_PATH..."
+        mkdir -p "$HOST_DATA_PATH"
+    fi
+    
+    # Check if minikube is running
+    if ! minikube status &> /dev/null; then
+        echo "🚀 Starting minikube..."
+        minikube start --force --mount --mount-string="$HOST_DATA_PATH:/data/brewget-postgres"
+        echo "✅ Minikube started successfully"
+    else
+        echo "📦 Minikube is already running"
+        
+        # Check if mount is already running
+        if ! pgrep -f "minikube mount.*$HOST_DATA_PATH" > /dev/null; then
+            echo "💾 Mounting host folder for persistent storage..."
+            echo "   Host path: $HOST_DATA_PATH"
+            echo "   Minikube path: /data/brewget-postgres"
+            minikube mount "$HOST_DATA_PATH:/data/brewget-postgres" &
+            MOUNT_PID=$!
+            sleep 5  # Give the mount time to establish
+            
+            # Verify mount process is still running
+            if ps -p $MOUNT_PID > /dev/null 2>&1; then
+                echo "✅ Host folder mounted successfully"
+            else
+                echo "⚠️  Mount process may have failed, but continuing deployment"
+            fi
+        else
+            echo "✅ Host folder already mounted"
+        fi
+    fi
+    
+    echo ""
+    
+    # Start minikube tunnel
+    echo "🌐 Starting minikube tunnel..."
+    sudo minikube tunnel --bind-address=0.0.0.0 &
+    echo "✅ Minikube tunnel started in background"
+    echo ""
+fi
 
 # Apply manifests in order
 echo "📦 Creating namespace..."
@@ -30,7 +130,17 @@ echo "📝 Creating configmaps..."
 kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 
 echo "🗄️  Deploying PostgreSQL..."
+echo "  Creating PersistentVolume first..."
+kubectl apply -f "$SCRIPT_DIR/04-postgres-pv.yaml"
+
+echo "  Waiting for PV to be available..."
+sleep 2  # Give PV time to be created
+
+echo "  Creating PostgreSQL service, PVC, and StatefulSet..."
 kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
+
+echo "⏳ Waiting for PostgreSQL PVC to be bound..."
+kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/brewget-postgres-pvc -n brewget --timeout=120s || echo "⚠️  PVC binding may take some time, continuing..."
 
 echo "📧 Deploying email service..."
 kubectl apply -f "$SCRIPT_DIR/05-email-service.yaml"

@@ -16,29 +16,6 @@ spec:
     app: postgres
 
 ---
-# PersistentVolume using hostPath to store data on the host machine
-# This ensures data persists even when minikube is stopped or restarted
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: brewget-postgres-pv
-  labels:
-    type: local
-    app: postgres
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    # This path will be on the host machine (or minikube node)
-    # For minikube, this is accessible and persists across minikube stop/start
-    path: "/data/brewget-postgres"
-    type: DirectoryOrCreate
-  persistentVolumeReclaimPolicy: Retain
-
----
 # PersistentVolumeClaim that binds to the hostPath PV
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -46,7 +23,8 @@ metadata:
   name: brewget-postgres-pvc
   namespace: brewget
 spec:
-  storageClassName: manual
+  # Empty storageClassName must match the PV to enable manual binding
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   resources:

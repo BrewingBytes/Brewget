@@ -23,7 +23,21 @@ The BrewGet application consists of the following components:
 
 ### 1. Deploy to Kubernetes
 
-Apply all manifests in order:
+Use the automated deploy script:
+
+```bash
+./k8s/deploy.sh
+```
+
+The script automatically creates a backup before deployment if an existing deployment is detected. You have 3 seconds to cancel with Ctrl+C.
+
+To skip the automatic backup:
+
+```bash
+./k8s/deploy.sh --no-backup
+```
+
+Or apply manifests manually in order:
 
 ```bash
 kubectl apply -f k8s/00-namespace.yaml
@@ -172,9 +186,68 @@ For minikube, the hostPath `/data/brewget-postgres` is created inside the miniku
 - ✅ Data persists through `minikube stop` and `minikube start`
 - ❌ Data is lost when running `minikube delete`
 
+### Using Mounted Host Folder for Better Persistence
+
+For better persistence that survives `minikube delete`, you can mount a host folder into the minikube VM. This ensures your data persists even when minikube is completely deleted and recreated.
+
+**Step 1: Mount a host folder to minikube**
+
+```bash
+# Start or restart minikube with a mount
+minikube start --mount --mount-string="/path/on/host:/data/brewget-postgres"
+
+# Or mount to an existing minikube instance
+minikube mount /path/on/host:/data/brewget-postgres &
+```
+
+Replace `/path/on/host` with the actual path on your host machine where you want to store the data (e.g., `$HOME/brewget-data`).
+
+**Step 2: Deploy as usual**
+
+```bash
+./k8s/deploy.sh
+```
+
+The PersistentVolume will use `/data/brewget-postgres` inside minikube, which is now mounted to your host machine, providing true persistence across minikube deletions.
+
+**Benefits of this approach:**
+- ✅ Data persists through `minikube stop` and `minikube start`
+- ✅ Data persists even when running `minikube delete`
+- ✅ Easy to backup (just copy the host folder)
+- ✅ Can access data directly from host machine
+
 ### Manual Backup and Restore
 
-If you need to backup data manually before deleting minikube:
+#### Automated Backup and Restore Scripts
+
+Use the provided scripts for easy backup and restore:
+
+**Backup databases:**
+```bash
+./k8s/backup-db.sh
+```
+
+This creates a timestamped backup in `./backups/YYYYMMDD_HHMMSS/` containing:
+- `brewget_auth.sql` - Authentication database backup
+- `brewget_settings.sql` - Settings database backup
+- `backup_info.txt` - Backup metadata
+
+**Restore databases:**
+```bash
+./k8s/restore-db.sh ./backups/YYYYMMDD_HHMMSS/
+```
+
+**Automatic backups:**
+
+Both deploy.sh and cleanup.sh automatically create backups before operations (with 3-second cancel window). To skip:
+```bash
+./k8s/deploy.sh --no-backup     # Deploy without backup
+./k8s/cleanup.sh --no-backup    # Cleanup without backup
+```
+
+#### Manual Backup Commands
+
+If you need to backup data manually:
 
 ```bash
 # Get postgres username
@@ -302,10 +375,33 @@ The update script uses Method 2 for maximum compatibility.
 
 ## Cleanup
 
-To remove the entire application:
+**Using the automated cleanup script (recommended):**
+
+```bash
+./k8s/cleanup.sh
+```
+
+The script automatically creates a backup before cleanup. You have 3 seconds to cancel with Ctrl+C.
+
+To skip the automatic backup:
+
+```bash
+./k8s/cleanup.sh --no-backup
+```
+
+This script will:
+1. Automatically backup databases (unless `--no-backup` flag is used)
+2. Delete the brewget namespace and all resources
+3. Delete the PersistentVolume
+4. Delete the minikube cluster
+
+**Manual cleanup:**
+
+To remove just the application (keeping minikube):
 
 ```bash
 kubectl delete namespace brewget
+kubectl delete pv brewget-postgres-pv
 ```
 
 **⚠️ WARNING**: This will delete all data including the PostgreSQL database.
@@ -313,8 +409,8 @@ kubectl delete namespace brewget
 To delete specific components:
 
 ```bash
-kubectl delete -f k8s/08-nginx.yaml
-kubectl delete -f k8s/07-frontend.yaml
+kubectl delete -f k8s/09-nginx.yaml
+kubectl delete -f k8s/08-frontend.yaml
 # ... etc
 ```
 
