@@ -29,35 +29,35 @@ pub struct Messages {
 static TRANSLATIONS: Lazy<HashMap<&'static str, Messages>> = Lazy::new(|| {
     let mut map = HashMap::new();
 
-    // Load English translations
+    // Load English translations - must succeed as it's the fallback
     let en_json = include_str!("../locales/en.json");
-    if let Ok(en_messages) = serde_json::from_str::<Messages>(en_json) {
-        map.insert("en", en_messages);
-    }
+    let en_messages = serde_json::from_str::<Messages>(en_json)
+        .expect("Failed to parse English translations - this is a critical error");
+    map.insert("en", en_messages);
 
     // Load Spanish translations
     let es_json = include_str!("../locales/es.json");
-    if let Ok(es_messages) = serde_json::from_str::<Messages>(es_json) {
-        map.insert("es", es_messages);
-    }
+    let es_messages =
+        serde_json::from_str::<Messages>(es_json).expect("Failed to parse Spanish translations");
+    map.insert("es", es_messages);
 
     // Load French translations
     let fr_json = include_str!("../locales/fr.json");
-    if let Ok(fr_messages) = serde_json::from_str::<Messages>(fr_json) {
-        map.insert("fr", fr_messages);
-    }
+    let fr_messages =
+        serde_json::from_str::<Messages>(fr_json).expect("Failed to parse French translations");
+    map.insert("fr", fr_messages);
 
     // Load German translations
     let de_json = include_str!("../locales/de.json");
-    if let Ok(de_messages) = serde_json::from_str::<Messages>(de_json) {
-        map.insert("de", de_messages);
-    }
+    let de_messages =
+        serde_json::from_str::<Messages>(de_json).expect("Failed to parse German translations");
+    map.insert("de", de_messages);
 
     // Load Romanian translations
     let ro_json = include_str!("../locales/ro.json");
-    if let Ok(ro_messages) = serde_json::from_str::<Messages>(ro_json) {
-        map.insert("ro", ro_messages);
-    }
+    let ro_messages =
+        serde_json::from_str::<Messages>(ro_json).expect("Failed to parse Romanian translations");
+    map.insert("ro", ro_messages);
 
     map
 });
@@ -241,5 +241,14 @@ mod tests {
         assert!(TRANSLATIONS.contains_key("fr"));
         assert!(TRANSLATIONS.contains_key("de"));
         assert!(TRANSLATIONS.contains_key("ro"));
+    }
+
+    #[test]
+    fn test_password_changed_spelling() {
+        let translator = Translator::new(Language::English);
+        let message = translator.translate(TranslationKey::PasswordChanged);
+        // Verify correct spelling (not "sucessfully")
+        assert!(message.contains("successfully"));
+        assert_eq!(message, "Password successfully changed.");
     }
 }

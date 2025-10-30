@@ -10,7 +10,7 @@
   "password_no_digit": "Password must contain at least one digit.",
   "password_no_special_char": "Password must contain at least one special character.",
   "password_in_history": "Password cannot be the same as any of your recently used passwords.",
-  "password_changed": "Password sucessfully changed.",
+  "password_changed": "Password successfully changed.",
   "email_send_failed": "Failed to send email.",
   "settings_load_failed": "Failed to load settings.",
   "settings_update_failed": "Failed to update settings.",
