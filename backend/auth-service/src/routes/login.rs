@@ -76,13 +76,7 @@ async fn login_handler(
     tracing::debug!("Querying database for username: {}", body.username);
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
-    // Validate user exists and password matches
-    if !user.is_password_valid(&body.password) {
-        tracing::warn!("Invalid password for username: {}", body.username);
-        return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
-    }
-
-    // Check if user has activated his account
+    // Check if user has activated his account (check before password validation)
     if !user.is_account_verified() {
         tracing::warn!(
             "Unverified account login attempt for username: {}",
@@ -93,6 +87,12 @@ async fn login_handler(
             "Email has not been verified, please check your inbox.",
         )
             .into());
+    }
+
+    // Validate user exists and password matches
+    if !user.is_password_valid(&body.password) {
+        tracing::warn!("Invalid password for username: {}", body.username);
+        return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
     }
 
     // Check if the account is deleted temporarily
