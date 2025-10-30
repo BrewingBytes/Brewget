@@ -40,6 +40,9 @@ kubectl apply -f "$SCRIPT_DIR/03-configmaps.yaml"
 echo "🗄️  Deploying PostgreSQL..."
 kubectl apply -f "$SCRIPT_DIR/04-postgres.yaml"
 
+echo "⏳ Waiting for PostgreSQL PVC to be bound..."
+kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/brewget-postgres-pvc -n brewget --timeout=60s || echo "⚠️  PVC binding may take some time, continuing..."
+
 echo "📧 Deploying email service..."
 kubectl apply -f "$SCRIPT_DIR/05-email-service.yaml"
 
