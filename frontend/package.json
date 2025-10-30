@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "primevue": "^4.3.9",
     "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.5.21",
+    "vue-i18n": "^10.0.8",
     "vue-router": "^4.5.1",
     "vue-turnstile": "^1.0.11"
   },

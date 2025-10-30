@@ -1,0 +1,44 @@
+{
+  "auth": {
+    "login": "Sign In",
+    "register": "Register",
+    "signup": "Sign up",
+    "signin": "Sign in",
+    "logout": "Logout",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "forgotPassword": "Forgot your password?",
+    "sendMeEmail": "Send me an email",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password"
+  },
+  "errors": {
+    "usernamePasswordInvalid": "Username or password is invalid.",
+    "emailNotVerified": "Email has not been verified, please check your inbox.",
+    "accountNotActive": "This account has been deactivated. Please contact support.",
+    "captchaFailed": "Captcha verification failed.",
+    "linkExpired": "Link is expired.",
+    "activationInvalid": "Activation link is invalid.",
+    "passwordChanged": "Account password has been changed.",
+    "settingsLoadFailed": "Failed to load settings.",
+    "settingsUpdateFailed": "Failed to update settings."
+  },
+  "settings": {
+    "title": "User Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "nightMode": "Night Mode",
+    "enableAlarm": "Enable Alarm",
+    "alarmTime": "Alarm Time",
+    "saveSettings": "Save Settings",
+    "settingsUpdated": "Settings updated successfully."
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  }
+}

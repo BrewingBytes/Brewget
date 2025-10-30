@@ -1,0 +1,44 @@
+{
+  "auth": {
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "signup": "S'inscrire",
+    "signin": "Se connecter",
+    "logout": "Se déconnecter",
+    "dontHaveAccount": "Vous n'avez pas de compte?",
+    "alreadyHaveAccount": "Vous avez déjà un compte?",
+    "forgotPassword": "Mot de passe oublié?",
+    "sendMeEmail": "Envoyez-moi un e-mail",
+    "username": "Nom d'utilisateur",
+    "email": "E-mail",
+    "password": "Mot de passe"
+  },
+  "errors": {
+    "usernamePasswordInvalid": "Le nom d'utilisateur ou le mot de passe est invalide.",
+    "emailNotVerified": "L'e-mail n'a pas été vérifié, veuillez vérifier votre boîte de réception.",
+    "accountNotActive": "Ce compte a été désactivé. Veuillez contacter le support.",
+    "captchaFailed": "La vérification du captcha a échoué.",
+    "linkExpired": "Le lien a expiré.",
+    "activationInvalid": "Le lien d'activation n'est pas valide.",
+    "passwordChanged": "Le mot de passe du compte a été changé.",
+    "settingsLoadFailed": "Échec du chargement des paramètres.",
+    "settingsUpdateFailed": "Échec de la mise à jour des paramètres."
+  },
+  "settings": {
+    "title": "Paramètres utilisateur",
+    "language": "Langue",
+    "currency": "Devise",
+    "nightMode": "Mode nuit",
+    "enableAlarm": "Activer l'alarme",
+    "alarmTime": "Heure de l'alarme",
+    "saveSettings": "Enregistrer les paramètres",
+    "settingsUpdated": "Paramètres mis à jour avec succès."
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  }
+}

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import VueTurnstile from "vue-turnstile";
 
 import { useAuthStore } from "@/stores/auth";
 import { TURNSTILE_SITE_KEY } from "@/utils/consts";
+
+const { t } = useI18n();
 
 enum ShownPage {
     Login,
@@ -25,22 +28,22 @@ const texts = computed(() => {
     switch (shownPage.value) {
         case ShownPage.Login:
             return {
-                spanText: "Don't have an account?",
-                loginRegisterText: "Sign up",
-                buttonText: "Sign In",
+                spanText: t("auth.dontHaveAccount"),
+                loginRegisterText: t("auth.signup"),
+                buttonText: t("auth.login"),
             };
         case ShownPage.Register:
             return {
-                spanText: "Already have an account?",
-                loginRegisterText: "Sign in",
-                buttonText: "Register",
+                spanText: t("auth.alreadyHaveAccount"),
+                loginRegisterText: t("auth.signin"),
+                buttonText: t("auth.register"),
             };
         case ShownPage.ForgotPassword:
         default:
             return {
-                spanText: "Forgot your password?",
+                spanText: t("auth.forgotPassword"),
                 loginRegisterText: "",
-                buttonText: "Send me an email",
+                buttonText: t("auth.sendMeEmail"),
             };
     }
 });

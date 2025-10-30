@@ -1,0 +1,44 @@
+{
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "signup": "Registrieren",
+    "signin": "Anmelden",
+    "logout": "Abmelden",
+    "dontHaveAccount": "Sie haben noch kein Konto?",
+    "alreadyHaveAccount": "Sie haben bereits ein Konto?",
+    "forgotPassword": "Passwort vergessen?",
+    "sendMeEmail": "Senden Sie mir eine E-Mail",
+    "username": "Benutzername",
+    "email": "E-Mail",
+    "password": "Passwort"
+  },
+  "errors": {
+    "usernamePasswordInvalid": "Benutzername oder Passwort ist ungültig.",
+    "emailNotVerified": "E-Mail wurde nicht verifiziert, bitte überprüfen Sie Ihren Posteingang.",
+    "accountNotActive": "Dieses Konto wurde deaktiviert. Bitte kontaktieren Sie den Support.",
+    "captchaFailed": "Captcha-Verifizierung fehlgeschlagen.",
+    "linkExpired": "Der Link ist abgelaufen.",
+    "activationInvalid": "Der Aktivierungslink ist ungültig.",
+    "passwordChanged": "Kontopasswort wurde geändert.",
+    "settingsLoadFailed": "Einstellungen konnten nicht geladen werden.",
+    "settingsUpdateFailed": "Einstellungen konnten nicht aktualisiert werden."
+  },
+  "settings": {
+    "title": "Benutzereinstellungen",
+    "language": "Sprache",
+    "currency": "Währung",
+    "nightMode": "Nachtmodus",
+    "enableAlarm": "Alarm aktivieren",
+    "alarmTime": "Alarmzeit",
+    "saveSettings": "Einstellungen speichern",
+    "settingsUpdated": "Einstellungen erfolgreich aktualisiert."
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  }
+}

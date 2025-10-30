@@ -1,0 +1,44 @@
+{
+  "auth": {
+    "login": "Autentificare",
+    "register": "Înregistrare",
+    "signup": "Înregistrează-te",
+    "signin": "Autentifică-te",
+    "logout": "Deconectare",
+    "dontHaveAccount": "Nu ai un cont?",
+    "alreadyHaveAccount": "Ai deja un cont?",
+    "forgotPassword": "Ai uitat parola?",
+    "sendMeEmail": "Trimite-mi un e-mail",
+    "username": "Nume de utilizator",
+    "email": "E-mail",
+    "password": "Parolă"
+  },
+  "errors": {
+    "usernamePasswordInvalid": "Numele de utilizator sau parola sunt invalide.",
+    "emailNotVerified": "E-mailul nu a fost verificat, vă rugăm să verificați căsuța de e-mail.",
+    "accountNotActive": "Acest cont a fost dezactivat. Vă rugăm să contactați suportul.",
+    "captchaFailed": "Verificarea captcha a eșuat.",
+    "linkExpired": "Linkul a expirat.",
+    "activationInvalid": "Linkul de activare este invalid.",
+    "passwordChanged": "Parola contului a fost schimbată.",
+    "settingsLoadFailed": "Nu s-au putut încărca setările.",
+    "settingsUpdateFailed": "Nu s-au putut actualiza setările."
+  },
+  "settings": {
+    "title": "Setări utilizator",
+    "language": "Limbă",
+    "currency": "Monedă",
+    "nightMode": "Mod nocturn",
+    "enableAlarm": "Activează alarma",
+    "alarmTime": "Ora alarmei",
+    "saveSettings": "Salvează setările",
+    "settingsUpdated": "Setări actualizate cu succes."
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  }
+}
