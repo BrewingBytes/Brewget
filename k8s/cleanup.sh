@@ -34,6 +34,14 @@ fi
 echo "🗑️  Deleting all resources in brewget namespace..."
 kubectl delete namespace brewget
 
+# Delete minikube if it exists
+if command -v minikube &> /dev/null; then
+    echo ""
+    echo "🗑️  Deleting minikube cluster..."
+    minikube delete
+    echo "✅ Minikube cluster deleted"
+fi
+
 echo ""
 echo "✅ Cleanup complete!"
 echo "   All BrewGet resources have been removed."

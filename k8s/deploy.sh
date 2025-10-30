@@ -13,8 +13,41 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
-# Start minikube tunnel if minikube is available
+# Set up persistent storage on host machine if minikube is available
 if command -v minikube &> /dev/null; then
+    # Define the host path for persistent storage
+    HOST_DATA_PATH="${HOME}/.brewget-data/postgres"
+    
+    # Create the directory on host if it doesn't exist
+    if [ ! -d "$HOST_DATA_PATH" ]; then
+        echo "📁 Creating host data directory at $HOST_DATA_PATH..."
+        mkdir -p "$HOST_DATA_PATH"
+    fi
+    
+    # Check if minikube is running
+    if ! minikube status &> /dev/null; then
+        echo "🚀 Starting minikube..."
+        minikube start --force --mount --mount-string="$HOST_DATA_PATH:/data/brewget-postgres"
+        echo "✅ Minikube started successfully"
+    else
+        echo "📦 Minikube is already running"
+        
+        # Check if mount is already running
+        if ! pgrep -f "minikube mount.*$HOST_DATA_PATH" > /dev/null; then
+            echo "💾 Mounting host folder for persistent storage..."
+            echo "   Host path: $HOST_DATA_PATH"
+            echo "   Minikube path: /data/brewget-postgres"
+            minikube mount "$HOST_DATA_PATH:/data/brewget-postgres" &
+            sleep 3  # Give the mount a moment to establish
+            echo "✅ Host folder mounted successfully"
+        else
+            echo "✅ Host folder already mounted"
+        fi
+    fi
+    
+    echo ""
+    
+    # Start minikube tunnel
     echo "🌐 Starting minikube tunnel..."
     sudo minikube tunnel --bind-address=0.0.0.0 &
     echo "✅ Minikube tunnel started in background"
