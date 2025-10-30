@@ -57,24 +57,37 @@ async fn login_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!("Login attempt for username: {}", body.username);
+
     // Verify captcha token
+    tracing::debug!("Verifying captcha token");
     crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
         .await
         .map_err(|_| -> Error {
+            tracing::warn!(
+                "Captcha verification failed for username: {}",
+                body.username
+            );
             (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
         })?;
 
     // Query database for user with matching username
     let pool = state.get_database_pool();
+    tracing::debug!("Querying database for username: {}", body.username);
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
+        tracing::warn!("Invalid password for username: {}", body.username);
         return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
     }
 
     // Check if user has activated his account
     if !user.is_account_verified() {
+        tracing::warn!(
+            "Unverified account login attempt for username: {}",
+            body.username
+        );
         return Err((
             StatusCode::UNAUTHORIZED,
             "Email has not been verified, please check your inbox.",
@@ -84,6 +97,10 @@ async fn login_handler(
 
     // Check if the account is deleted temporarily
     if !user.is_account_active() {
+        tracing::warn!(
+            "Inactive account login attempt for username: {}",
+            body.username
+        );
         return Err((
             StatusCode::UNAUTHORIZED,
             "Account has been deleted temporarily",
@@ -104,6 +121,7 @@ async fn login_handler(
     };
 
     // Generate JWT token
+    tracing::debug!("Generating JWT token for user: {}", user.get_uuid());
     let token = encode(
         &Header::default(),
         &claims,
@@ -114,6 +132,11 @@ async fn login_handler(
     let new_token = NewToken::new(&user, &token, None, None);
     database::tokens::insert(new_token, pool).await?;
 
+    tracing::info!(
+        "Login successful for username: {}, user_id: {}",
+        body.username,
+        user.get_uuid()
+    );
     // Return token to client
     Ok(Json(Token { token }))
 }

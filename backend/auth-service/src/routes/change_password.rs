@@ -33,19 +33,31 @@ async fn change_password_handler(
     State(state): State<Arc<AppState>>,
     Json(body): Json<ResetPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
+    tracing::info!("Password change request for link_id: {}", body.id);
+
     // Get the forgot password link from the db
     let pool = state.get_database_pool();
+    tracing::debug!(
+        "Fetching forgot password link from database for link_id: {}",
+        body.id
+    );
     let link = database::forgot_password_links::filter_by_id(body.id, pool).await?;
 
     // If the link is expired, remove it from the database and send a BAD_REQUEST
     if link.is_expired() {
+        tracing::warn!("Expired forgot password link used: {}", body.id);
         database::forgot_password_links::delete(body.id, pool).await?;
         return Err((StatusCode::BAD_REQUEST, "Link is expired.").into());
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password)
-        .map_err(|s| -> Error { (StatusCode::BAD_REQUEST, s.as_str()).into() })?;
+    validate_password(&body.password).map_err(|s| -> Error {
+        tracing::warn!(
+            "Invalid password format for password change, link_id: {}",
+            body.id
+        );
+        (StatusCode::BAD_REQUEST, s.as_str()).into()
+    })?;
 
     // Check if the password has been used in recent passwords
     let password_history_limit = state.config.password_history_limit;
@@ -61,6 +73,7 @@ async fn change_password_handler(
         .collect();
 
     if is_password_in_history(&body.password, &recent_hashes) {
+        tracing::warn!("Password reuse attempt for user_id: {}", link.get_uuid());
         return Err((
             StatusCode::BAD_REQUEST,
             "Password cannot be the same as any of your recently used passwords.",
@@ -68,7 +81,9 @@ async fn change_password_handler(
             .into());
     }
 
+    tracing::debug!("Hashing new password for user_id: {}", link.get_uuid());
     let new_hashed_password = hash_password(&body.password).map_err(|_| -> Error {
+        tracing::error!("Failed to hash password for user_id: {}", link.get_uuid());
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "Something went wrong, please try again!",
@@ -102,6 +117,10 @@ async fn change_password_handler(
 
     // Commit the transaction
     tx.commit().await.map_err(|_| -> Error {
+        tracing::error!(
+            "Failed to commit password change transaction for user_id: {}",
+            link.get_uuid()
+        );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "Failed to commit transaction.",
@@ -110,7 +129,9 @@ async fn change_password_handler(
     })?;
 
     // Delete the forgot password link from the db
+    tracing::debug!("Deleting forgot password link: {}", body.id);
     if database::forgot_password_links::delete(body.id, pool).await? != 1 {
+        tracing::error!("Failed to delete forgot password link: {}", body.id);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             "Could not delete from the database.",
@@ -118,6 +139,10 @@ async fn change_password_handler(
             .into());
     }
 
+    tracing::info!(
+        "Password change successful for user_id: {}",
+        link.get_uuid()
+    );
     Ok(Json(Message {
         message: "Password sucessfully changed.".into(),
     }))
