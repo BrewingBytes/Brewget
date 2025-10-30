@@ -29,10 +29,12 @@ Use the automated deploy script:
 ./k8s/deploy.sh
 ```
 
-To create a backup before deployment (if updating an existing deployment):
+The script automatically creates a backup before deployment if an existing deployment is detected. You have 3 seconds to cancel with Ctrl+C.
+
+To skip the automatic backup:
 
 ```bash
-./k8s/deploy.sh --backup
+./k8s/deploy.sh --no-backup
 ```
 
 Or apply manifests manually in order:
@@ -235,10 +237,12 @@ This creates a timestamped backup in `./backups/YYYYMMDD_HHMMSS/` containing:
 ./k8s/restore-db.sh ./backups/YYYYMMDD_HHMMSS/
 ```
 
-**Backup before deployment or cleanup:**
+**Automatic backups:**
+
+Both deploy.sh and cleanup.sh automatically create backups before operations (with 3-second cancel window). To skip:
 ```bash
-./k8s/deploy.sh --backup    # Backup before deployment
-./k8s/cleanup.sh --backup   # Backup before cleanup
+./k8s/deploy.sh --no-backup     # Deploy without backup
+./k8s/cleanup.sh --no-backup    # Cleanup without backup
 ```
 
 #### Manual Backup Commands
@@ -377,14 +381,16 @@ The update script uses Method 2 for maximum compatibility.
 ./k8s/cleanup.sh
 ```
 
-To backup databases before cleanup:
+The script automatically creates a backup before cleanup. You have 3 seconds to cancel with Ctrl+C.
+
+To skip the automatic backup:
 
 ```bash
-./k8s/cleanup.sh --backup
+./k8s/cleanup.sh --no-backup
 ```
 
 This script will:
-1. Optionally backup databases (if `--backup` flag is used)
+1. Automatically backup databases (unless `--no-backup` flag is used)
 2. Delete the brewget namespace and all resources
 3. Delete the PersistentVolume
 4. Delete the minikube cluster

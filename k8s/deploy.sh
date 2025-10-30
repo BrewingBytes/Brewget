@@ -2,8 +2,8 @@
 # Deploy BrewGet to Kubernetes
 # This script applies all Kubernetes manifests in the correct order
 #
-# Usage: ./deploy.sh [--backup]
-#   --backup: Create a database backup before deployment (if databases exist)
+# Usage: ./deploy.sh [--no-backup]
+#   --no-backup: Skip automatic database backup before deployment
 
 set -e
 
@@ -11,16 +11,16 @@ echo "🚀 Deploying BrewGet to Kubernetes..."
 echo ""
 
 # Parse command line arguments
-BACKUP_BEFORE_DEPLOY=false
+SKIP_BACKUP=false
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --backup)
-            BACKUP_BEFORE_DEPLOY=true
+        --no-backup)
+            SKIP_BACKUP=true
             shift
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--backup]"
+            echo "Usage: $0 [--no-backup]"
             exit 1
             ;;
     esac
@@ -35,16 +35,37 @@ fi
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Backup databases if requested and they exist
-if [ "$BACKUP_BEFORE_DEPLOY" = true ]; then
+# Automatically backup databases if they exist (unless --no-backup is specified)
+if [ "$SKIP_BACKUP" = false ]; then
     if kubectl get namespace brewget &> /dev/null && kubectl get pod postgres-0 -n brewget &> /dev/null 2>&1; then
-        echo "💾 Creating database backup before deployment..."
-        "$SCRIPT_DIR/backup-db.sh" || echo "⚠️  Backup failed, continuing with deployment..."
-        echo ""
+        POD_STATUS=$(kubectl get pod postgres-0 -n brewget -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+        if [ "$POD_STATUS" = "Running" ]; then
+            echo "💾 Existing deployment detected. Creating automatic backup..."
+            echo "   (Use --no-backup to skip this step)"
+            echo ""
+            
+            # Give user a chance to cancel
+            echo "⏳ Starting backup in 3 seconds... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo "⏳ Starting backup in 2 seconds... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo "⏳ Starting backup in 1 second... (Press Ctrl+C to cancel)"
+            sleep 1
+            echo ""
+            
+            "$SCRIPT_DIR/backup-db.sh" || echo "⚠️  Backup failed, continuing with deployment..."
+            echo ""
+        else
+            echo "ℹ️  PostgreSQL pod exists but is not running (status: $POD_STATUS), skipping backup."
+            echo ""
+        fi
     else
         echo "ℹ️  No existing deployment found, skipping backup."
         echo ""
     fi
+else
+    echo "⏩ Skipping automatic backup (--no-backup flag provided)."
+    echo ""
 fi
 
 # Set up persistent storage on host machine if minikube is available
