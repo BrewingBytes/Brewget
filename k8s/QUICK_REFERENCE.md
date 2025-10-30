@@ -71,24 +71,16 @@ kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_settings 
 ## Backup and Restore
 
 ```bash
-# Backup all databases to host machine (recommended)
-cd k8s
-./backup-postgres.sh
+# Get postgres username
+POSTGRES_USER=$(kubectl get secret brewget-secrets -n brewget -o jsonpath='{.data.postgres-user}' | base64 -d)
 
-# List available backups
-./restore-postgres.sh --list
+# Backup databases
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_auth > brewget_auth_backup.sql
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_settings > brewget_settings_backup.sql
 
-# Restore a specific database
-./restore-postgres.sh --file ./postgres-backups/brewget_auth_20231030_120000.sql --database brewget_auth
-
-# Restore all databases from archive
-./restore-postgres.sh --archive ./postgres-backups/brewget_postgres_backup_20231030_120000.tar.gz
-
-# Automated backup with retention (can be scheduled as cron job)
-./auto-backup-postgres.sh
-
-# Manual backup using kubectl (alternative method)
-kubectl exec postgres-0 -n brewget -- pg_dump -U user-name brewget_auth > backup.sql
+# Restore databases (after recreating cluster)
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_auth < brewget_auth_backup.sql
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_settings < brewget_settings_backup.sql
 ```
 
 ## Scaling
