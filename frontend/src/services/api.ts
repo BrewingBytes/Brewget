@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { useI18n } from "vue-i18n";
 
 // Auth service axios instance
@@ -16,15 +16,15 @@ export const settingsApi = axios.create({
 });
 
 // Add interceptor to include Accept-Language header
-const addLanguageHeader = (config: any) => {
+const addLanguageHeader = (config: InternalAxiosRequestConfig) => {
     try {
         const { locale } = useI18n();
         if (locale && locale.value) {
             config.headers = config.headers || {};
-            config.headers['Accept-Language'] = locale.value;
+            config.headers["Accept-Language"] = locale.value;
         }
     } catch (e) {
-        // If i18n is not available, don't add the header
+        console.error("Failed to set Accept-Language header:", e);
     }
     return config;
 };

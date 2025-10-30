@@ -30,7 +30,7 @@ function syncFormFields(newSettings: typeof settingsStore.settings) {
 onMounted(async () => {
   await settingsStore.loadSettings();
   syncFormFields(settingsStore.settings);
-  
+
   // Set i18n locale to match user settings
   if (settingsStore.settings?.language) {
     locale.value = settingsStore.settings.language;
@@ -64,7 +64,7 @@ async function handleSave() {
     alarm_offset_minutes: getLocaleToUtcOffsetMinutes(),
     night_mode: nightMode.value,
   });
-  
+
   // Update i18n locale if language was changed
   if (success && language.value) {
     locale.value = language.value;
@@ -95,7 +95,7 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Language Selection -->
           <div class="flex flex-col gap-2">
             <label for="language" class="font-medium">
-              <i class="pi pi-globe mr-2"></i>{{ t("settings.language") }}
+              <i class="pi pi-globe mr-2"></i> {{ t("settings.language") }}
             </label>
             <Select id="language" v-model="language" :options="languageOptions" optionLabel="label" optionValue="value"
               placeholder="Select a language" class="w-full bg-transparent! border-white!" :pt="{
@@ -135,7 +135,7 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Night Mode Toggle -->
           <div class="flex items-center justify-between">
             <label for="nightMode" class="text-white/90 font-medium">
-              <i class="pi pi-moon mr-2"></i>{{ t("settings.nightMode") }}
+              <i class="pi pi-moon mr-2"></i> {{ t("settings.nightMode") }}
             </label>
             <ToggleSwitch id="nightMode" v-model="nightMode" :pt="{
               slider: {
@@ -151,7 +151,7 @@ function getLocaleToUtcOffsetMinutes(): number {
           <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
               <label for="alarmSet" class="text-white/90 font-medium">
-                <i class="pi pi-bell mr-2"></i>{{ t("settings.enableAlarm") }}
+                <i class="pi pi-bell mr-2"></i> {{ t("settings.enableAlarm") }}
               </label>
               <ToggleSwitch id="alarmSet" v-model="alarmSet" :pt="{
                 slider: {
@@ -178,8 +178,9 @@ function getLocaleToUtcOffsetMinutes(): number {
 
           <!-- Save Button -->
           <div class="flex justify-end mt-4">
-            <Button @click="handleSave" :label="t('settings.saveSettings')" icon="pi pi-save" :loading="settingsStore.loading"
-              class="!rounded-3xl text-black! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
+            <Button @click="handleSave" :label="t('settings.saveSettings')" icon="pi pi-save"
+              :loading="settingsStore.loading" class="!rounded-3xl text-black! hover:text-blue-600!"
+              :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
         </div>
       </template>
