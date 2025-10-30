@@ -16,6 +16,48 @@ spec:
     app: postgres
 
 ---
+# PersistentVolume using hostPath to store data on the host machine
+# This ensures data persists even when minikube is stopped or restarted
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: brewget-postgres-pv
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    # This path will be on the host machine (or minikube node)
+    # For minikube, this is accessible and persists across minikube stop/start
+    path: "/data/brewget-postgres"
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+
+---
+# PersistentVolumeClaim that binds to the hostPath PV
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: brewget-postgres-pvc
+  namespace: brewget
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      type: local
+      app: postgres
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -33,64 +75,59 @@ spec:
         app: postgres
     spec:
       containers:
-      - name: postgres
-        image: postgres:17-alpine
-        ports:
-        - containerPort: 5432
-          name: postgres
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: brewget-secrets
-              key: postgres-user
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: brewget-secrets
-              key: postgres-password
-        - name: POSTGRES_DB
-          value: postgres
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        volumeMounts:
-        - name: postgres-data
-          mountPath: /var/lib/postgresql/data
-        - name: init-script
-          mountPath: /docker-entrypoint-initdb.d
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - $(POSTGRES_USER)
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - $(POSTGRES_USER)
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: postgres
+          image: postgres:17-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: brewget-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: brewget-secrets
+                  key: postgres-password
+            - name: POSTGRES_DB
+              value: postgres
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+            initialDelaySeconds: 5
+            periodSeconds: 5
       volumes:
-      - name: init-script
-        configMap:
-          name: postgres-init
-          defaultMode: 0755
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: brewget-postgres-pvc
+        - name: init-script
+          configMap:
+            name: postgres-init
+            defaultMode: 0755

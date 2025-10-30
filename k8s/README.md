@@ -145,17 +145,113 @@ This ensures each service has its own isolated database for security and maintai
 
 ## Persistent Storage
 
-The PostgreSQL database uses a PersistentVolumeClaim for data persistence:
+The PostgreSQL database uses a hostPath PersistentVolume for data persistence. This ensures that data is stored on the host machine and persists even when minikube is stopped or restarted.
 
 ```yaml
-volumeClaimTemplates:
-  - metadata:
-      name: postgres-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: brewget-postgres-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/brewget-postgres"
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+```
+
+### Data Persistence in Minikube
+
+For minikube, the hostPath `/data/brewget-postgres` is created inside the minikube VM and persists across `minikube stop` and `minikube start` commands. The data is only lost if you run `minikube delete`.
+
+### Backup and Restore
+
+To ensure data safety and enable data migration, we provide backup and restore scripts:
+
+#### Creating a Backup
+
+To backup all PostgreSQL databases to your host machine:
+
+```bash
+cd k8s
+./backup-postgres.sh
+```
+
+This will create SQL dumps of all databases (postgres, brewget_auth, brewget_settings) in the `./postgres-backups` directory with timestamps.
+
+You can also specify a custom backup directory:
+
+```bash
+BACKUP_DIR=/path/to/backups ./backup-postgres.sh
+```
+
+#### Automated Backups
+
+For automated backups with retention policy:
+
+```bash
+cd k8s
+./auto-backup-postgres.sh
+```
+
+This script:
+- Runs a full backup of all databases
+- Automatically cleans up backups older than 7 days (configurable)
+- Can be scheduled as a cron job for regular backups
+
+To run automatically every day at 2 AM, add to your crontab:
+
+```bash
+0 2 * * * cd /path/to/Brewget/k8s && ./auto-backup-postgres.sh >> /var/log/brewget-backup.log 2>&1
+```
+
+To customize the retention period:
+
+```bash
+RETENTION_DAYS=14 ./auto-backup-postgres.sh
+```
+
+#### Restoring from Backup
+
+To list available backups:
+
+```bash
+cd k8s
+./restore-postgres.sh --list
+```
+
+To restore a specific database from a backup file:
+
+```bash
+cd k8s
+./restore-postgres.sh --file ./postgres-backups/brewget_auth_20231030_120000.sql --database brewget_auth
+```
+
+To restore all databases from an archive:
+
+```bash
+cd k8s
+./restore-postgres.sh --archive ./postgres-backups/brewget_postgres_backup_20231030_120000.tar.gz
+```
+
+#### Backup Before Minikube Delete
+
+**IMPORTANT**: Before running `minikube delete`, always create a backup:
+
+```bash
+cd k8s
+./backup-postgres.sh
+```
+
+After recreating the cluster with `minikube start` and redeploying the application, restore your data:
+
+```bash
+cd k8s
+./restore-postgres.sh --archive ./postgres-backups/brewget_postgres_backup_YYYYMMDD_HHMMSS.tar.gz
 ```
 
 ### Increasing Storage

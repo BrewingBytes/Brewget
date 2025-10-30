@@ -66,8 +66,28 @@ kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_auth -c "
 
 # View tables in settings database
 kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_settings -c "\dt"
+```
 
-# Backup database
+## Backup and Restore
+
+```bash
+# Backup all databases to host machine (recommended)
+cd k8s
+./backup-postgres.sh
+
+# List available backups
+./restore-postgres.sh --list
+
+# Restore a specific database
+./restore-postgres.sh --file ./postgres-backups/brewget_auth_20231030_120000.sql --database brewget_auth
+
+# Restore all databases from archive
+./restore-postgres.sh --archive ./postgres-backups/brewget_postgres_backup_20231030_120000.tar.gz
+
+# Automated backup with retention (can be scheduled as cron job)
+./auto-backup-postgres.sh
+
+# Manual backup using kubectl (alternative method)
 kubectl exec postgres-0 -n brewget -- pg_dump -U user-name brewget_auth > backup.sql
 ```
 
