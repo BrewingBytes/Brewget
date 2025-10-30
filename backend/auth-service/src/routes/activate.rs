@@ -61,6 +61,7 @@ async fn activate_account_handler(
         activation_link.get_uuid()
     );
     Ok(Json(Message {
-        message: "Account has been verified.".into(),
+        message: Some("Account has been verified.".into()),
+        translation_key: None,
     }))
 }

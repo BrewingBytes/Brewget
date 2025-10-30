@@ -63,7 +63,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn register_handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+
     Json(body): Json<RegisterInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!(
@@ -81,20 +81,15 @@ async fn register_handler(
                 "Captcha verification failed for registration: {}",
                 body.username
             );
-            Error::translated(
-                StatusCode::BAD_REQUEST,
-                TranslationKey::CaptchaFailed,
-                Some(&headers),
-            )
+            Error::with_key(StatusCode::BAD_REQUEST, TranslationKey::CaptchaFailed)
         })?;
 
     // Validate username length
     if body.username.len() <= 3 {
         tracing::warn!("Username too short for registration: {}", body.username);
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::BAD_REQUEST,
             TranslationKey::UsernameTooShort,
-            Some(&headers),
         ));
     }
 
@@ -104,7 +99,7 @@ async fn register_handler(
             "Invalid password format for registration: {}",
             body.username
         );
-        Error::translated(StatusCode::BAD_REQUEST, key, Some(&headers))
+        Error::with_key(StatusCode::BAD_REQUEST, key)
     })?;
 
     // Validate email format
@@ -203,6 +198,7 @@ async fn register_handler(
     );
     // Return success message
     Ok(Json(Message {
-        message: "Account has been created.".into(),
+        message: Some("Account has been created.".into()),
+        translation_key: None,
     }))
 }

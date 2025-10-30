@@ -1,13 +1,7 @@
 use std::sync::Arc;
 
-use axum::{
-    Json, Router,
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    routing::post,
-};
-use shared_types::{Error, Message, TranslationKey, extract_language_from_headers};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use shared_types::{Error, Message, TranslationKey};
 
 use crate::{
     AppState, database,
@@ -35,7 +29,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn change_password_handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
+
     Json(body): Json<ResetPasswordInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!("Password change request for link_id: {}", body.id);
@@ -52,10 +46,9 @@ async fn change_password_handler(
     if link.is_expired() {
         tracing::warn!("Expired forgot password link used: {}", body.id);
         database::forgot_password_links::delete(body.id, pool).await?;
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::BAD_REQUEST,
             TranslationKey::LinkExpired,
-            Some(&headers),
         ));
     }
 
@@ -65,7 +58,7 @@ async fn change_password_handler(
             "Invalid password format for password change, link_id: {}",
             body.id
         );
-        Error::translated(StatusCode::BAD_REQUEST, key, Some(&headers))
+        Error::with_key(StatusCode::BAD_REQUEST, key)
     })?;
 
     // Check if the password has been used in recent passwords
@@ -83,29 +76,26 @@ async fn change_password_handler(
 
     if is_password_in_history(&body.password, &recent_hashes) {
         tracing::warn!("Password reuse attempt for user_id: {}", link.get_uuid());
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::BAD_REQUEST,
             TranslationKey::PasswordInHistory,
-            Some(&headers),
         ));
     }
 
     tracing::debug!("Hashing new password for user_id: {}", link.get_uuid());
     let new_hashed_password = hash_password(&body.password).map_err(|_| {
         tracing::error!("Failed to hash password for user_id: {}", link.get_uuid());
-        Error::translated(
+        Error::with_key(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalError,
-            Some(&headers),
         )
     })?;
 
     // Use a transaction to ensure atomicity of password update and history insertion
     let mut tx = pool.begin().await.map_err(|_| {
-        Error::translated(
+        Error::with_key(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::DatabaseError,
-            Some(&headers),
         )
     })?;
 
@@ -130,10 +120,9 @@ async fn change_password_handler(
             "Failed to commit password change transaction for user_id: {}",
             link.get_uuid()
         );
-        Error::translated(
+        Error::with_key(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::DatabaseError,
-            Some(&headers),
         )
     })?;
 
@@ -141,10 +130,9 @@ async fn change_password_handler(
     tracing::debug!("Deleting forgot password link: {}", body.id);
     if database::forgot_password_links::delete(body.id, pool).await? != 1 {
         tracing::error!("Failed to delete forgot password link: {}", body.id);
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::DatabaseError,
-            Some(&headers),
         ));
     }
 
@@ -153,10 +141,9 @@ async fn change_password_handler(
         link.get_uuid()
     );
 
-    // Use centralized language extraction
-    let lang = extract_language_from_headers(Some(&headers));
-    let translator = shared_types::Translator::from_code(lang);
+    // Send translation key to frontend for client-side translation
     Ok(Json(Message {
-        message: translator.translate(TranslationKey::PasswordChanged),
+        message: None,
+        translation_key: Some(TranslationKey::PasswordChanged),
     }))
 }

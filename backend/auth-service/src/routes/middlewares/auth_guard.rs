@@ -42,21 +42,13 @@ pub async fn auth_guard(
     mut req: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Error> {
-    let headers = req.headers().clone();
-
     // Extract Bearer token from Authorization header
     let received_token = req
         .headers()
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok())
         .and_then(|header| header.strip_prefix("Bearer "))
-        .ok_or_else(|| {
-            Error::translated(
-                StatusCode::UNAUTHORIZED,
-                TranslationKey::NotLoggedIn,
-                Some(&headers),
-            )
-        })?;
+        .ok_or_else(|| Error::with_key(StatusCode::UNAUTHORIZED, TranslationKey::NotLoggedIn))?;
 
     // Decode and validate JWT token
     let decoded_token = decode::<TokenClaim>(
@@ -72,19 +64,17 @@ pub async fn auth_guard(
     // Verify token is not expired
     if token_res.is_expired() {
         database::tokens::delete_by_token(token_res.get_token(), pool).await?;
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::UNAUTHORIZED,
             TranslationKey::TokenExpired,
-            Some(&headers),
         ));
     }
 
     // Verify token belongs to correct user
     if token_res.get_uuid().to_string() != *decoded_token.claims.sub {
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::UNAUTHORIZED,
             TranslationKey::TokenInvalid,
-            Some(&headers),
         ));
     }
 

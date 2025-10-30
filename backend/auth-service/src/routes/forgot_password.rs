@@ -86,6 +86,7 @@ async fn forgot_password_handler(
     });
 
     Ok(Json(Message {
-        message: "Forgot password link sent to the email, if an account is registered and verified with that email.".into(),
+        message: Some("Forgot password link sent to the email, if an account is registered and verified with that email.".into()),
+        translation_key: None,
     }))
 }

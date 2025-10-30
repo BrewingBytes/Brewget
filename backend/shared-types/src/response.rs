@@ -1,21 +1,27 @@
 use serde::Serialize;
 
+use crate::i18n::TranslationKey;
+
 /// A generic message response structure
 ///
 /// This struct is used to serialize response messages into JSON format
 ///
 /// # Fields
-/// * `message` - The message content to be sent in the response
+/// * `message` - The message content to be sent in the response (deprecated, use translation_key)
+/// * `translation_key` - Optional translation key for frontend to translate
 ///
 /// # Example
 /// ```json
 /// {
-///     "message": "Operation completed successfully"
+///     "translation_key": "password_changed"
 /// }
 /// ```
 #[derive(Serialize)]
 pub struct Message {
-    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub translation_key: Option<TranslationKey>,
 }
 
 /// The response for the /health route

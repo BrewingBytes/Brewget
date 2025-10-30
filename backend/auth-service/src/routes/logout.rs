@@ -60,6 +60,7 @@ async fn logout_handler(
     tracing::info!("Logout successful for user_id: {}", user_uuid);
     // Return success message
     Ok(Json(Message {
-        message: "Ok".into(),
+        message: Some("Ok".into()),
+        translation_key: None,
     }))
 }

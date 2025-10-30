@@ -1,12 +1,6 @@
 use std::sync::Arc;
 
-use axum::{
-    Json, Router,
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    routing::post,
-};
+use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use shared_types::{Error, TranslationKey};
@@ -59,7 +53,6 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn login_handler(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!("Login attempt for username: {}", body.username);
@@ -73,11 +66,7 @@ async fn login_handler(
                 "Captcha verification failed for username: {}",
                 body.username
             );
-            Error::translated(
-                StatusCode::BAD_REQUEST,
-                TranslationKey::CaptchaFailed,
-                Some(&headers),
-            )
+            Error::with_key(StatusCode::BAD_REQUEST, TranslationKey::CaptchaFailed)
         })?;
 
     // Query database for user with matching username
@@ -91,20 +80,18 @@ async fn login_handler(
             "Unverified account login attempt for username: {}",
             body.username
         );
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::UNAUTHORIZED,
             TranslationKey::EmailNotVerified,
-            Some(&headers),
         ));
     }
 
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
         tracing::warn!("Invalid password for username: {}", body.username);
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::BAD_REQUEST,
             TranslationKey::UsernamePasswordInvalid,
-            Some(&headers),
         ));
     }
 
@@ -114,10 +101,9 @@ async fn login_handler(
             "Inactive account login attempt for username: {}",
             body.username
         );
-        return Err(Error::translated(
+        return Err(Error::with_key(
             StatusCode::UNAUTHORIZED,
             TranslationKey::AccountDeleted,
-            Some(&headers),
         ));
     }
 
