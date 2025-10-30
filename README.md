@@ -13,6 +13,19 @@ BrewGet consists of the following services:
 - **nginx**: Reverse proxy and API gateway
 - **postgres**: PostgreSQL database
 
+## Local Development
+
+For local development with hot-reloading:
+
+1. Set up infrastructure (PostgreSQL, etc.) - see [DEVELOPMENT.md](DEVELOPMENT.md) for details
+2. Install overmind: `brew install overmind` (macOS) or see [DEVELOPMENT.md](DEVELOPMENT.md)
+3. Copy environment file: `cp .env.example .env`
+4. Run services: `overmind start`
+
+Overmind manages all services with automatic rebuilding and displays unified logs with restart notifications.
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed local development instructions.
+
 ## Deployment
 
 ### Kubernetes
@@ -28,6 +41,7 @@ See [k8s/README.md](k8s/README.md) for detailed instructions.
 
 ## Documentation
 
+- [Local Development Guide](DEVELOPMENT.md)
 - [Kubernetes Deployment Guide](k8s/README.md)
 - [Database Migrations](backend/MIGRATIONS.md)
 - [Separate Databases Configuration](backend/SEPARATE_DATABASES.md)

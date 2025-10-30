@@ -2,3 +2,4 @@
 **/target
 app.css
 .DS_Store
+.overmind.sock
