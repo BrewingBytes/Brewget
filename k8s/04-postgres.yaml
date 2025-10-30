@@ -30,7 +30,9 @@ metadata:
     type: local
     app: postgres
 spec:
-  storageClassName: manual
+  # Empty storageClassName explicitly opts out of dynamic provisioning
+  # This allows manual binding using the label selector below
+  storageClassName: ""
   capacity:
     storage: 2Gi
   accessModes:
@@ -50,7 +52,8 @@ metadata:
   name: brewget-postgres-pvc
   namespace: brewget
 spec:
-  storageClassName: manual
+  # Empty storageClassName must match the PV to enable manual binding
+  storageClassName: ""
   accessModes:
     - ReadWriteOnce
   resources:
