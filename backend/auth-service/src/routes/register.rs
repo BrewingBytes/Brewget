@@ -89,16 +89,13 @@ async fn register_handler(
     }
 
     // Validate password length
-    validate_password(&body.password).map_err(|_s| -> Error {
+    validate_password(&body.password).map_err(|translation_key| -> Error {
         tracing::warn!(
-            "Invalid password format for registration: {}",
-            body.username
+            "Invalid password format for registration: {}, error: {:?}",
+            body.username,
+            translation_key
         );
-        (
-            StatusCode::BAD_REQUEST,
-            TranslationKey::PasswordValidationError,
-        )
-            .into()
+        (StatusCode::BAD_REQUEST, translation_key).into()
     })?;
 
     // Validate email format

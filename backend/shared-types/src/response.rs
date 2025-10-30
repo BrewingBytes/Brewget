@@ -3,7 +3,7 @@ use serde::Serialize;
 /// Translation keys for frontend localization
 ///
 /// Each variant represents a specific message that the frontend should translate
-#[derive(Serialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum TranslationKey {
     /// Password successfully changed message
@@ -54,8 +54,14 @@ pub enum TranslationKey {
     TokenInvalid,
     /// Internal server error
     InternalServerError,
-    /// Password validation error
+    /// Password validation error - generic
     PasswordValidationError,
+    /// Password must be at least 8 characters long
+    PasswordTooShort,
+    /// Password must contain at least one uppercase letter
+    PasswordMissingUppercase,
+    /// Password must contain at least one number
+    PasswordMissingNumber,
     /// Username not found error
     UsernameNotFound,
     /// Username or email not found error
@@ -85,7 +91,7 @@ pub enum TranslationKey {
 ///     "translation_key": "ACCOUNT_CREATED"
 /// }
 /// ```
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct TranslationKeyMessage {
     pub translation_key: TranslationKey,
 }

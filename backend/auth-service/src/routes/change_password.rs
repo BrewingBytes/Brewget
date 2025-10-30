@@ -51,16 +51,13 @@ async fn change_password_handler(
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password).map_err(|_s| -> Error {
+    validate_password(&body.password).map_err(|translation_key| -> Error {
         tracing::warn!(
-            "Invalid password format for password change, link_id: {}",
-            body.id
+            "Invalid password format for password change, link_id: {}, error: {:?}",
+            body.id,
+            translation_key
         );
-        (
-            StatusCode::BAD_REQUEST,
-            TranslationKey::PasswordValidationError,
-        )
-            .into()
+        (StatusCode::BAD_REQUEST, translation_key).into()
     })?;
 
     // Check if the password has been used in recent passwords

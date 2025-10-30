@@ -55,7 +55,8 @@ impl From<(StatusCode, TranslationKey)> for Error {
 
 /// Converts JWT errors into the application Error type
 impl From<jsonwebtoken::errors::Error> for Error {
-    fn from(_value: jsonwebtoken::errors::Error) -> Self {
+    fn from(value: jsonwebtoken::errors::Error) -> Self {
+        tracing::error!("JWT error: {}", value);
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalServerError,
@@ -65,7 +66,8 @@ impl From<jsonwebtoken::errors::Error> for Error {
 
 /// Converts SQLX database errors into the application Error type
 impl From<sqlx::Error> for Error {
-    fn from(_value: sqlx::Error) -> Self {
+    fn from(value: sqlx::Error) -> Self {
+        tracing::error!("Database error: {}", value);
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalServerError,
@@ -75,7 +77,8 @@ impl From<sqlx::Error> for Error {
 
 /// Converts Uuid errors into the application Error type
 impl From<uuid::Error> for Error {
-    fn from(_value: uuid::Error) -> Self {
+    fn from(value: uuid::Error) -> Self {
+        tracing::error!("UUID error: {}", value);
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalServerError,
@@ -85,7 +88,8 @@ impl From<uuid::Error> for Error {
 
 /// Converts tonic gRPC errors into the application Error type
 impl From<tonic::Status> for Error {
-    fn from(_value: tonic::Status) -> Self {
+    fn from(value: tonic::Status) -> Self {
+        tracing::error!("gRPC error: {}", value);
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalServerError,
@@ -95,7 +99,8 @@ impl From<tonic::Status> for Error {
 
 /// Converts general std::error::Error into the application Error type
 impl From<Box<dyn std::error::Error>> for Error {
-    fn from(_value: Box<dyn std::error::Error>) -> Self {
+    fn from(value: Box<dyn std::error::Error>) -> Self {
+        tracing::error!("Generic error: {}", value);
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::InternalServerError,
