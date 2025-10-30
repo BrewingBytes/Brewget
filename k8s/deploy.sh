@@ -13,6 +13,14 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
+# Start minikube tunnel if minikube is available
+if command -v minikube &> /dev/null; then
+    echo "🌐 Starting minikube tunnel..."
+    sudo minikube tunnel --bind-address=0.0.0.0 &
+    echo "✅ Minikube tunnel started in background"
+    echo ""
+fi
+
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
