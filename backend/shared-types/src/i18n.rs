@@ -1,3 +1,67 @@
+use std::collections::HashMap;
+
+use once_cell::sync::Lazy;
+use serde::Deserialize;
+
+/// Translation messages loaded from JSON files
+#[derive(Debug, Deserialize, Clone)]
+pub struct Messages {
+    username_password_invalid: String,
+    email_not_verified: String,
+    account_not_active: String,
+    captcha_failed: String,
+    link_expired: String,
+    password_too_short: String,
+    password_no_uppercase: String,
+    password_no_lowercase: String,
+    password_no_digit: String,
+    password_no_special_char: String,
+    password_in_history: String,
+    password_changed: String,
+    email_send_failed: String,
+    settings_load_failed: String,
+    settings_update_failed: String,
+    internal_error: String,
+    database_error: String,
+}
+
+/// Load all translations at compile time
+static TRANSLATIONS: Lazy<HashMap<&'static str, Messages>> = Lazy::new(|| {
+    let mut map = HashMap::new();
+
+    // Load English translations
+    let en_json = include_str!("../locales/en.json");
+    if let Ok(en_messages) = serde_json::from_str::<Messages>(en_json) {
+        map.insert("en", en_messages);
+    }
+
+    // Load Spanish translations
+    let es_json = include_str!("../locales/es.json");
+    if let Ok(es_messages) = serde_json::from_str::<Messages>(es_json) {
+        map.insert("es", es_messages);
+    }
+
+    // Load French translations
+    let fr_json = include_str!("../locales/fr.json");
+    if let Ok(fr_messages) = serde_json::from_str::<Messages>(fr_json) {
+        map.insert("fr", fr_messages);
+    }
+
+    // Load German translations
+    let de_json = include_str!("../locales/de.json");
+    if let Ok(de_messages) = serde_json::from_str::<Messages>(de_json) {
+        map.insert("de", de_messages);
+    }
+
+    // Load Romanian translations
+    let ro_json = include_str!("../locales/ro.json");
+    if let Ok(ro_messages) = serde_json::from_str::<Messages>(ro_json) {
+        map.insert("ro", ro_messages);
+    }
+
+    map
+});
+
 /// Supported languages
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Language {
@@ -61,196 +125,30 @@ pub enum TranslationKey {
 impl TranslationKey {
     /// Get translated message for the given language
     pub fn translate(&self, lang: Language) -> &str {
-        match lang {
-            Language::English => self.translate_en(),
-            Language::Spanish => self.translate_es(),
-            Language::French => self.translate_fr(),
-            Language::German => self.translate_de(),
-            Language::Romanian => self.translate_ro(),
-        }
-    }
+        let code = lang.to_code();
+        let messages = TRANSLATIONS
+            .get(code)
+            .or_else(|| TRANSLATIONS.get("en"))
+            .expect("English translations must always be available");
 
-    fn translate_en(&self) -> &str {
         match self {
-            TranslationKey::UsernamePasswordInvalid => "Username or password is invalid.",
-            TranslationKey::EmailNotVerified => {
-                "Email has not been verified, please check your inbox."
-            }
-            TranslationKey::AccountNotActive => {
-                "This account has been deactivated. Please contact support."
-            }
-            TranslationKey::CaptchaFailed => "Captcha verification failed.",
-            TranslationKey::LinkExpired => "Link is expired.",
-            TranslationKey::PasswordTooShort => "Password must be at least 8 characters long.",
-            TranslationKey::PasswordNoUppercase => {
-                "Password must contain at least one uppercase letter."
-            }
-            TranslationKey::PasswordNoLowercase => {
-                "Password must contain at least one lowercase letter."
-            }
-            TranslationKey::PasswordNoDigit => "Password must contain at least one digit.",
-            TranslationKey::PasswordNoSpecialChar => {
-                "Password must contain at least one special character."
-            }
-            TranslationKey::PasswordInHistory => {
-                "Password cannot be the same as any of your recently used passwords."
-            }
-            TranslationKey::PasswordChanged => "Password sucessfully changed.",
-            TranslationKey::EmailSendFailed => "Failed to send email.",
-            TranslationKey::SettingsLoadFailed => "Failed to load settings.",
-            TranslationKey::SettingsUpdateFailed => "Failed to update settings.",
-            TranslationKey::InternalError => "Something went wrong, please try again!",
-            TranslationKey::DatabaseError => "Database error.",
-        }
-    }
-
-    fn translate_es(&self) -> &str {
-        match self {
-            TranslationKey::UsernamePasswordInvalid => {
-                "El nombre de usuario o la contraseña no son válidos."
-            }
-            TranslationKey::EmailNotVerified => {
-                "El correo electrónico no ha sido verificado, por favor revise su bandeja de entrada."
-            }
-            TranslationKey::AccountNotActive => {
-                "Esta cuenta ha sido desactivada. Por favor contacte al soporte."
-            }
-            TranslationKey::CaptchaFailed => "La verificación del captcha falló.",
-            TranslationKey::LinkExpired => "El enlace ha expirado.",
-            TranslationKey::PasswordTooShort => "La contraseña debe tener al menos 8 caracteres.",
-            TranslationKey::PasswordNoUppercase => {
-                "La contraseña debe contener al menos una letra mayúscula."
-            }
-            TranslationKey::PasswordNoLowercase => {
-                "La contraseña debe contener al menos una letra minúscula."
-            }
-            TranslationKey::PasswordNoDigit => "La contraseña debe contener al menos un dígito.",
-            TranslationKey::PasswordNoSpecialChar => {
-                "La contraseña debe contener al menos un carácter especial."
-            }
-            TranslationKey::PasswordInHistory => {
-                "La contraseña no puede ser la misma que ninguna de sus contraseñas utilizadas recientemente."
-            }
-            TranslationKey::PasswordChanged => "Contraseña cambiada exitosamente.",
-            TranslationKey::EmailSendFailed => "Error al enviar el correo electrónico.",
-            TranslationKey::SettingsLoadFailed => "Error al cargar la configuración.",
-            TranslationKey::SettingsUpdateFailed => "Error al actualizar la configuración.",
-            TranslationKey::InternalError => "Algo salió mal, por favor intente de nuevo!",
-            TranslationKey::DatabaseError => "Error de base de datos.",
-        }
-    }
-
-    fn translate_fr(&self) -> &str {
-        match self {
-            TranslationKey::UsernamePasswordInvalid => {
-                "Le nom d'utilisateur ou le mot de passe est invalide."
-            }
-            TranslationKey::EmailNotVerified => {
-                "L'e-mail n'a pas été vérifié, veuillez vérifier votre boîte de réception."
-            }
-            TranslationKey::AccountNotActive => {
-                "Ce compte a été désactivé. Veuillez contacter le support."
-            }
-            TranslationKey::CaptchaFailed => "La vérification du captcha a échoué.",
-            TranslationKey::LinkExpired => "Le lien a expiré.",
-            TranslationKey::PasswordTooShort => {
-                "Le mot de passe doit contenir au moins 8 caractères."
-            }
-            TranslationKey::PasswordNoUppercase => {
-                "Le mot de passe doit contenir au moins une lettre majuscule."
-            }
-            TranslationKey::PasswordNoLowercase => {
-                "Le mot de passe doit contenir au moins une lettre minuscule."
-            }
-            TranslationKey::PasswordNoDigit => "Le mot de passe doit contenir au moins un chiffre.",
-            TranslationKey::PasswordNoSpecialChar => {
-                "Le mot de passe doit contenir au moins un caractère spécial."
-            }
-            TranslationKey::PasswordInHistory => {
-                "Le mot de passe ne peut pas être le même que l'un de vos mots de passe récemment utilisés."
-            }
-            TranslationKey::PasswordChanged => "Mot de passe changé avec succès.",
-            TranslationKey::EmailSendFailed => "Échec de l'envoi de l'e-mail.",
-            TranslationKey::SettingsLoadFailed => "Échec du chargement des paramètres.",
-            TranslationKey::SettingsUpdateFailed => "Échec de la mise à jour des paramètres.",
-            TranslationKey::InternalError => "Quelque chose s'est mal passé, veuillez réessayer!",
-            TranslationKey::DatabaseError => "Erreur de base de données.",
-        }
-    }
-
-    fn translate_de(&self) -> &str {
-        match self {
-            TranslationKey::UsernamePasswordInvalid => "Benutzername oder Passwort ist ungültig.",
-            TranslationKey::EmailNotVerified => {
-                "E-Mail wurde nicht verifiziert, bitte überprüfen Sie Ihren Posteingang."
-            }
-            TranslationKey::AccountNotActive => {
-                "Dieses Konto wurde deaktiviert. Bitte kontaktieren Sie den Support."
-            }
-            TranslationKey::CaptchaFailed => "Captcha-Verifizierung fehlgeschlagen.",
-            TranslationKey::LinkExpired => "Der Link ist abgelaufen.",
-            TranslationKey::PasswordTooShort => "Das Passwort muss mindestens 8 Zeichen lang sein.",
-            TranslationKey::PasswordNoUppercase => {
-                "Das Passwort muss mindestens einen Großbuchstaben enthalten."
-            }
-            TranslationKey::PasswordNoLowercase => {
-                "Das Passwort muss mindestens einen Kleinbuchstaben enthalten."
-            }
-            TranslationKey::PasswordNoDigit => {
-                "Das Passwort muss mindestens eine Ziffer enthalten."
-            }
-            TranslationKey::PasswordNoSpecialChar => {
-                "Das Passwort muss mindestens ein Sonderzeichen enthalten."
-            }
-            TranslationKey::PasswordInHistory => {
-                "Das Passwort darf nicht mit einem Ihrer kürzlich verwendeten Passwörter übereinstimmen."
-            }
-            TranslationKey::PasswordChanged => "Passwort erfolgreich geändert.",
-            TranslationKey::EmailSendFailed => "E-Mail konnte nicht gesendet werden.",
-            TranslationKey::SettingsLoadFailed => "Einstellungen konnten nicht geladen werden.",
-            TranslationKey::SettingsUpdateFailed => {
-                "Einstellungen konnten nicht aktualisiert werden."
-            }
-            TranslationKey::InternalError => {
-                "Etwas ist schief gelaufen, bitte versuchen Sie es erneut!"
-            }
-            TranslationKey::DatabaseError => "Datenbankfehler.",
-        }
-    }
-
-    fn translate_ro(&self) -> &str {
-        match self {
-            TranslationKey::UsernamePasswordInvalid => {
-                "Numele de utilizator sau parola sunt invalide."
-            }
-            TranslationKey::EmailNotVerified => {
-                "E-mailul nu a fost verificat, vă rugăm să verificați căsuța de e-mail."
-            }
-            TranslationKey::AccountNotActive => {
-                "Acest cont a fost dezactivat. Vă rugăm să contactați suportul."
-            }
-            TranslationKey::CaptchaFailed => "Verificarea captcha a eșuat.",
-            TranslationKey::LinkExpired => "Linkul a expirat.",
-            TranslationKey::PasswordTooShort => "Parola trebuie să aibă cel puțin 8 caractere.",
-            TranslationKey::PasswordNoUppercase => {
-                "Parola trebuie să conțină cel puțin o literă mare."
-            }
-            TranslationKey::PasswordNoLowercase => {
-                "Parola trebuie să conțină cel puțin o literă mică."
-            }
-            TranslationKey::PasswordNoDigit => "Parola trebuie să conțină cel puțin o cifră.",
-            TranslationKey::PasswordNoSpecialChar => {
-                "Parola trebuie să conțină cel puțin un caracter special."
-            }
-            TranslationKey::PasswordInHistory => {
-                "Parola nu poate fi aceeași cu niciuna dintre parolele folosite recent."
-            }
-            TranslationKey::PasswordChanged => "Parola a fost schimbată cu succes.",
-            TranslationKey::EmailSendFailed => "Nu s-a putut trimite e-mailul.",
-            TranslationKey::SettingsLoadFailed => "Nu s-au putut încărca setările.",
-            TranslationKey::SettingsUpdateFailed => "Nu s-au putut actualiza setările.",
-            TranslationKey::InternalError => "Ceva a mers prost, vă rugăm să încercați din nou!",
-            TranslationKey::DatabaseError => "Eroare de bază de date.",
+            TranslationKey::UsernamePasswordInvalid => &messages.username_password_invalid,
+            TranslationKey::EmailNotVerified => &messages.email_not_verified,
+            TranslationKey::AccountNotActive => &messages.account_not_active,
+            TranslationKey::CaptchaFailed => &messages.captcha_failed,
+            TranslationKey::LinkExpired => &messages.link_expired,
+            TranslationKey::PasswordTooShort => &messages.password_too_short,
+            TranslationKey::PasswordNoUppercase => &messages.password_no_uppercase,
+            TranslationKey::PasswordNoLowercase => &messages.password_no_lowercase,
+            TranslationKey::PasswordNoDigit => &messages.password_no_digit,
+            TranslationKey::PasswordNoSpecialChar => &messages.password_no_special_char,
+            TranslationKey::PasswordInHistory => &messages.password_in_history,
+            TranslationKey::PasswordChanged => &messages.password_changed,
+            TranslationKey::EmailSendFailed => &messages.email_send_failed,
+            TranslationKey::SettingsLoadFailed => &messages.settings_load_failed,
+            TranslationKey::SettingsUpdateFailed => &messages.settings_update_failed,
+            TranslationKey::InternalError => &messages.internal_error,
+            TranslationKey::DatabaseError => &messages.database_error,
         }
     }
 }
@@ -333,5 +231,15 @@ mod tests {
     fn test_translator_from_code() {
         let translator = Translator::from_code("ro");
         assert_eq!(translator.language(), Language::Romanian);
+    }
+
+    #[test]
+    fn test_translations_loaded() {
+        // Verify all languages are loaded
+        assert!(TRANSLATIONS.contains_key("en"));
+        assert!(TRANSLATIONS.contains_key("es"));
+        assert!(TRANSLATIONS.contains_key("fr"));
+        assert!(TRANSLATIONS.contains_key("de"));
+        assert!(TRANSLATIONS.contains_key("ro"));
     }
 }

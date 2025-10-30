@@ -1,0 +1,19 @@
+{
+  "username_password_invalid": "Username or password is invalid.",
+  "email_not_verified": "Email has not been verified, please check your inbox.",
+  "account_not_active": "This account has been deactivated. Please contact support.",
+  "captcha_failed": "Captcha verification failed.",
+  "link_expired": "Link is expired.",
+  "password_too_short": "Password must be at least 8 characters long.",
+  "password_no_uppercase": "Password must contain at least one uppercase letter.",
+  "password_no_lowercase": "Password must contain at least one lowercase letter.",
+  "password_no_digit": "Password must contain at least one digit.",
+  "password_no_special_char": "Password must contain at least one special character.",
+  "password_in_history": "Password cannot be the same as any of your recently used passwords.",
+  "password_changed": "Password sucessfully changed.",
+  "email_send_failed": "Failed to send email.",
+  "settings_load_failed": "Failed to load settings.",
+  "settings_update_failed": "Failed to update settings.",
+  "internal_error": "Something went wrong, please try again!",
+  "database_error": "Database error."
+}

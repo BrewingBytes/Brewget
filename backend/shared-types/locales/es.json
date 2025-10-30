@@ -1,0 +1,19 @@
+{
+  "username_password_invalid": "El nombre de usuario o la contraseña no son válidos.",
+  "email_not_verified": "El correo electrónico no ha sido verificado, por favor revise su bandeja de entrada.",
+  "account_not_active": "Esta cuenta ha sido desactivada. Por favor contacte al soporte.",
+  "captcha_failed": "La verificación del captcha falló.",
+  "link_expired": "El enlace ha expirado.",
+  "password_too_short": "La contraseña debe tener al menos 8 caracteres.",
+  "password_no_uppercase": "La contraseña debe contener al menos una letra mayúscula.",
+  "password_no_lowercase": "La contraseña debe contener al menos una letra minúscula.",
+  "password_no_digit": "La contraseña debe contener al menos un dígito.",
+  "password_no_special_char": "La contraseña debe contener al menos un carácter especial.",
+  "password_in_history": "La contraseña no puede ser la misma que ninguna de sus contraseñas utilizadas recientemente.",
+  "password_changed": "Contraseña cambiada exitosamente.",
+  "email_send_failed": "Error al enviar el correo electrónico.",
+  "settings_load_failed": "Error al cargar la configuración.",
+  "settings_update_failed": "Error al actualizar la configuración.",
+  "internal_error": "Algo salió mal, por favor intente de nuevo!",
+  "database_error": "Error de base de datos."
+}

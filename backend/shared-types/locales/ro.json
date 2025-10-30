@@ -1,0 +1,19 @@
+{
+  "username_password_invalid": "Numele de utilizator sau parola sunt invalide.",
+  "email_not_verified": "E-mailul nu a fost verificat, vă rugăm să verificați căsuța de e-mail.",
+  "account_not_active": "Acest cont a fost dezactivat. Vă rugăm să contactați suportul.",
+  "captcha_failed": "Verificarea captcha a eșuat.",
+  "link_expired": "Linkul a expirat.",
+  "password_too_short": "Parola trebuie să aibă cel puțin 8 caractere.",
+  "password_no_uppercase": "Parola trebuie să conțină cel puțin o literă mare.",
+  "password_no_lowercase": "Parola trebuie să conțină cel puțin o literă mică.",
+  "password_no_digit": "Parola trebuie să conțină cel puțin o cifră.",
+  "password_no_special_char": "Parola trebuie să conțină cel puțin un caracter special.",
+  "password_in_history": "Parola nu poate fi aceeași cu niciuna dintre parolele folosite recent.",
+  "password_changed": "Parola a fost schimbată cu succes.",
+  "email_send_failed": "Nu s-a putut trimite e-mailul.",
+  "settings_load_failed": "Nu s-au putut încărca setările.",
+  "settings_update_failed": "Nu s-au putut actualiza setările.",
+  "internal_error": "Ceva a mers prost, vă rugăm să încercați din nou!",
+  "database_error": "Eroare de bază de date."
+}
