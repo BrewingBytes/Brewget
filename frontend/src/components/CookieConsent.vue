@@ -16,6 +16,7 @@ function handleAccept(): void {
     :draggable="false"
     header="Cookie Consent"
     aria-describedby="cookie-consent-message"
+    position="bottom"
   >
     <p id="cookie-consent-message" class="mb-4">
       We use cookies to enhance your experience on our website. You must accept cookies to use this site.
