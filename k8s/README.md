@@ -23,7 +23,19 @@ The BrewGet application consists of the following components:
 
 ### 1. Deploy to Kubernetes
 
-Apply all manifests in order:
+Use the automated deploy script:
+
+```bash
+./k8s/deploy.sh
+```
+
+To create a backup before deployment (if updating an existing deployment):
+
+```bash
+./k8s/deploy.sh --backup
+```
+
+Or apply manifests manually in order:
 
 ```bash
 kubectl apply -f k8s/00-namespace.yaml
@@ -204,7 +216,34 @@ The PersistentVolume will use `/data/brewget-postgres` inside minikube, which is
 
 ### Manual Backup and Restore
 
-If you need to backup data manually before deleting minikube:
+#### Automated Backup and Restore Scripts
+
+Use the provided scripts for easy backup and restore:
+
+**Backup databases:**
+```bash
+./k8s/backup-db.sh
+```
+
+This creates a timestamped backup in `./backups/YYYYMMDD_HHMMSS/` containing:
+- `brewget_auth.sql` - Authentication database backup
+- `brewget_settings.sql` - Settings database backup
+- `backup_info.txt` - Backup metadata
+
+**Restore databases:**
+```bash
+./k8s/restore-db.sh ./backups/YYYYMMDD_HHMMSS/
+```
+
+**Backup before deployment or cleanup:**
+```bash
+./k8s/deploy.sh --backup    # Backup before deployment
+./k8s/cleanup.sh --backup   # Backup before cleanup
+```
+
+#### Manual Backup Commands
+
+If you need to backup data manually:
 
 ```bash
 # Get postgres username
@@ -332,10 +371,31 @@ The update script uses Method 2 for maximum compatibility.
 
 ## Cleanup
 
-To remove the entire application:
+**Using the automated cleanup script (recommended):**
+
+```bash
+./k8s/cleanup.sh
+```
+
+To backup databases before cleanup:
+
+```bash
+./k8s/cleanup.sh --backup
+```
+
+This script will:
+1. Optionally backup databases (if `--backup` flag is used)
+2. Delete the brewget namespace and all resources
+3. Delete the PersistentVolume
+4. Delete the minikube cluster
+
+**Manual cleanup:**
+
+To remove just the application (keeping minikube):
 
 ```bash
 kubectl delete namespace brewget
+kubectl delete pv brewget-postgres-pv
 ```
 
 **⚠️ WARNING**: This will delete all data including the PostgreSQL database.
@@ -343,8 +403,8 @@ kubectl delete namespace brewget
 To delete specific components:
 
 ```bash
-kubectl delete -f k8s/08-nginx.yaml
-kubectl delete -f k8s/07-frontend.yaml
+kubectl delete -f k8s/09-nginx.yaml
+kubectl delete -f k8s/08-frontend.yaml
 # ... etc
 ```
 

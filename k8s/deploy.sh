@@ -1,16 +1,50 @@
 #!/bin/bash
 # Deploy BrewGet to Kubernetes
 # This script applies all Kubernetes manifests in the correct order
+#
+# Usage: ./deploy.sh [--backup]
+#   --backup: Create a database backup before deployment (if databases exist)
 
 set -e
 
 echo "🚀 Deploying BrewGet to Kubernetes..."
 echo ""
 
+# Parse command line arguments
+BACKUP_BEFORE_DEPLOY=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --backup)
+            BACKUP_BEFORE_DEPLOY=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--backup]"
+            exit 1
+            ;;
+    esac
+done
+
 # Check if kubectl is available
 if ! command -v kubectl &> /dev/null; then
     echo "❌ kubectl not found. Please install kubectl first."
     exit 1
+fi
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Backup databases if requested and they exist
+if [ "$BACKUP_BEFORE_DEPLOY" = true ]; then
+    if kubectl get namespace brewget &> /dev/null && kubectl get pod postgres-0 -n brewget &> /dev/null 2>&1; then
+        echo "💾 Creating database backup before deployment..."
+        "$SCRIPT_DIR/backup-db.sh" || echo "⚠️  Backup failed, continuing with deployment..."
+        echo ""
+    else
+        echo "ℹ️  No existing deployment found, skipping backup."
+        echo ""
+    fi
 fi
 
 # Set up persistent storage on host machine if minikube is available
@@ -60,9 +94,6 @@ if command -v minikube &> /dev/null; then
     echo "✅ Minikube tunnel started in background"
     echo ""
 fi
-
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Apply manifests in order
 echo "📦 Creating namespace..."

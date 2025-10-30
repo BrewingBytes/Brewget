@@ -1,11 +1,30 @@
 #!/bin/bash
 # Cleanup BrewGet Kubernetes deployment
 # This script removes all BrewGet resources from the cluster
+#
+# Usage: ./cleanup.sh [--backup]
+#   --backup: Create a database backup before cleanup
 
 set -e
 
 echo "🧹 Cleaning up BrewGet from Kubernetes..."
 echo ""
+
+# Parse command line arguments
+BACKUP_BEFORE_CLEANUP=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --backup)
+            BACKUP_BEFORE_CLEANUP=true
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: $0 [--backup]"
+            exit 1
+            ;;
+    esac
+done
 
 # Check if kubectl is available
 if ! command -v kubectl &> /dev/null; then
@@ -13,10 +32,20 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Check if namespace exists
 if ! kubectl get namespace brewget &> /dev/null; then
     echo "ℹ️  BrewGet namespace not found. Nothing to clean up."
     exit 0
+fi
+
+# Backup databases if requested
+if [ "$BACKUP_BEFORE_CLEANUP" = true ]; then
+    echo "💾 Creating database backup before cleanup..."
+    "$SCRIPT_DIR/backup-db.sh" || echo "⚠️  Backup failed, continuing with cleanup..."
+    echo ""
 fi
 
 # Ask for confirmation
