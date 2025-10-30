@@ -66,9 +66,21 @@ kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_auth -c "
 
 # View tables in settings database
 kubectl exec -it postgres-0 -n brewget -- psql -U user-name -d brewget_settings -c "\dt"
+```
 
-# Backup database
-kubectl exec postgres-0 -n brewget -- pg_dump -U user-name brewget_auth > backup.sql
+## Backup and Restore
+
+```bash
+# Get postgres username
+POSTGRES_USER=$(kubectl get secret brewget-secrets -n brewget -o jsonpath='{.data.postgres-user}' | base64 -d)
+
+# Backup databases
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_auth > brewget_auth_backup.sql
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_settings > brewget_settings_backup.sql
+
+# Restore databases (after recreating cluster)
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_auth < brewget_auth_backup.sql
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_settings < brewget_settings_backup.sql
 ```
 
 ## Scaling

@@ -145,17 +145,48 @@ This ensures each service has its own isolated database for security and maintai
 
 ## Persistent Storage
 
-The PostgreSQL database uses a PersistentVolumeClaim for data persistence:
+The PostgreSQL database uses a hostPath PersistentVolume for data persistence. This ensures that data is stored on the minikube node and persists even when minikube is stopped or restarted.
 
 ```yaml
-volumeClaimTemplates:
-  - metadata:
-      name: postgres-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: brewget-postgres-pv
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/brewget-postgres"
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+```
+
+### Data Persistence in Minikube
+
+For minikube, the hostPath `/data/brewget-postgres` is created inside the minikube VM and persists across `minikube stop` and `minikube start` commands. The data is only lost if you run `minikube delete`.
+
+**Note**: The data is stored inside the minikube VM, not directly on the host machine. This means:
+- ✅ Data persists through `minikube stop` and `minikube start`
+- ❌ Data is lost when running `minikube delete`
+
+### Manual Backup and Restore
+
+If you need to backup data manually before deleting minikube:
+
+```bash
+# Get postgres username
+POSTGRES_USER=$(kubectl get secret brewget-secrets -n brewget -o jsonpath='{.data.postgres-user}' | base64 -d)
+
+# Backup databases
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_auth > brewget_auth_backup.sql
+kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_settings > brewget_settings_backup.sql
+
+# Restore databases (after recreating cluster and redeploying)
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_auth < brewget_auth_backup.sql
+kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_settings < brewget_settings_backup.sql
 ```
 
 ### Increasing Storage
