@@ -180,11 +180,11 @@ If you need to backup data manually before deleting minikube:
 # Get postgres username
 POSTGRES_USER=$(kubectl get secret brewget-secrets -n brewget -o jsonpath='{.data.postgres-user}' | base64 -d)
 
-# Backup a database
+# Backup databases
 kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_auth > brewget_auth_backup.sql
 kubectl exec postgres-0 -n brewget -- pg_dump -U $POSTGRES_USER brewget_settings > brewget_settings_backup.sql
 
-# Restore a database (after recreating cluster and redeploying)
+# Restore databases (after recreating cluster and redeploying)
 kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_auth < brewget_auth_backup.sql
 kubectl exec -i postgres-0 -n brewget -- psql -U $POSTGRES_USER -d brewget_settings < brewget_settings_backup.sql
 ```
