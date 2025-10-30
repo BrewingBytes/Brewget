@@ -1,16 +1,20 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::post,
+};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
+use shared_types::{Error, TranslationKey};
 
 use crate::{
     AppState, database,
     models::{
-        request::login_info::LoginInfo,
-        response::{Error, Token},
-        token::NewToken,
-        token_claim::TokenClaim,
+        request::login_info::LoginInfo, response::Token, token::NewToken, token_claim::TokenClaim,
     },
 };
 
@@ -55,6 +59,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn login_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!("Login attempt for username: {}", body.username);
@@ -63,12 +68,16 @@ async fn login_handler(
     tracing::debug!("Verifying captcha token");
     crate::utils::captcha::verify_turnstile(&body.captcha_token, &state.config.turnstile_secret)
         .await
-        .map_err(|_| -> Error {
+        .map_err(|_| {
             tracing::warn!(
                 "Captcha verification failed for username: {}",
                 body.username
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            Error::translated(
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaFailed,
+                Some(&headers),
+            )
         })?;
 
     // Query database for user with matching username
@@ -82,17 +91,21 @@ async fn login_handler(
             "Unverified account login attempt for username: {}",
             body.username
         );
-        return Err((
+        return Err(Error::translated(
             StatusCode::UNAUTHORIZED,
-            "Email has not been verified, please check your inbox.",
-        )
-            .into());
+            TranslationKey::EmailNotVerified,
+            Some(&headers),
+        ));
     }
 
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
         tracing::warn!("Invalid password for username: {}", body.username);
-        return Err((StatusCode::BAD_REQUEST, "Username or password is invalid.").into());
+        return Err(Error::translated(
+            StatusCode::BAD_REQUEST,
+            TranslationKey::UsernamePasswordInvalid,
+            Some(&headers),
+        ));
     }
 
     // Check if the account is deleted temporarily
@@ -101,11 +114,11 @@ async fn login_handler(
             "Inactive account login attempt for username: {}",
             body.username
         );
-        return Err((
+        return Err(Error::translated(
             StatusCode::UNAUTHORIZED,
-            "Account has been deleted temporarily",
-        )
-            .into());
+            TranslationKey::AccountDeleted,
+            Some(&headers),
+        ));
     }
 
     // Generate token timestamps

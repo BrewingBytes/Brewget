@@ -2,6 +2,7 @@
   "username_password_invalid": "Username or password is invalid.",
   "email_not_verified": "Email has not been verified, please check your inbox.",
   "account_not_active": "This account has been deactivated. Please contact support.",
+  "account_deleted": "Account has been deleted temporarily",
   "captcha_failed": "Captcha verification failed.",
   "link_expired": "Link is expired.",
   "password_too_short": "Password must be at least 8 characters long.",
@@ -15,5 +16,12 @@
   "settings_load_failed": "Failed to load settings.",
   "settings_update_failed": "Failed to update settings.",
   "internal_error": "Something went wrong, please try again!",
-  "database_error": "Database error."
+  "database_error": "Database error.",
+  "not_logged_in": "You are not logged in, please provide token",
+  "token_expired": "Token has expired",
+  "token_invalid": "Token is invalid",
+  "user_not_exist": "User does not exist.",
+  "account_verified": "Account has been verified.",
+  "username_too_short": "Username length cannot be less or equal to 3 characters.",
+  "forgot_password_sent": "Forgot password link sent to the email, if an account is registered and verified with that email."
 }

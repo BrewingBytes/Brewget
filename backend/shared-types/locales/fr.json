@@ -2,6 +2,7 @@
   "username_password_invalid": "Le nom d'utilisateur ou le mot de passe est invalide.",
   "email_not_verified": "L'e-mail n'a pas été vérifié, veuillez vérifier votre boîte de réception.",
   "account_not_active": "Ce compte a été désactivé. Veuillez contacter le support.",
+  "account_deleted": "Le compte a été supprimé temporairement",
   "captcha_failed": "La vérification du captcha a échoué.",
   "link_expired": "Le lien a expiré.",
   "password_too_short": "Le mot de passe doit contenir au moins 8 caractères.",
@@ -15,5 +16,12 @@
   "settings_load_failed": "Échec du chargement des paramètres.",
   "settings_update_failed": "Échec de la mise à jour des paramètres.",
   "internal_error": "Quelque chose s'est mal passé, veuillez réessayer!",
-  "database_error": "Erreur de base de données."
+  "database_error": "Erreur de base de données.",
+  "not_logged_in": "Vous n'êtes pas connecté, veuillez fournir un token",
+  "token_expired": "Le token a expiré",
+  "token_invalid": "Le token est invalide",
+  "user_not_exist": "L'utilisateur n'existe pas.",
+  "account_verified": "Le compte a été vérifié.",
+  "username_too_short": "Le nom d'utilisateur ne peut pas avoir moins de 3 caractères.",
+  "forgot_password_sent": "Un lien de réinitialisation du mot de passe a été envoyé à l'e-mail, si un compte est enregistré et vérifié avec cet e-mail."
 }

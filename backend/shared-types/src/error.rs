@@ -1,9 +1,10 @@
 use axum::{
     Json,
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
 };
 
+use crate::i18n::{TranslationKey, Translator};
 use crate::response::Message;
 
 /// Custom error type for handling API errors across all services
@@ -33,6 +34,38 @@ impl Error {
             body: Json(Message {
                 message: message.into(),
             }),
+        }
+    }
+
+    /// Creates a new Error instance with translation support
+    ///
+    /// # Arguments
+    /// * `code` - The HTTP status code to return
+    /// * `key` - The translation key to use
+    /// * `headers` - Optional request headers to extract Accept-Language from
+    ///
+    /// # Returns
+    /// Returns a new `Error` instance with translated message
+    pub fn translated(code: StatusCode, key: TranslationKey, headers: Option<&HeaderMap>) -> Self {
+        let lang = headers
+            .and_then(|h| h.get("accept-language"))
+            .and_then(|v| v.to_str().ok())
+            .map(|s| {
+                // Extract first language code from Accept-Language header
+                s.split(',')
+                    .next()
+                    .and_then(|l| l.split(';').next())
+                    .map(|l| l.trim())
+                    .unwrap_or("en")
+            })
+            .unwrap_or("en");
+
+        let translator = Translator::from_code(lang);
+        let message = translator.translate(key);
+
+        Self {
+            code,
+            body: Json(Message { message }),
         }
     }
 }
