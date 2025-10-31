@@ -15,6 +15,9 @@ export enum ToastSeverity {
 let toastInstance: ToastServiceMethods | null = null;
 
 export function setToastInstance(instance: ToastServiceMethods) {
+  if (toastInstance !== null) {
+    throw new Error("Toast instance has already been initialized.");
+  }
   toastInstance = instance;
 }
 
