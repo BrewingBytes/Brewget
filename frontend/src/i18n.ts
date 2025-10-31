@@ -17,11 +17,11 @@ export function detectBrowserLanguage(): SupportedLocale {
   const browserLanguages = navigator.languages || [navigator.language];
 
   for (const lang of browserLanguages) {
-    if (!lang) continue;
+    if (!lang) {continue;}
 
     // Extract language code (e.g., 'en' from 'en-US')
     const parts = lang.split("-");
-    if (parts.length === 0 || !parts[0]) continue;
+    if (parts.length === 0 || !parts[0]) {continue;}
 
     const langCode = parts[0].toLowerCase();
 

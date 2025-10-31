@@ -10,7 +10,7 @@ import type { SupportedLocale } from "@/i18n";
 export function translateKey(
   translationKey: string,
   locale: SupportedLocale,
-  messages: Record<string, any>,
+  messages: Record<string, Record<string, unknown>>,
 ): string {
   const key = `translation_keys.${translationKey}`;
   const message = messages[locale];
@@ -21,11 +21,11 @@ export function translateKey(
 
   // Navigate through the nested object
   const parts = key.split(".");
-  let current = message;
+  let current: unknown = message;
 
   for (const part of parts) {
     if (current && typeof current === "object" && part in current) {
-      current = current[part];
+      current = (current as Record<string, unknown>)[part];
     } else {
       return translationKey;
     }

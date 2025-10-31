@@ -2,9 +2,10 @@ import { defineStore } from "pinia";
 import { useToast } from "primevue";
 import { useI18n } from "vue-i18n";
 
+import type { SupportedLocale } from "@/i18n";
+
 import { translateKey } from "@/utils/i18n";
 
-import type { SupportedLocale } from "@/i18n";
 
 export enum ToastSeverity {
   SUCCESS = "success",
