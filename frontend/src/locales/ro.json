@@ -46,7 +46,9 @@
     "save_settings": "Salvează setările",
     "settings_updated": "Setări actualizate cu succes",
     "failed_to_load": "Eșec la încărcarea setărilor",
-    "failed_to_update": "Eșec la actualizarea setărilor"
+    "failed_to_update": "Eșec la actualizarea setărilor",
+    "select_language": "Selectează o limbă",
+    "select_currency": "Selectează o monedă"
   },
   "languages": {
     "en": "English",

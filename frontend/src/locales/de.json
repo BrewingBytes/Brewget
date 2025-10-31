@@ -46,7 +46,9 @@
     "save_settings": "Einstellungen speichern",
     "settings_updated": "Einstellungen erfolgreich aktualisiert",
     "failed_to_load": "Einstellungen konnten nicht geladen werden",
-    "failed_to_update": "Einstellungen konnten nicht aktualisiert werden"
+    "failed_to_update": "Einstellungen konnten nicht aktualisiert werden",
+    "select_language": "Sprache auswählen",
+    "select_currency": "Währung auswählen"
   },
   "languages": {
     "en": "English",

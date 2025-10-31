@@ -46,7 +46,9 @@
     "save_settings": "Save Settings",
     "settings_updated": "Settings updated successfully",
     "failed_to_load": "Failed to load settings",
-    "failed_to_update": "Failed to update settings"
+    "failed_to_update": "Failed to update settings",
+    "select_language": "Select a language",
+    "select_currency": "Select a currency"
   },
   "languages": {
     "en": "English",

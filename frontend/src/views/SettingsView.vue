@@ -109,7 +109,7 @@ function getLocaleToUtcOffsetMinutes(): number {
               :options="languageOptions"
               optionLabel="label"
               optionValue="value"
-              :placeholder="t('settings.language')"
+              :placeholder="t('settings.select_language')"
               class="w-full bg-transparent! border-white!"
               :pt="{
                 overlay: {
@@ -137,7 +137,7 @@ function getLocaleToUtcOffsetMinutes(): number {
               :options="currencyOptions"
               optionLabel="label"
               optionValue="value"
-              :placeholder="t('settings.currency')"
+              :placeholder="t('settings.select_currency')"
               class="w-full bg-transparent! border-white!"
               :pt="{
                 overlay: {

@@ -46,7 +46,9 @@
     "save_settings": "Enregistrer les paramètres",
     "settings_updated": "Paramètres mis à jour avec succès",
     "failed_to_load": "Échec du chargement des paramètres",
-    "failed_to_update": "Échec de la mise à jour des paramètres"
+    "failed_to_update": "Échec de la mise à jour des paramètres",
+    "select_language": "Sélectionner une langue",
+    "select_currency": "Sélectionner une devise"
   },
   "languages": {
     "en": "English",

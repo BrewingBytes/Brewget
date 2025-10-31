@@ -46,7 +46,9 @@
     "save_settings": "Guardar configuración",
     "settings_updated": "Configuración actualizada con éxito",
     "failed_to_load": "Error al cargar la configuración",
-    "failed_to_update": "Error al actualizar la configuración"
+    "failed_to_update": "Error al actualizar la configuración",
+    "select_language": "Seleccionar un idioma",
+    "select_currency": "Seleccionar una moneda"
   },
   "languages": {
     "en": "English",
