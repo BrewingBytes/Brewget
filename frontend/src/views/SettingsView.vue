@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
+import type { SupportedLocale } from "@/i18n";
+
+import { SUPPORTED_LOCALES } from "@/i18n";
 import { useSettingsStore } from "@/stores/settings";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
 const settingsStore = useSettingsStore();
+const { t, locale } = useI18n();
 
 // Form fields
 const language = ref("");
@@ -21,6 +26,11 @@ function syncFormFields(newSettings: typeof settingsStore.settings) {
     alarmSet.value = newSettings.alarm_set;
     alarmTime.value = newSettings.alarm_time;
     nightMode.value = newSettings.night_mode;
+
+    // Update i18n locale when settings are loaded, validate it's supported
+    if (SUPPORTED_LOCALES.includes(newSettings.language as SupportedLocale)) {
+      locale.value = newSettings.language;
+    }
   }
 }
 
@@ -33,19 +43,20 @@ onMounted(async () => {
 // Watch for settings changes from store
 watch(() => settingsStore.settings, syncFormFields);
 
-// Available options
-const languageOptions = [
-  { label: "English", value: "en" },
-  { label: "Español", value: "es" },
-  { label: "Français", value: "fr" },
-  { label: "Deutsch", value: "de" },
-];
+// Available options - using computed to make them reactive to language changes
+const languageOptions = computed(() => [
+  { label: t("languages.en"), value: "en" },
+  { label: t("languages.es"), value: "es" },
+  { label: t("languages.fr"), value: "fr" },
+  { label: t("languages.de"), value: "de" },
+  { label: t("languages.ro"), value: "ro" },
+]);
 
-const currencyOptions = [
-  { label: "USD ($)", value: "usd" },
-  { label: "EUR (€)", value: "eur" },
-  { label: "RON (lei)", value: "ron" },
-];
+const currencyOptions = computed(() => [
+  { label: t("currencies.usd"), value: "usd" },
+  { label: t("currencies.eur"), value: "eur" },
+  { label: t("currencies.ron"), value: "ron" },
+]);
 
 async function handleSave() {
   await settingsStore.updateSettings({
@@ -56,6 +67,8 @@ async function handleSave() {
     alarm_offset_minutes: getLocaleToUtcOffsetMinutes(),
     night_mode: nightMode.value,
   });
+  // Update locale immediately after saving settings to avoid waiting for watcher
+  locale.value = language.value;
 }
 
 function getLocaleToUtcOffsetMinutes(): number {
@@ -70,7 +83,7 @@ function getLocaleToUtcOffsetMinutes(): number {
       <template #title>
         <div class="flex items-center gap-3">
           <i class="pi pi-cog text-2xl"></i>
-          <span class="text-2xl font-medium">User Settings</span>
+          <span class="text-2xl font-medium">{{ t("settings.title") }}</span>
         </div>
       </template>
       <template #content>
@@ -82,10 +95,10 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Language Selection -->
           <div class="flex flex-col gap-2">
             <label for="language" class="font-medium">
-              <i class="pi pi-globe mr-2"></i>Language
+              <i class="pi pi-globe mr-2"></i> {{ t("settings.language") }}
             </label>
             <Select id="language" v-model="language" :options="languageOptions" optionLabel="label" optionValue="value"
-              placeholder="Select a language" class="w-full bg-transparent! border-white!" :pt="{
+              :placeholder="t('settings.select_language')" class="w-full bg-transparent! border-white!" :pt="{
                 overlay: {
                   class: 'bg-transparent! border-white! backdrop-blur-xs!',
                 },
@@ -102,10 +115,10 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Currency Selection -->
           <div class="flex flex-col gap-2">
             <label for="currency" class="font-medium">
-              <i class="pi pi-dollar mr-2"></i>Currency
+              <i class="pi pi-dollar mr-2"></i> {{ t("settings.currency") }}
             </label>
             <Select id="currency" v-model="currency" :options="currencyOptions" optionLabel="label" optionValue="value"
-              placeholder="Select a currency" class="w-full bg-transparent! border-white!" :pt="{
+              :placeholder="t('settings.select_currency')" class="w-full bg-transparent! border-white!" :pt="{
                 overlay: {
                   class: 'bg-transparent! border-white! backdrop-blur-xs!',
                 },
@@ -122,7 +135,7 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Night Mode Toggle -->
           <div class="flex items-center justify-between">
             <label for="nightMode" class="text-white/90 font-medium">
-              <i class="pi pi-moon mr-2"></i>Night Mode
+              <i class="pi pi-moon mr-2"></i> {{ t("settings.night_mode") }}
             </label>
             <ToggleSwitch id="nightMode" v-model="nightMode" :pt="{
               slider: {
@@ -138,7 +151,7 @@ function getLocaleToUtcOffsetMinutes(): number {
           <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
               <label for="alarmSet" class="text-white/90 font-medium">
-                <i class="pi pi-bell mr-2"></i>Enable Alarm
+                <i class="pi pi-bell mr-2"></i> {{ t("settings.enable_alarm") }}
               </label>
               <ToggleSwitch id="alarmSet" v-model="alarmSet" :pt="{
                 slider: {
@@ -154,19 +167,19 @@ function getLocaleToUtcOffsetMinutes(): number {
               <!-- Alarm Time -->
               <div class="flex flex-col gap-2">
                 <label for="alarmTime" class="text-white/90 font-medium">
-                  <i class="pi pi-clock mr-2"></i>Alarm Time
+                  <i class="pi pi-clock mr-2"></i> {{ t("settings.alarm_time") }}
                 </label>
                 <InputText id="alarmTime" v-model="alarmTime" type="time"
                   class="w-full bg-transparent! border-white!" />
               </div>
-
             </div>
           </div>
 
           <!-- Save Button -->
           <div class="flex justify-end mt-4">
-            <Button @click="handleSave" label="Save Settings" icon="pi pi-save" :loading="settingsStore.loading"
-              class="!rounded-3xl text-black! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
+            <Button @click="handleSave" :label="t('settings.save_settings')" icon="pi pi-save"
+              :loading="settingsStore.loading" class="!rounded-3xl text-black! hover:text-blue-600!"
+              :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
         </div>
       </template>

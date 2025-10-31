@@ -1,0 +1,104 @@
+{
+  "translation_keys": {
+    "PASSWORD_SUCCESSFULLY_CHANGED": "Password successfully changed",
+    "OK": "OK",
+    "ACCOUNT_CREATED": "Account created successfully",
+    "FORGOT_PASSWORD_LINK_SENT": "Password reset link sent to your email",
+    "ACCOUNT_VERIFIED": "Account verified successfully",
+    "USER_DOES_NOT_EXIST": "User does not exist",
+    "LINK_IS_EXPIRED": "This link has expired",
+    "PASSWORD_CANNOT_BE_REUSED": "Password cannot be reused",
+    "SOMETHING_WENT_WRONG": "Something went wrong",
+    "CAPTCHA_VERIFICATION_FAILED": "Captcha verification failed",
+    "USERNAME_OR_PASSWORD_INVALID": "Username or password is invalid",
+    "EMAIL_NOT_VERIFIED": "Email has not been verified",
+    "ACCOUNT_DELETED_TEMPORARILY": "Account has been deleted temporarily",
+    "USERNAME_TOO_SHORT": "Username is too short",
+    "EMAIL_ADDRESS_INVALID": "Email address is not valid",
+    "USERNAME_OR_EMAIL_ALREADY_USED": "Username or email is already used",
+    "COULD_NOT_CREATE_ACCOUNT": "Could not create account",
+    "NOT_LOGGED_IN": "You are not logged in",
+    "TOKEN_EXPIRED": "Token has expired",
+    "TOKEN_INVALID": "Token is invalid",
+    "INTERNAL_SERVER_ERROR": "Internal server error",
+    "PASSWORD_VALIDATION_ERROR": "Password validation error",
+    "PASSWORD_TOO_SHORT": "Password must be at least 8 characters long",
+    "PASSWORD_MISSING_UPPERCASE": "Password must contain at least one uppercase letter",
+    "PASSWORD_MISSING_NUMBER": "Password must contain at least one number",
+    "USERNAME_NOT_FOUND": "Username not found",
+    "USERNAME_OR_EMAIL_NOT_FOUND": "Username or email not found",
+    "COULD_NOT_VERIFY_ACCOUNT": "Could not verify account",
+    "COULD_NOT_UPDATE_PASSWORD": "Could not update password",
+    "ACTIVATION_LINK_NOT_FOUND": "Activation link not found",
+    "FORGOT_PASSWORD_LINK_NOT_FOUND": "Forgot password link not found",
+    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Failed to retrieve password history"
+  },
+  "settings": {
+    "title": "User Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "night_mode": "Night Mode",
+    "enable_alarm": "Enable Alarm",
+    "alarm_time": "Alarm Time",
+    "save_settings": "Save Settings",
+    "settings_updated": "Settings updated successfully",
+    "failed_to_load": "Failed to load settings",
+    "failed_to_update": "Failed to update settings",
+    "select_language": "Select a language",
+    "select_currency": "Select a currency"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "no_account": "Don't have an account?",
+      "sign_up": "Sign up",
+      "button": "Sign In",
+      "forgot_password": "Forgot Password?"
+    },
+    "register": {
+      "title": "Register",
+      "have_account": "Already have an account?",
+      "sign_in": "Sign in",
+      "button": "Register"
+    },
+    "forgot_password": {
+      "title": "Forgot Password",
+      "button": "Send me an email",
+      "go_back": "Go back"
+    },
+    "change_password": {
+      "title": "Change Password",
+      "button": "Change password"
+    },
+    "placeholders": {
+      "email": "Email",
+      "username": "Username",
+      "password": "Password"
+    }
+  },
+  "navbar": {
+    "dashboard": "Dashboard",
+    "wallets": "Wallets",
+    "add": "Add",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "toast": {
+    "error": "Error",
+    "success": "Success",
+    "info": "Info",
+    "warn": "Warning"
+  }
+}

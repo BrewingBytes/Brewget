@@ -1,0 +1,104 @@
+{
+  "translation_keys": {
+    "PASSWORD_SUCCESSFULLY_CHANGED": "Mot de passe modifié avec succès",
+    "OK": "OK",
+    "ACCOUNT_CREATED": "Compte créé avec succès",
+    "FORGOT_PASSWORD_LINK_SENT": "Lien de réinitialisation du mot de passe envoyé à votre e-mail",
+    "ACCOUNT_VERIFIED": "Compte vérifié avec succès",
+    "USER_DOES_NOT_EXIST": "L'utilisateur n'existe pas",
+    "LINK_IS_EXPIRED": "Ce lien a expiré",
+    "PASSWORD_CANNOT_BE_REUSED": "Le mot de passe ne peut pas être réutilisé",
+    "SOMETHING_WENT_WRONG": "Quelque chose s'est mal passé",
+    "CAPTCHA_VERIFICATION_FAILED": "Échec de la vérification du captcha",
+    "USERNAME_OR_PASSWORD_INVALID": "Nom d'utilisateur ou mot de passe invalide",
+    "EMAIL_NOT_VERIFIED": "L'e-mail n'a pas été vérifié",
+    "ACCOUNT_DELETED_TEMPORARILY": "Le compte a été supprimé temporairement",
+    "USERNAME_TOO_SHORT": "Le nom d'utilisateur est trop court",
+    "EMAIL_ADDRESS_INVALID": "L'adresse e-mail n'est pas valide",
+    "USERNAME_OR_EMAIL_ALREADY_USED": "Le nom d'utilisateur ou l'e-mail est déjà utilisé",
+    "COULD_NOT_CREATE_ACCOUNT": "Impossible de créer le compte",
+    "NOT_LOGGED_IN": "Vous n'êtes pas connecté",
+    "TOKEN_EXPIRED": "Le jeton a expiré",
+    "TOKEN_INVALID": "Le jeton n'est pas valide",
+    "INTERNAL_SERVER_ERROR": "Erreur interne du serveur",
+    "PASSWORD_VALIDATION_ERROR": "Erreur de validation du mot de passe",
+    "PASSWORD_TOO_SHORT": "Le mot de passe doit contenir au moins 8 caractères",
+    "PASSWORD_MISSING_UPPERCASE": "Le mot de passe doit contenir au moins une lettre majuscule",
+    "PASSWORD_MISSING_NUMBER": "Le mot de passe doit contenir au moins un chiffre",
+    "USERNAME_NOT_FOUND": "Nom d'utilisateur introuvable",
+    "USERNAME_OR_EMAIL_NOT_FOUND": "Nom d'utilisateur ou e-mail introuvable",
+    "COULD_NOT_VERIFY_ACCOUNT": "Impossible de vérifier le compte",
+    "COULD_NOT_UPDATE_PASSWORD": "Impossible de mettre à jour le mot de passe",
+    "ACTIVATION_LINK_NOT_FOUND": "Lien d'activation introuvable",
+    "FORGOT_PASSWORD_LINK_NOT_FOUND": "Lien de réinitialisation du mot de passe introuvable",
+    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Échec de la récupération de l'historique des mots de passe"
+  },
+  "settings": {
+    "title": "Paramètres utilisateur",
+    "language": "Langue",
+    "currency": "Devise",
+    "night_mode": "Mode nuit",
+    "enable_alarm": "Activer l'alarme",
+    "alarm_time": "Heure de l'alarme",
+    "save_settings": "Enregistrer les paramètres",
+    "settings_updated": "Paramètres mis à jour avec succès",
+    "failed_to_load": "Échec du chargement des paramètres",
+    "failed_to_update": "Échec de la mise à jour des paramètres",
+    "select_language": "Sélectionner une langue",
+    "select_currency": "Sélectionner une devise"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter",
+      "no_account": "Vous n'avez pas de compte ?",
+      "sign_up": "S'inscrire",
+      "button": "Se connecter",
+      "forgot_password": "Mot de passe oublié ?"
+    },
+    "register": {
+      "title": "S'inscrire",
+      "have_account": "Vous avez déjà un compte ?",
+      "sign_in": "Se connecter",
+      "button": "S'inscrire"
+    },
+    "forgot_password": {
+      "title": "Mot de passe oublié",
+      "button": "Envoyez-moi un e-mail",
+      "go_back": "Retour"
+    },
+    "change_password": {
+      "title": "Changer le mot de passe",
+      "button": "Changer le mot de passe"
+    },
+    "placeholders": {
+      "email": "E-mail",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe"
+    }
+  },
+  "navbar": {
+    "dashboard": "Tableau de bord",
+    "wallets": "Portefeuilles",
+    "add": "Ajouter",
+    "analytics": "Analytique",
+    "settings": "Paramètres"
+  },
+  "toast": {
+    "error": "Erreur",
+    "success": "Succès",
+    "info": "Info",
+    "warn": "Avertissement"
+  }
+}
