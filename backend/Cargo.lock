@@ -494,12 +494,14 @@ dependencies = [
 
 [[package]]
 name = "email-service"
-version = "0.0.8"
+version = "0.0.9"
 dependencies = [
+ "axum",
  "dotenv",
  "handlebars",
  "lettre",
  "prost",
+ "serde",
  "serde_json",
  "tokio",
  "tonic",

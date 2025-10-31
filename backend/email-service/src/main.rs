@@ -18,10 +18,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::init();
 
     // Parse the gRPC server address
-    let grpc_addr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
-    
+    let grpc_addr: std::net::SocketAddr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
+
     // HTTP health check server address
-    let http_addr = format!("0.0.0.0:{}", config.email_http_port).parse()?;
+    let http_addr: std::net::SocketAddr = format!("0.0.0.0:{}", config.email_http_port).parse()?;
 
     // Create the email service instance with SMTP configuration
     let service = Service::new(config.into())?;
@@ -45,8 +45,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Run both servers concurrently
     tokio::try_join!(
-        async { grpc_server.await.map_err(|e| e.into()) },
-        async { http_server.await.map_err(|e| e.into()) }
+        async {
+            grpc_server
+                .await
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        },
+        async {
+            http_server
+                .await
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        }
     )?;
 
     Ok(())
