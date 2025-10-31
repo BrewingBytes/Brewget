@@ -16,14 +16,14 @@ export enum ToastSeverity {
 
 export const useToastStore = defineStore("toast", () => {
   const toast = useToast();
-  const { locale, messages } = useI18n();
+  const { t, locale, messages } = useI18n();
 
   function showError(message: string, life: number = 5000) {
     toast.add({
       severity: ToastSeverity.ERROR,
       life,
       detail: message,
-      summary: "Error",
+      summary: t("toast.error"),
     });
   }
 
@@ -32,7 +32,7 @@ export const useToastStore = defineStore("toast", () => {
       severity: ToastSeverity.INFO,
       life,
       detail: message,
-      summary: "Info",
+      summary: t("toast.info"),
     });
   }
 
@@ -41,7 +41,7 @@ export const useToastStore = defineStore("toast", () => {
       severity: ToastSeverity.SUCCESS,
       life,
       detail: message,
-      summary: "Success",
+      summary: t("toast.success"),
     });
   }
 
@@ -53,11 +53,11 @@ export const useToastStore = defineStore("toast", () => {
   function getSummaryForSeverity(severity: ToastSeverity): string {
     switch (severity) {
       case ToastSeverity.ERROR:
-        return "Error";
+        return t("toast.error");
       case ToastSeverity.SUCCESS:
-        return "Success";
+        return t("toast.success");
       default:
-        return "Info";
+        return t("toast.info");
     }
   }
 

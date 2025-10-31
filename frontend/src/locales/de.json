@@ -95,5 +95,10 @@
     "add": "Hinzufügen",
     "analytics": "Analytik",
     "settings": "Einstellungen"
+  },
+  "toast": {
+    "error": "Fehler",
+    "success": "Erfolg",
+    "info": "Info"
   }
 }

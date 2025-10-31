@@ -95,5 +95,10 @@
     "add": "Add",
     "analytics": "Analytics",
     "settings": "Settings"
+  },
+  "toast": {
+    "error": "Error",
+    "success": "Success",
+    "info": "Info"
   }
 }

@@ -95,5 +95,10 @@
     "add": "Adaugă",
     "analytics": "Analiză",
     "settings": "Setări"
+  },
+  "toast": {
+    "error": "Eroare",
+    "success": "Succes",
+    "info": "Info"
   }
 }
