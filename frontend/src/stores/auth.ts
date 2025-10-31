@@ -2,8 +2,12 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { useSettingsStore } from "./settings";
 import { ToastSeverity, useToastStore } from "./toast";
 
+import type { SupportedLocale } from "@/i18n";
+
+import i18n, { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
 import { type ErrorResponse, ServerStatus } from "@/services/types";
 
@@ -61,6 +65,15 @@ export const useAuthStore = defineStore(
 
       // Set bearer token
       token.value = response.data.token;
+      
+      // Load user settings and apply language preference
+      const settingsStore = useSettingsStore();
+      await settingsStore.loadSettings();
+      
+      if (settingsStore.settings && SUPPORTED_LOCALES.includes(settingsStore.settings.language as SupportedLocale)) {
+        i18n.global.locale.value = settingsStore.settings.language as SupportedLocale;
+      }
+      
       router.push("/");
     }
 
