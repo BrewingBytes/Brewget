@@ -46,6 +46,22 @@ export const useToastStore = defineStore("toast", () => {
   }
 
   /**
+   * Gets the appropriate summary for a toast based on severity
+   * @param severity The toast severity
+   * @returns The summary string
+   */
+  function getSummaryForSeverity(severity: ToastSeverity): string {
+    switch (severity) {
+      case ToastSeverity.ERROR:
+        return "Error";
+      case ToastSeverity.SUCCESS:
+        return "Success";
+      default:
+        return "Info";
+    }
+  }
+
+  /**
    * Shows a toast with a message from a translation key
    * @param translationKey The backend translation key
    * @param severity The toast severity (defaults to INFO)
@@ -66,7 +82,7 @@ export const useToastStore = defineStore("toast", () => {
       severity,
       life,
       detail: message,
-      summary: severity === ToastSeverity.ERROR ? "Error" : severity === ToastSeverity.SUCCESS ? "Success" : "Info",
+      summary: getSummaryForSeverity(severity),
     });
   }
 
