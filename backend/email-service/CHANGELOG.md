@@ -2,6 +2,11 @@
 
 All notable changes to the Email Service will be documented in this file.
 
+## [0.0.9] - 2024-12-21
+### Added
+- Add HTTP health endpoint on dedicated port (8001) for version reporting
+- Add axum and serde dependencies for HTTP health endpoint
+
 ## [0.0.8] - 2024-12-19
 ### Changed
 - Replace static message strings with translation keys for frontend localization

@@ -8,8 +8,8 @@ metadata:
     app: settings-service
 spec:
   ports:
-    - port: 8001
-      targetPort: 8001
+    - port: 8002
+      targetPort: 8002
       name: http
   selector:
     app: settings-service
@@ -70,7 +70,7 @@ spec:
       - name: settings-service
         image: ghcr.io/brewingbytes/brewget-settings-service:0.0.6
         ports:
-        - containerPort: 8001
+        - containerPort: 8002
           name: http
         env:
         - name: PG_URL
@@ -117,12 +117,12 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8001
+            port: 8002
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 8001
+            port: 8002
           initialDelaySeconds: 10
           periodSeconds: 5

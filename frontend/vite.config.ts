@@ -7,6 +7,8 @@ import Components from "unplugin-vue-components/vite";
 import { defineConfig } from "vite";
 import vueDevTools from "vite-plugin-vue-devtools";
 
+import packageJson from "./package.json";
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -23,5 +25,8 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  define: {
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(packageJson.version),
   },
 });

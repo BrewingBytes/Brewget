@@ -20,9 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Parse the gRPC server address
     let grpc_addr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
     
-    // HTTP health check will run on gRPC port + 1000 (e.g., 9001 -> 10001)
-    let http_port = config.email_grpc_port + 1000;
-    let http_addr = format!("0.0.0.0:{}", http_port).parse()?;
+    // HTTP health check server address
+    let http_addr = format!("0.0.0.0:{}", config.email_http_port).parse()?;
 
     // Create the email service instance with SMTP configuration
     let service = Service::new(config.into())?;

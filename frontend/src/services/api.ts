@@ -8,10 +8,10 @@ export const authApi = axios.create({
 });
 
 // Settings service axios instance
-// Dev: http://localhost:8001
+// Dev: http://localhost:8002
 // Prod: /api/settings (proxied by nginx)
 export const settingsApi = axios.create({
-    baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8001",
+    baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8002",
 });
 
 // Default export for backwards compatibility
