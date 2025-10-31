@@ -2,11 +2,6 @@ import { defineStore } from "pinia";
 import { useToast } from "primevue";
 import { useI18n } from "vue-i18n";
 
-import type { SupportedLocale } from "@/i18n";
-
-import { translateKey } from "@/utils/i18n";
-
-
 export enum ToastSeverity {
   SUCCESS = "success",
   INFO = "info",
@@ -16,7 +11,7 @@ export enum ToastSeverity {
 
 export const useToastStore = defineStore("toast", () => {
   const toast = useToast();
-  const { t, locale, messages } = useI18n();
+  const { t } = useI18n();
 
   function showError(message: string, life: number = 5000) {
     toast.add({
@@ -56,6 +51,8 @@ export const useToastStore = defineStore("toast", () => {
         return t("toast.error");
       case ToastSeverity.SUCCESS:
         return t("toast.success");
+      case ToastSeverity.WARN:
+        return t("toast.warn");
       default:
         return t("toast.info");
     }
@@ -72,11 +69,7 @@ export const useToastStore = defineStore("toast", () => {
     severity: ToastSeverity = ToastSeverity.INFO,
     life: number = 5000,
   ) {
-    const message = translateKey(
-      translationKey,
-      locale.value as SupportedLocale,
-      messages.value,
-    );
+    const message = t(`translation_keys.${translationKey}`);
 
     toast.add({
       severity,

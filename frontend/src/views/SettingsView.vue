@@ -2,6 +2,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+import type { SupportedLocale } from "@/i18n";
+
+import { SUPPORTED_LOCALES } from "@/i18n";
 import { useSettingsStore } from "@/stores/settings";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
@@ -24,8 +27,10 @@ function syncFormFields(newSettings: typeof settingsStore.settings) {
     alarmTime.value = newSettings.alarm_time;
     nightMode.value = newSettings.night_mode;
 
-    // Update i18n locale when settings are loaded
-    locale.value = newSettings.language;
+    // Update i18n locale when settings are loaded, validate it's supported
+    if (SUPPORTED_LOCALES.includes(newSettings.language as SupportedLocale)) {
+      locale.value = newSettings.language;
+    }
   }
 }
 
@@ -54,7 +59,7 @@ const currencyOptions = computed(() => [
 ]);
 
 async function handleSave() {
-  const success = await settingsStore.updateSettings({
+  await settingsStore.updateSettings({
     language: language.value,
     currency: currency.value,
     alarm_set: alarmSet.value,
@@ -62,11 +67,7 @@ async function handleSave() {
     alarm_offset_minutes: getLocaleToUtcOffsetMinutes(),
     night_mode: nightMode.value,
   });
-
-  // Update i18n locale if save was successful
-  if (success) {
-    locale.value = language.value;
-  }
+  // locale.value update is handled by syncFormFields via the watcher
 }
 
 function getLocaleToUtcOffsetMinutes(): number {

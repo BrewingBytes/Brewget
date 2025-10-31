@@ -3,15 +3,12 @@
     "PASSWORD_SUCCESSFULLY_CHANGED": "Parolă schimbată cu succes",
     "OK": "OK",
     "ACCOUNT_CREATED": "Cont creat cu succes",
-    "FORGOT_PASSWORD_LINK_SENT": "Link de resetare a parolei trimis la adresa ta de email",
+    "FORGOT_PASSWORD_LINK_SENT": "Linkul de resetare al parolei a fost trimis la adresa ta de email",
     "ACCOUNT_VERIFIED": "Cont verificat cu succes",
     "USER_DOES_NOT_EXIST": "Utilizatorul nu există",
     "LINK_IS_EXPIRED": "Acest link a expirat",
     "PASSWORD_CANNOT_BE_REUSED": "Parola nu poate fi refolosită",
     "SOMETHING_WENT_WRONG": "Ceva nu a mers bine",
-    "DATABASE_TRANSACTION_ERROR": "Eroare de tranzacție a bazei de date",
-    "FAILED_TO_COMMIT_TRANSACTION": "Eșec la confirmarea tranzacției",
-    "COULD_NOT_DELETE_FROM_DATABASE": "Nu s-a putut șterge din baza de date",
     "CAPTCHA_VERIFICATION_FAILED": "Verificarea captcha a eșuat",
     "USERNAME_OR_PASSWORD_INVALID": "Nume de utilizator sau parolă invalide",
     "EMAIL_NOT_VERIFIED": "Adresa de email nu a fost verificată",
@@ -95,12 +92,13 @@
     "dashboard": "Tablou de bord",
     "wallets": "Portofele",
     "add": "Adaugă",
-    "analytics": "Analiză",
+    "analytics": "Statistici",
     "settings": "Setări"
   },
   "toast": {
     "error": "Eroare",
     "success": "Succes",
-    "info": "Info"
+    "info": "Info",
+    "warn": "Avertisment"
   }
 }

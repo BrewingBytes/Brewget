@@ -9,9 +9,6 @@
     "LINK_IS_EXPIRED": "Este enlace ha caducado",
     "PASSWORD_CANNOT_BE_REUSED": "La contraseña no puede ser reutilizada",
     "SOMETHING_WENT_WRONG": "Algo salió mal",
-    "DATABASE_TRANSACTION_ERROR": "Error en la transacción de la base de datos",
-    "FAILED_TO_COMMIT_TRANSACTION": "Error al confirmar la transacción",
-    "COULD_NOT_DELETE_FROM_DATABASE": "No se pudo eliminar de la base de datos",
     "CAPTCHA_VERIFICATION_FAILED": "Verificación del captcha fallida",
     "USERNAME_OR_PASSWORD_INVALID": "Nombre de usuario o contraseña inválidos",
     "EMAIL_NOT_VERIFIED": "El correo electrónico no ha sido verificado",
@@ -101,6 +98,7 @@
   "toast": {
     "error": "Error",
     "success": "Éxito",
-    "info": "Información"
+    "info": "Información",
+    "warn": "Advertencia"
   }
 }

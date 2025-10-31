@@ -9,9 +9,6 @@
     "LINK_IS_EXPIRED": "Ce lien a expiré",
     "PASSWORD_CANNOT_BE_REUSED": "Le mot de passe ne peut pas être réutilisé",
     "SOMETHING_WENT_WRONG": "Quelque chose s'est mal passé",
-    "DATABASE_TRANSACTION_ERROR": "Erreur de transaction de base de données",
-    "FAILED_TO_COMMIT_TRANSACTION": "Échec de la validation de la transaction",
-    "COULD_NOT_DELETE_FROM_DATABASE": "Impossible de supprimer de la base de données",
     "CAPTCHA_VERIFICATION_FAILED": "Échec de la vérification du captcha",
     "USERNAME_OR_PASSWORD_INVALID": "Nom d'utilisateur ou mot de passe invalide",
     "EMAIL_NOT_VERIFIED": "L'e-mail n'a pas été vérifié",
@@ -101,6 +98,7 @@
   "toast": {
     "error": "Erreur",
     "success": "Succès",
-    "info": "Info"
+    "info": "Info",
+    "warn": "Avertissement"
   }
 }

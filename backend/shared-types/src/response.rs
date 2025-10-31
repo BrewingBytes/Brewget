@@ -24,12 +24,6 @@ pub enum TranslationKey {
     PasswordCannotBeReused,
     /// Something went wrong generic error
     SomethingWentWrong,
-    /// Database transaction error
-    DatabaseTransactionError,
-    /// Failed to commit transaction error
-    FailedToCommitTransaction,
-    /// Could not delete from database error
-    CouldNotDeleteFromDatabase,
     /// Captcha verification failed error
     CaptchaVerificationFailed,
     /// Username or password is invalid error

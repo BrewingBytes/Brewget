@@ -9,9 +9,6 @@
     "LINK_IS_EXPIRED": "This link has expired",
     "PASSWORD_CANNOT_BE_REUSED": "Password cannot be reused",
     "SOMETHING_WENT_WRONG": "Something went wrong",
-    "DATABASE_TRANSACTION_ERROR": "Database transaction error",
-    "FAILED_TO_COMMIT_TRANSACTION": "Failed to commit transaction",
-    "COULD_NOT_DELETE_FROM_DATABASE": "Could not delete from database",
     "CAPTCHA_VERIFICATION_FAILED": "Captcha verification failed",
     "USERNAME_OR_PASSWORD_INVALID": "Username or password is invalid",
     "EMAIL_NOT_VERIFIED": "Email has not been verified",
@@ -101,6 +98,7 @@
   "toast": {
     "error": "Error",
     "success": "Success",
-    "info": "Info"
+    "info": "Info",
+    "warn": "Warning"
   }
 }
