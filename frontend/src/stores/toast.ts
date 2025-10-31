@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { useToast } from "primevue/usetoast";
+
+import type { ToastServiceMethods } from "primevue/toastservice";
 
 import i18n from "@/i18n";
 
@@ -10,10 +11,19 @@ export enum ToastSeverity {
   ERROR = "error",
 }
 
+// Global toast instance that will be set by the app
+let toastInstance: ToastServiceMethods | null = null;
+
+export function setToastInstance(instance: ToastServiceMethods) {
+  toastInstance = instance;
+}
+
 export const useToastStore = defineStore("toast", () => {
-  // Lazy getter for toast instance to avoid calling useToast at store definition
-  function getToast() {
-    return useToast();
+  function getToast(): ToastServiceMethods {
+    if (!toastInstance) {
+      throw new Error("Toast instance not initialized. Call setToastInstance first.");
+    }
+    return toastInstance;
   }
 
   function showError(message: string, life: number = 5000) {
