@@ -147,7 +147,7 @@ async fn register_handler(
     let mut tx = pool.begin().await.map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::DatabaseTransactionError,
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -166,7 +166,7 @@ async fn register_handler(
         );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::FailedToCommitTransaction,
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;

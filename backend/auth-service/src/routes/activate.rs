@@ -53,7 +53,7 @@ async fn activate_account_handler(
     );
     if database::users::set_verified(activation_link.get_uuid(), pool).await? != 1 {
         tracing::error!("User does not exist for activation link_id: {}", id);
-        return Err((StatusCode::BAD_REQUEST, TranslationKey::UserDoesNotExist).into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::SomethingWentWrong).into());
     }
 
     tracing::info!(

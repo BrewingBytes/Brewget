@@ -90,7 +90,7 @@ pub async fn delete(find_id: Uuid, pool: &PgPool) -> Result<usize, Error> {
     .map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::CouldNotDeleteFromDatabase,
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })
