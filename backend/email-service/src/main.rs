@@ -29,13 +29,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("gRPC Server listening on {}", grpc_addr);
     println!("HTTP Health endpoint listening on {}", http_addr);
 
-    // Create health router
-    let health_router = health::get_router();
+    // Create main router with health endpoint
+    let app = axum::Router::new().nest("/health", health::get_router());
 
     // Spawn HTTP server for health checks
     let http_server = tokio::spawn(async move {
         let listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
-        axum::serve(listener, health_router).await.unwrap();
+        axum::serve(listener, app).await.unwrap();
     });
 
     // Start the gRPC server

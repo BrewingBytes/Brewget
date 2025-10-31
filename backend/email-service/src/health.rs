@@ -24,7 +24,7 @@ pub fn get_router() -> Router {
 /// ```json
 /// {
 ///     "status": "healthy",
-///     "version": "0.0.8"
+///     "version": "0.0.9"
 /// }
 /// ```
 async fn health_checker_handler() -> Json<Health> {
