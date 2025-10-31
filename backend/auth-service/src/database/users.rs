@@ -3,7 +3,7 @@ use sqlx::{PgPool, Postgres};
 use uuid::Uuid;
 
 use crate::models::{
-    response::Error,
+    response::{Error, TranslationKey},
     user::{NewUser, User},
 };
 
@@ -58,7 +58,9 @@ pub async fn filter_by_username(find_username: &str, pool: &PgPool) -> Result<Us
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => (StatusCode::BAD_REQUEST, "Username not found.").into(),
+            sqlx::Error::RowNotFound => {
+                (StatusCode::BAD_REQUEST, TranslationKey::UsernameNotFound).into()
+            }
             _ => e.into(),
         }
     })
@@ -92,9 +94,11 @@ pub async fn filter_by_username_or_email(
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::BAD_REQUEST, "Username or email not found.").into()
-            }
+            sqlx::Error::RowNotFound => (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::UsernameOrEmailNotFound,
+            )
+                .into(),
             _ => e.into(),
         }
     })
@@ -122,9 +126,11 @@ pub async fn filter_by_email(find_email: &str, pool: &PgPool) -> Result<User, Er
     .await
     .map_err(|e: sqlx::Error| -> Error {
         match e {
-            sqlx::Error::RowNotFound => {
-                (StatusCode::BAD_REQUEST, "Username or email not found.").into()
-            }
+            sqlx::Error::RowNotFound => (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::UsernameOrEmailNotFound,
+            )
+                .into(),
             _ => e.into(),
         }
     })
@@ -154,7 +160,7 @@ pub async fn set_verified(find_uuid: Uuid, pool: &PgPool) -> Result<usize, Error
     .map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not verify account.",
+            TranslationKey::CouldNotVerifyAccount,
         )
             .into()
     })
@@ -193,7 +199,7 @@ where
     .map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not update password",
+            TranslationKey::CouldNotUpdatePassword,
         )
             .into()
     })

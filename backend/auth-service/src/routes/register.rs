@@ -8,7 +8,7 @@ use crate::{
     models::{
         activation_link::NewActivationLink,
         request::register_info::RegisterInfo,
-        response::{Error, Message},
+        response::{Error, TranslationKey, TranslationKeyMessage},
         user::NewUser,
     },
     utils::password::validate_password,
@@ -38,7 +38,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// * `body` - JSON request body containing registration information
 ///
 /// # Returns
-/// * `Ok(Json<Message>)` - Success message on account creation
+/// * `Ok(Json<TranslationKeyMessage>)` - Success message on account creation
 /// * `Err(Error)` - Validation or database errors
 ///
 /// # Example Request
@@ -53,7 +53,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Account has been created."
+///     "translation_key": "ACCOUNT_CREATED"
 /// }
 /// ```
 async fn register_handler(
@@ -75,32 +75,33 @@ async fn register_handler(
                 "Captcha verification failed for registration: {}",
                 body.username
             );
-            (StatusCode::BAD_REQUEST, "Captcha verification failed.").into()
+            (
+                StatusCode::BAD_REQUEST,
+                TranslationKey::CaptchaVerificationFailed,
+            )
+                .into()
         })?;
 
     // Validate username length
     if body.username.len() <= 3 {
         tracing::warn!("Username too short for registration: {}", body.username);
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Username length cannot be less or equal to 3 characters.",
-        )
-            .into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::UsernameTooShort).into());
     }
 
     // Validate password length
-    validate_password(&body.password).map_err(|s| -> Error {
+    validate_password(&body.password).map_err(|translation_key| -> Error {
         tracing::warn!(
-            "Invalid password format for registration: {}",
-            body.username
+            "Invalid password format for registration: {}, error: {:?}",
+            body.username,
+            translation_key
         );
-        (StatusCode::BAD_REQUEST, s.as_str()).into()
+        (StatusCode::BAD_REQUEST, translation_key).into()
     })?;
 
     // Validate email format
     if !email_address::EmailAddress::is_valid(&body.email) {
         tracing::warn!("Invalid email format for registration: {}", body.email);
-        return Err((StatusCode::BAD_REQUEST, "Email address is not valid.").into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::EmailAddressInvalid).into());
     }
 
     // Check for existing username or email
@@ -117,7 +118,7 @@ async fn register_handler(
         );
         return Err((
             StatusCode::BAD_REQUEST,
-            "Username or email is already used.",
+            TranslationKey::UsernameOrEmailAlreadyUsed,
         )
             .into());
     }
@@ -129,7 +130,7 @@ async fn register_handler(
             tracing::error!("Failed to create user record for: {}", body.username);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Could not create account.",
+                TranslationKey::CouldNotCreateAccount,
             )
                 .into()
         })?;
@@ -146,7 +147,7 @@ async fn register_handler(
     let mut tx = pool.begin().await.map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Database transaction error.",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -165,7 +166,7 @@ async fn register_handler(
         );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to commit transaction.",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -183,7 +184,11 @@ async fn register_handler(
             body.email,
             status.message()
         );
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, status.message()).into());
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::InternalServerError,
+        )
+            .into());
     }
 
     tracing::info!(
@@ -192,7 +197,7 @@ async fn register_handler(
         body.email
     );
     // Return success message
-    Ok(Json(Message {
-        message: "Account has been created.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::AccountCreated,
     }))
 }

@@ -1,2 +1,2 @@
 // Re-export shared types
-pub use shared_types::{DatabaseConnection, Error, Health, HealthStatus};
+pub use shared_types::{DatabaseConnection, Error, Health, HealthStatus, TranslationKey};

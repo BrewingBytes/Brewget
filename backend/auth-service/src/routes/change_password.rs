@@ -6,7 +6,7 @@ use crate::{
     AppState, database,
     models::{
         request::reset_password_info::ResetPasswordInfo,
-        response::{Error, Message},
+        response::{Error, TranslationKey, TranslationKeyMessage},
     },
     utils::password::{hash_password, is_password_in_history, validate_password},
 };
@@ -21,12 +21,12 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// Change password endpoint handler
 ///
 /// # Returns
-/// JSON response with "Password sucessfully changed." if the password was changed.
+/// JSON response with translation key "PASSWORD_SUCCESSFULLY_CHANGED" if the password was changed.
 ///
 /// # Example Response
 /// ```json
 /// {
-///     "message": "Password sucessfully changed."
+///     "translation_key": "PASSWORD_SUCCESSFULLY_CHANGED"
 /// }
 /// ```
 async fn change_password_handler(
@@ -47,16 +47,17 @@ async fn change_password_handler(
     if link.is_expired() {
         tracing::warn!("Expired forgot password link used: {}", body.id);
         database::forgot_password_links::delete(body.id, pool).await?;
-        return Err((StatusCode::BAD_REQUEST, "Link is expired.").into());
+        return Err((StatusCode::BAD_REQUEST, TranslationKey::LinkIsExpired).into());
     }
 
     // Check if the password is ok and hash it
-    validate_password(&body.password).map_err(|s| -> Error {
+    validate_password(&body.password).map_err(|translation_key| -> Error {
         tracing::warn!(
-            "Invalid password format for password change, link_id: {}",
-            body.id
+            "Invalid password format for password change, link_id: {}, error: {:?}",
+            body.id,
+            translation_key
         );
-        (StatusCode::BAD_REQUEST, s.as_str()).into()
+        (StatusCode::BAD_REQUEST, translation_key).into()
     })?;
 
     // Check if the password has been used in recent passwords
@@ -76,7 +77,7 @@ async fn change_password_handler(
         tracing::warn!("Password reuse attempt for user_id: {}", link.get_uuid());
         return Err((
             StatusCode::BAD_REQUEST,
-            "Password cannot be the same as any of your recently used passwords.",
+            TranslationKey::PasswordCannotBeReused,
         )
             .into());
     }
@@ -86,7 +87,7 @@ async fn change_password_handler(
         tracing::error!("Failed to hash password for user_id: {}", link.get_uuid());
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Something went wrong, please try again!",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -95,7 +96,7 @@ async fn change_password_handler(
     let mut tx = pool.begin().await.map_err(|_| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Database transaction error.",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -123,7 +124,7 @@ async fn change_password_handler(
         );
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to commit transaction.",
+            TranslationKey::SomethingWentWrong,
         )
             .into()
     })?;
@@ -134,7 +135,7 @@ async fn change_password_handler(
         tracing::error!("Failed to delete forgot password link: {}", body.id);
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Could not delete from the database.",
+            TranslationKey::SomethingWentWrong,
         )
             .into());
     }
@@ -143,7 +144,7 @@ async fn change_password_handler(
         "Password change successful for user_id: {}",
         link.get_uuid()
     );
-    Ok(Json(Message {
-        message: "Password sucessfully changed.".into(),
+    Ok(Json(TranslationKeyMessage {
+        translation_key: TranslationKey::PasswordSuccessfullyChanged,
     }))
 }

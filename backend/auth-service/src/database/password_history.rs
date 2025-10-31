@@ -2,7 +2,10 @@ use axum::http::StatusCode;
 use sqlx::{PgPool, Postgres};
 use uuid::Uuid;
 
-use crate::models::{password_history::PasswordHistory, response::Error};
+use crate::models::{
+    password_history::PasswordHistory,
+    response::{Error, TranslationKey},
+};
 
 /// Inserts a password into the password history
 ///
@@ -108,7 +111,7 @@ pub async fn get_recent_passwords(
     .map_err(|_e: sqlx::Error| -> Error {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Failed to retrieve password history.",
+            TranslationKey::FailedToRetrievePasswordHistory,
         )
             .into()
     })
