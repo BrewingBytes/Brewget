@@ -36,6 +36,7 @@ function buttonAction() {
             type="password"
             class="appearance-none! border! border-white/10! w-full! outline-0! bg-white/10! text-white! placeholder:text-white/70! rounded-3xl! shadow-sm!"
             :placeholder="t('auth.placeholders.password')"
+            @keyup.enter="buttonAction"
           />
         </IconField>
       </div>
