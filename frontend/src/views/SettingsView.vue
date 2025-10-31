@@ -192,11 +192,20 @@ function getLocaleToUtcOffsetMinutes(): number {
             </div>
           </div>
 
-          <!-- Save Button -->
-          <div class="flex justify-between mt-4">
+          <!-- Buttons and Version Row -->
+          <div class="flex justify-between items-center mt-4">
             <Button @click="handleLogout" :label="t('settings.logout')" icon="pi pi-sign-out"
               class="!rounded-3xl text-black! hover:text-blue-600!"
               :pt="glassButtonsStyles.selectedButtonPt" />
+            
+            <button
+              @click="openChangelog"
+              class="text-white/70 hover:text-white text-sm transition-colors cursor-pointer"
+              :title="t('settings.click_to_view_changelog')"
+            >
+              {{ t('settings.version') }}: v{{ frontendVersion }}
+            </button>
+
             <Button @click="handleSave" :label="t('settings.save_settings')" icon="pi pi-save"
               :loading="settingsStore.loading" class="!rounded-3xl text-black! hover:text-blue-600!"
               :pt="glassButtonsStyles.selectedButtonPt" />
@@ -204,17 +213,6 @@ function getLocaleToUtcOffsetMinutes(): number {
         </div>
       </template>
     </Card>
-
-    <!-- Version Display -->
-    <div class="mt-4 text-center">
-      <button
-        @click="openChangelog"
-        class="text-white/70 hover:text-white text-sm transition-colors cursor-pointer"
-        :title="t('settings.click_to_view_changelog')"
-      >
-        {{ t('settings.version') }}: v{{ frontendVersion }}
-      </button>
-    </div>
 
     <!-- Changelog Modal -->
     <ChangelogModal v-model:visible="showChangelog" />

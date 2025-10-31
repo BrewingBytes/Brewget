@@ -3,10 +3,20 @@ import { onMounted, ref } from "vue";
 
 import { versionService } from "@/services/version";
 
+interface ChangeEntry {
+  version: string;
+  date: string;
+  changes: {
+    added: string[];
+    changed: string[];
+    fixed: string[];
+  };
+}
+
 interface VersionInfo {
   service: string;
   version: string;
-  changelog: string;
+  entries: ChangeEntry[];
 }
 
 const props = defineProps<{
@@ -44,10 +54,10 @@ async function loadVersions() {
     ]);
 
     versions.value = [
-      { service: "Frontend", version: frontendVersion, changelog: frontendChangelog },
-      { service: "Auth Service", version: authVersion, changelog: authChangelog },
-      { service: "Settings Service", version: settingsVersion, changelog: settingsChangelog },
-      { service: "Email Service", version: emailVersion, changelog: emailChangelog },
+      { service: "Frontend", version: frontendVersion, entries: parseChangelog(frontendChangelog) },
+      { service: "Auth Service", version: authVersion, entries: parseChangelog(authChangelog) },
+      { service: "Settings Service", version: settingsVersion, entries: parseChangelog(settingsChangelog) },
+      { service: "Email Service", version: emailVersion, entries: parseChangelog(emailChangelog) },
     ];
   } catch (error) {
     console.error("Failed to load versions:", error);
@@ -60,13 +70,71 @@ async function fetchChangelog(service: string): Promise<string> {
   try {
     const response = await fetch(`/changelogs/${service}-CHANGELOG.md`);
     if (!response.ok) {
-      return "Changelog not available";
+      return "";
     }
     return await response.text();
   } catch (error) {
     console.error(`Failed to fetch changelog for ${service}:`, error);
-    return "Changelog not available";
+    return "";
   }
+}
+
+function parseChangelog(content: string): ChangeEntry[] {
+  const entries: ChangeEntry[] = [];
+  const lines = content.split("\n");
+  
+  let currentEntry: ChangeEntry | null = null;
+  let currentSection: "added" | "changed" | "fixed" | null = null;
+
+  for (const line of lines) {
+    // Skip header lines
+    if (line.startsWith("# Changelog") || line.startsWith("All notable changes")) {
+      continue;
+    }
+
+    // Match version header: ## [0.0.10] - 2025-10-31
+    const versionMatch = line.match(/^## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})/);
+    if (versionMatch && versionMatch[1] && versionMatch[2]) {
+      if (currentEntry) {
+        entries.push(currentEntry);
+      }
+      currentEntry = {
+        version: versionMatch[1],
+        date: versionMatch[2],
+        changes: { added: [], changed: [], fixed: [] },
+      };
+      currentSection = null;
+      continue;
+    }
+
+    // Match section headers
+    if (line.startsWith("### Added")) {
+      currentSection = "added";
+      continue;
+    }
+    if (line.startsWith("### Changed")) {
+      currentSection = "changed";
+      continue;
+    }
+    if (line.startsWith("### Fixed")) {
+      currentSection = "fixed";
+      continue;
+    }
+
+    // Match bullet points
+    if (line.startsWith("- ") && currentEntry && currentSection) {
+      const change = line.substring(2).trim();
+      if (change) {
+        currentEntry.changes[currentSection].push(change);
+      }
+    }
+  }
+
+  if (currentEntry) {
+    entries.push(currentEntry);
+  }
+
+  return entries;
 }
 
 function handleClose() {
@@ -83,26 +151,78 @@ function handleClose() {
     header="Changelogs"
     :style="{ width: '90vw', maxWidth: '1000px' }"
     :contentStyle="{ maxHeight: '70vh', overflow: 'auto' }"
+    :pt="{
+      root: {
+        class: 'backdrop-blur-2xl! bg-blue-500/10! border! border-white/20! shadow-2xl!',
+      },
+      header: {
+        class: 'bg-transparent! border-b! border-white/20! text-white!',
+      },
+      content: {
+        class: 'bg-transparent! text-white!',
+      },
+      closeButton: {
+        class: 'text-white! hover:bg-white/10!',
+      }
+    }"
   >
     <div v-if="loading" class="flex justify-center py-8">
       <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
     </div>
     <div v-else>
-      <TabView v-model:activeIndex="activeTab">
-        <TabPanel v-for="(version, index) in versions" :key="index" :value="index" :header="`${version.service} (v${version.version})`">
-          <div class="prose prose-sm max-w-none">
-            <pre class="whitespace-pre-wrap font-sans text-sm">{{ version.changelog }}</pre>
+      <TabView v-model:activeIndex="activeTab" :pt="{
+        nav: {
+          class: 'bg-transparent! border-b! border-white/20!',
+        },
+        inkbar: {
+          class: 'bg-white!',
+        },
+        navContent: {
+          class: 'bg-transparent!',
+        },
+        navLink: {
+          class: 'text-white/70! hover:text-white!',
+        },
+        activeBar: {
+          class: 'bg-white!',
+        },
+        panelContainer: {
+          class: 'bg-transparent!',
+        }
+      }">
+        <TabPanel v-for="(versionInfo, index) in versions" :key="index" :value="index" :header="`${versionInfo.service} (v${versionInfo.version})`">
+          <Accordion v-if="versionInfo.entries.length > 0" :multiple="true" :activeIndex="[0]">
+            <AccordionTab v-for="(entry, entryIndex) in versionInfo.entries" :key="entryIndex">
+              <template #header>
+                <span class="font-semibold">Version {{ entry.version }} - {{ entry.date }}</span>
+              </template>
+              <div class="space-y-3">
+                <div v-if="entry.changes.added.length > 0">
+                  <p class="font-bold mb-2">Added</p>
+                  <ul class="list-disc list-inside space-y-1 ml-2">
+                    <li v-for="(change, idx) in entry.changes.added" :key="idx" class="text-sm">{{ change }}</li>
+                  </ul>
+                </div>
+                <div v-if="entry.changes.changed.length > 0">
+                  <p class="font-bold mb-2">Changed</p>
+                  <ul class="list-disc list-inside space-y-1 ml-2">
+                    <li v-for="(change, idx) in entry.changes.changed" :key="idx" class="text-sm">{{ change }}</li>
+                  </ul>
+                </div>
+                <div v-if="entry.changes.fixed.length > 0">
+                  <p class="font-bold mb-2">Fixed</p>
+                  <ul class="list-disc list-inside space-y-1 ml-2">
+                    <li v-for="(change, idx) in entry.changes.fixed" :key="idx" class="text-sm">{{ change }}</li>
+                  </ul>
+                </div>
+              </div>
+            </AccordionTab>
+          </Accordion>
+          <div v-else class="text-center py-4">
+            <p class="text-white/70">No changelog available</p>
           </div>
         </TabPanel>
       </TabView>
     </div>
   </Dialog>
 </template>
-
-<style scoped>
-.prose pre {
-  background: transparent;
-  padding: 0;
-  margin: 0;
-}
-</style>
