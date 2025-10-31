@@ -41,6 +41,7 @@
     "enable_alarm": "Activează alarma",
     "alarm_time": "Ora alarmei",
     "save_settings": "Salvează setările",
+    "logout": "Deconectare",
     "settings_updated": "Setări actualizate cu succes",
     "failed_to_load": "Eșec la încărcarea setărilor",
     "failed_to_update": "Eșec la actualizarea setărilor",
@@ -100,5 +101,10 @@
     "success": "Succes",
     "info": "Info",
     "warn": "Avertisment"
+  },
+  "cookie_consent": {
+    "title": "Consimțământ pentru cookie-uri",
+    "message": "Folosim cookie-uri pentru a îmbunătăți experiența ta pe site-ul nostru. Trebuie să accepți cookie-urile pentru a utiliza acest site.",
+    "accept": "Accept"
   }
 }

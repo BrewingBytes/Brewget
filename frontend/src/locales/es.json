@@ -41,6 +41,7 @@
     "enable_alarm": "Activar alarma",
     "alarm_time": "Hora de alarma",
     "save_settings": "Guardar configuración",
+    "logout": "Cerrar sesión",
     "settings_updated": "Configuración actualizada con éxito",
     "failed_to_load": "Error al cargar la configuración",
     "failed_to_update": "Error al actualizar la configuración",
@@ -100,5 +101,10 @@
     "success": "Éxito",
     "info": "Información",
     "warn": "Advertencia"
+  },
+  "cookie_consent": {
+    "title": "Consentimiento de cookies",
+    "message": "Usamos cookies para mejorar tu experiencia en nuestro sitio web. Debes aceptar las cookies para usar este sitio.",
+    "accept": "Aceptar"
   }
 }

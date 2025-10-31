@@ -6,6 +6,7 @@ use crate::{
 };
 
 mod config;
+mod health;
 mod service;
 
 #[tokio::main]
@@ -17,18 +18,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::init();
 
     // Parse the gRPC server address
-    let addr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
+    let grpc_addr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
+    
+    // HTTP health check will run on gRPC port + 1000 (e.g., 9001 -> 10001)
+    let http_port = config.email_grpc_port + 1000;
+    let http_addr = format!("0.0.0.0:{}", http_port).parse()?;
 
     // Create the email service instance with SMTP configuration
     let service = Service::new(config.into())?;
 
-    println!("Server listening on {}", addr);
+    println!("gRPC Server listening on {}", grpc_addr);
+    println!("HTTP Health endpoint listening on {}", http_addr);
+
+    // Create health router
+    let health_router = health::get_router();
+
+    // Spawn HTTP server for health checks
+    let http_server = tokio::spawn(async move {
+        let listener = tokio::net::TcpListener::bind(http_addr).await.unwrap();
+        axum::serve(listener, health_router).await.unwrap();
+    });
 
     // Start the gRPC server
-    Server::builder()
+    let grpc_server = Server::builder()
         .add_service(EmailServiceServer::new(service))
-        .serve(addr)
-        .await?;
+        .serve(grpc_addr);
+
+    // Run both servers concurrently
+    tokio::try_join!(
+        async { grpc_server.await.map_err(|e| e.into()) },
+        async { http_server.await.map_err(|e| e.into()) }
+    )?;
 
     Ok(())
 }

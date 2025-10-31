@@ -5,10 +5,12 @@ import { useI18n } from "vue-i18n";
 import type { SupportedLocale } from "@/i18n";
 
 import { SUPPORTED_LOCALES } from "@/i18n";
+import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const { t, locale } = useI18n();
 
 // Form fields
@@ -69,6 +71,10 @@ async function handleSave() {
   });
   // Update locale immediately after saving settings to avoid waiting for watcher
   locale.value = language.value;
+}
+
+function handleLogout() {
+  authStore.logout();
 }
 
 function getLocaleToUtcOffsetMinutes(): number {
@@ -176,7 +182,10 @@ function getLocaleToUtcOffsetMinutes(): number {
           </div>
 
           <!-- Save Button -->
-          <div class="flex justify-end mt-4">
+          <div class="flex justify-between mt-4">
+            <Button @click="handleLogout" :label="t('settings.logout')" icon="pi pi-sign-out"
+              class="!rounded-3xl text-black! hover:text-blue-600!"
+              :pt="glassButtonsStyles.selectedButtonPt" />
             <Button @click="handleSave" :label="t('settings.save_settings')" icon="pi pi-save"
               :loading="settingsStore.loading" class="!rounded-3xl text-black! hover:text-blue-600!"
               :pt="glassButtonsStyles.selectedButtonPt" />
