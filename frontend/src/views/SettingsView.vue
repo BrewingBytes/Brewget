@@ -96,31 +96,34 @@ function getLocaleToUtcOffsetMinutes(): number {
 
 <template>
   <div class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-blue-300 to-blue-500">
-    <Card class="w-full max-w-2xl backdrop-blur-2xl! bg-transparent! border! border-yellow/20! shadow-2xl!">
+    <Card class="w-full max-w-2xl backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!">
       <template #title>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 text-white">
           <i class="pi pi-cog text-2xl"></i>
           <span class="text-2xl font-medium">{{ t("settings.title") }}</span>
         </div>
       </template>
       <template #content>
-        <div v-if="settingsStore.loading" class="flex justify-center py-8">
+        <div v-if="settingsStore.loading" class="flex justify-center py-8 text-white">
           <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" fill="transparent"
             animationDuration="1s" />
         </div>
         <div v-else class="flex flex-col gap-6">
           <!-- Language Selection -->
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 text-white">
             <label for="language" class="font-medium">
               <i class="pi pi-globe mr-2"></i> {{ t("settings.language") }}
             </label>
             <Select id="language" v-model="language" :options="languageOptions" optionLabel="label" optionValue="value"
               :placeholder="t('settings.select_language')" class="w-full bg-transparent! border-white!" :pt="{
+                label: {
+                  class: 'text-white/90!',
+                },
                 overlay: {
                   class: 'bg-transparent! border-white! backdrop-blur-xs!',
                 },
                 option: {
-                  class: 'text-white/90 hover:bg-white/10!',
+                  class: 'text-white/90! bg-transparent! hover:bg-white/10!',
                 },
               }">
               <template #dropdownicon>
@@ -130,17 +133,20 @@ function getLocaleToUtcOffsetMinutes(): number {
           </div>
 
           <!-- Currency Selection -->
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 text-white">
             <label for="currency" class="font-medium">
               <i class="pi pi-dollar mr-2"></i> {{ t("settings.currency") }}
             </label>
             <Select id="currency" v-model="currency" :options="currencyOptions" optionLabel="label" optionValue="value"
               :placeholder="t('settings.select_currency')" class="w-full bg-transparent! border-white!" :pt="{
+                label: {
+                  class: 'text-white/90!',
+                },
                 overlay: {
                   class: 'bg-transparent! border-white! backdrop-blur-xs!',
                 },
                 option: {
-                  class: 'text-white/90 hover:bg-white/10!',
+                  class: 'text-white/90! bg-transparent! hover:bg-white/10!',
                 },
               }">
               <template #dropdownicon>
@@ -187,7 +193,9 @@ function getLocaleToUtcOffsetMinutes(): number {
                   <i class="pi pi-clock mr-2"></i> {{ t("settings.alarm_time") }}
                 </label>
                 <InputText id="alarmTime" v-model="alarmTime" type="time"
-                  class="w-full bg-transparent! border-white!" />
+                  class="w-full bg-transparent! border-white! text-white!" :pt="{
+
+                  }" />
               </div>
             </div>
           </div>
@@ -195,19 +203,16 @@ function getLocaleToUtcOffsetMinutes(): number {
           <!-- Buttons and Version Row -->
           <div class="flex justify-between items-center mt-4">
             <Button @click="handleLogout" :label="t('settings.logout')" icon="pi pi-sign-out"
-              class="!rounded-3xl text-black! hover:text-blue-600!"
-              :pt="glassButtonsStyles.selectedButtonPt" />
-            
-            <button
-              @click="openChangelog"
-              class="text-white/70 hover:text-white text-sm transition-colors cursor-pointer"
-              :title="t('settings.click_to_view_changelog')"
-            >
+              class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
+
+            <button @click="openChangelog"
+              class="text-white hover:text-white/40 text-sm transition-colors cursor-pointer"
+              :title="t('settings.click_to_view_changelog')">
               {{ t('settings.version') }}: v{{ frontendVersion }}
             </button>
 
             <Button @click="handleSave" :label="t('settings.save_settings')" icon="pi pi-save"
-              :loading="settingsStore.loading" class="!rounded-3xl text-black! hover:text-blue-600!"
+              :loading="settingsStore.loading" class="!rounded-3xl text-white! hover:text-blue-600!"
               :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
         </div>

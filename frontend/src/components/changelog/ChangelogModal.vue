@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { h, onMounted, ref } from "vue";
 
 import { versionService } from "@/services/version";
 
@@ -82,7 +82,7 @@ async function fetchChangelog(service: string): Promise<string> {
 function parseChangelog(content: string): ChangeEntry[] {
   const entries: ChangeEntry[] = [];
   const lines = content.split("\n");
-  
+
   let currentEntry: ChangeEntry | null = null;
   let currentSection: "added" | "changed" | "fixed" | null = null;
 
@@ -143,29 +143,23 @@ function handleClose() {
 </script>
 
 <template>
-  <Dialog
-    :visible="props.visible"
-    modal
-    :closable="true"
-    @update:visible="handleClose"
-    header="Changelogs"
-    :style="{ width: '90vw', maxWidth: '1000px' }"
-    :contentStyle="{ maxHeight: '70vh', overflow: 'auto' }"
-    :pt="{
+  <Dialog :visible="props.visible" modal :closable="true" @update:visible="handleClose" header="Changelogs"
+    :style="{ width: '90vw', maxWidth: '1000px' }" :contentStyle="{ maxHeight: '70vh', overflow: 'auto' }" :pt="{
       root: {
-        class: 'backdrop-blur-2xl! bg-blue-500/10! border! border-white/20! shadow-2xl!',
+        class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
       },
       header: {
         class: 'bg-transparent! border-b! border-white/20! text-white!',
       },
       content: {
         class: 'bg-transparent! text-white!',
-      },
-      closeButton: {
-        class: 'text-white! hover:bg-white/10!',
       }
-    }"
-  >
+    }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
+    <template #closebutton>
+      <button type="button" class="p-2 hover:cursor-pointer hover:bg-white/10 rounded-full" @click="handleClose">
+        <i class="pi pi-times text-xl"></i>
+      </button>
+    </template>
     <div v-if="loading" class="flex justify-center py-8">
       <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
     </div>
@@ -175,24 +169,30 @@ function handleClose() {
           class: 'bg-transparent! border-b! border-white/20!',
         },
         inkbar: {
-          class: 'bg-white!',
-        },
-        navContent: {
-          class: 'bg-transparent!',
-        },
-        navLink: {
-          class: 'text-white/70! hover:text-white!',
-        },
-        activeBar: {
-          class: 'bg-white!',
+          class: 'bg-black!',
         },
         panelContainer: {
           class: 'bg-transparent!',
         }
+      }" :pt:tabpanel="{
+        headerAction: {
+          class: 'text-white! hover:text-white!'
+        }
       }">
-        <TabPanel v-for="(versionInfo, index) in versions" :key="index" :value="index" :header="`${versionInfo.service} (v${versionInfo.version})`">
+        <TabPanel v-for="(versionInfo, index) in versions" :key="index" :value="index"
+          :header="`${versionInfo.service} (v${versionInfo.version})`">
           <Accordion v-if="versionInfo.entries.length > 0" :multiple="true" :activeIndex="[0]">
-            <AccordionTab v-for="(entry, entryIndex) in versionInfo.entries" :key="entryIndex">
+            <AccordionTab v-for="(entry, entryIndex) in versionInfo.entries" :key="entryIndex" :pt="{
+              header: {
+                class: 'bg-white/20! text-white/90!',
+              },
+              content: {
+                class: 'bg-white/10! text-white/90!',
+              },
+              headerIcon: {
+                class: 'text-white/90!',
+              }
+            }">
               <template #header>
                 <span class="font-semibold">Version {{ entry.version }} - {{ entry.date }}</span>
               </template>
