@@ -1,23 +1,13 @@
 export interface LoginResponse {
-    token: string;
-};
+  token: string;
+}
 
-export interface RegisterResponse {
-    message: string;
-};
+export interface TranslationKeyMessage {
+  translation_key: string;
+}
 
-export interface ForgotPasswordResponse {
-    message: string;
-};
-
-export interface ChangePasswordResponse {
-    message: string;
-};
-
-export interface LogoutResponse {
-    message: string;
-};
-
-export interface ActivateResponse {
-    message: string;
-};
+export type RegisterResponse = TranslationKeyMessage;
+export type ForgotPasswordResponse = TranslationKeyMessage;
+export type ChangePasswordResponse = TranslationKeyMessage;
+export type LogoutResponse = TranslationKeyMessage;
+export type ActivateResponse = TranslationKeyMessage;

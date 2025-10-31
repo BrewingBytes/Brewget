@@ -1,0 +1,99 @@
+{
+  "translation_keys": {
+    "PASSWORD_SUCCESSFULLY_CHANGED": "Contraseña cambiada con éxito",
+    "OK": "OK",
+    "ACCOUNT_CREATED": "Cuenta creada con éxito",
+    "FORGOT_PASSWORD_LINK_SENT": "Enlace de restablecimiento de contraseña enviado a tu correo electrónico",
+    "ACCOUNT_VERIFIED": "Cuenta verificada con éxito",
+    "USER_DOES_NOT_EXIST": "El usuario no existe",
+    "LINK_IS_EXPIRED": "Este enlace ha caducado",
+    "PASSWORD_CANNOT_BE_REUSED": "La contraseña no puede ser reutilizada",
+    "SOMETHING_WENT_WRONG": "Algo salió mal",
+    "DATABASE_TRANSACTION_ERROR": "Error en la transacción de la base de datos",
+    "FAILED_TO_COMMIT_TRANSACTION": "Error al confirmar la transacción",
+    "COULD_NOT_DELETE_FROM_DATABASE": "No se pudo eliminar de la base de datos",
+    "CAPTCHA_VERIFICATION_FAILED": "Verificación del captcha fallida",
+    "USERNAME_OR_PASSWORD_INVALID": "Nombre de usuario o contraseña inválidos",
+    "EMAIL_NOT_VERIFIED": "El correo electrónico no ha sido verificado",
+    "ACCOUNT_DELETED_TEMPORARILY": "La cuenta ha sido eliminada temporalmente",
+    "USERNAME_TOO_SHORT": "El nombre de usuario es demasiado corto",
+    "EMAIL_ADDRESS_INVALID": "La dirección de correo electrónico no es válida",
+    "USERNAME_OR_EMAIL_ALREADY_USED": "El nombre de usuario o correo electrónico ya está en uso",
+    "COULD_NOT_CREATE_ACCOUNT": "No se pudo crear la cuenta",
+    "NOT_LOGGED_IN": "No has iniciado sesión",
+    "TOKEN_EXPIRED": "El token ha caducado",
+    "TOKEN_INVALID": "El token no es válido",
+    "INTERNAL_SERVER_ERROR": "Error interno del servidor",
+    "PASSWORD_VALIDATION_ERROR": "Error de validación de contraseña",
+    "PASSWORD_TOO_SHORT": "La contraseña debe tener al menos 8 caracteres",
+    "PASSWORD_MISSING_UPPERCASE": "La contraseña debe contener al menos una letra mayúscula",
+    "PASSWORD_MISSING_NUMBER": "La contraseña debe contener al menos un número",
+    "USERNAME_NOT_FOUND": "Nombre de usuario no encontrado",
+    "USERNAME_OR_EMAIL_NOT_FOUND": "Nombre de usuario o correo electrónico no encontrado",
+    "COULD_NOT_VERIFY_ACCOUNT": "No se pudo verificar la cuenta",
+    "COULD_NOT_UPDATE_PASSWORD": "No se pudo actualizar la contraseña",
+    "ACTIVATION_LINK_NOT_FOUND": "Enlace de activación no encontrado",
+    "FORGOT_PASSWORD_LINK_NOT_FOUND": "Enlace de restablecimiento de contraseña no encontrado",
+    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Error al recuperar el historial de contraseñas"
+  },
+  "settings": {
+    "title": "Configuración de usuario",
+    "language": "Idioma",
+    "currency": "Moneda",
+    "night_mode": "Modo nocturno",
+    "enable_alarm": "Activar alarma",
+    "alarm_time": "Hora de alarma",
+    "save_settings": "Guardar configuración",
+    "settings_updated": "Configuración actualizada con éxito",
+    "failed_to_load": "Error al cargar la configuración",
+    "failed_to_update": "Error al actualizar la configuración"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "no_account": "¿No tienes una cuenta?",
+      "sign_up": "Regístrate",
+      "button": "Iniciar sesión",
+      "forgot_password": "¿Olvidaste tu contraseña?"
+    },
+    "register": {
+      "title": "Registrarse",
+      "have_account": "¿Ya tienes una cuenta?",
+      "sign_in": "Inicia sesión",
+      "button": "Registrarse"
+    },
+    "forgot_password": {
+      "title": "Olvidé mi contraseña",
+      "button": "Envíame un correo",
+      "go_back": "Volver"
+    },
+    "change_password": {
+      "title": "Cambiar contraseña",
+      "button": "Cambiar contraseña"
+    },
+    "placeholders": {
+      "email": "Correo electrónico",
+      "username": "Nombre de usuario",
+      "password": "Contraseña"
+    }
+  },
+  "navbar": {
+    "dashboard": "Panel",
+    "wallets": "Carteras",
+    "add": "Añadir",
+    "analytics": "Análisis",
+    "settings": "Configuración"
+  }
+}

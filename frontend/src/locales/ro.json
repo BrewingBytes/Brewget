@@ -1,0 +1,99 @@
+{
+  "translation_keys": {
+    "PASSWORD_SUCCESSFULLY_CHANGED": "Parolă schimbată cu succes",
+    "OK": "OK",
+    "ACCOUNT_CREATED": "Cont creat cu succes",
+    "FORGOT_PASSWORD_LINK_SENT": "Link de resetare a parolei trimis la adresa ta de email",
+    "ACCOUNT_VERIFIED": "Cont verificat cu succes",
+    "USER_DOES_NOT_EXIST": "Utilizatorul nu există",
+    "LINK_IS_EXPIRED": "Acest link a expirat",
+    "PASSWORD_CANNOT_BE_REUSED": "Parola nu poate fi refolosită",
+    "SOMETHING_WENT_WRONG": "Ceva nu a mers bine",
+    "DATABASE_TRANSACTION_ERROR": "Eroare de tranzacție a bazei de date",
+    "FAILED_TO_COMMIT_TRANSACTION": "Eșec la confirmarea tranzacției",
+    "COULD_NOT_DELETE_FROM_DATABASE": "Nu s-a putut șterge din baza de date",
+    "CAPTCHA_VERIFICATION_FAILED": "Verificarea captcha a eșuat",
+    "USERNAME_OR_PASSWORD_INVALID": "Nume de utilizator sau parolă invalide",
+    "EMAIL_NOT_VERIFIED": "Adresa de email nu a fost verificată",
+    "ACCOUNT_DELETED_TEMPORARILY": "Contul a fost șters temporar",
+    "USERNAME_TOO_SHORT": "Numele de utilizator este prea scurt",
+    "EMAIL_ADDRESS_INVALID": "Adresa de email nu este validă",
+    "USERNAME_OR_EMAIL_ALREADY_USED": "Numele de utilizator sau email-ul este deja folosit",
+    "COULD_NOT_CREATE_ACCOUNT": "Nu s-a putut crea contul",
+    "NOT_LOGGED_IN": "Nu ești autentificat",
+    "TOKEN_EXPIRED": "Token-ul a expirat",
+    "TOKEN_INVALID": "Token-ul nu este valid",
+    "INTERNAL_SERVER_ERROR": "Eroare internă de server",
+    "PASSWORD_VALIDATION_ERROR": "Eroare de validare a parolei",
+    "PASSWORD_TOO_SHORT": "Parola trebuie să aibă cel puțin 8 caractere",
+    "PASSWORD_MISSING_UPPERCASE": "Parola trebuie să conțină cel puțin o literă mare",
+    "PASSWORD_MISSING_NUMBER": "Parola trebuie să conțină cel puțin o cifră",
+    "USERNAME_NOT_FOUND": "Nume de utilizator negăsit",
+    "USERNAME_OR_EMAIL_NOT_FOUND": "Nume de utilizator sau email negăsit",
+    "COULD_NOT_VERIFY_ACCOUNT": "Nu s-a putut verifica contul",
+    "COULD_NOT_UPDATE_PASSWORD": "Nu s-a putut actualiza parola",
+    "ACTIVATION_LINK_NOT_FOUND": "Link de activare negăsit",
+    "FORGOT_PASSWORD_LINK_NOT_FOUND": "Link de resetare a parolei negăsit",
+    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Eșec la recuperarea istoricului parolelor"
+  },
+  "settings": {
+    "title": "Setări utilizator",
+    "language": "Limbă",
+    "currency": "Monedă",
+    "night_mode": "Mod nocturn",
+    "enable_alarm": "Activează alarma",
+    "alarm_time": "Ora alarmei",
+    "save_settings": "Salvează setările",
+    "settings_updated": "Setări actualizate cu succes",
+    "failed_to_load": "Eșec la încărcarea setărilor",
+    "failed_to_update": "Eșec la actualizarea setărilor"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ro": "Română"
+  },
+  "currencies": {
+    "usd": "USD ($)",
+    "eur": "EUR (€)",
+    "ron": "RON (lei)"
+  },
+  "auth": {
+    "login": {
+      "title": "Autentificare",
+      "no_account": "Nu ai un cont?",
+      "sign_up": "Înregistrează-te",
+      "button": "Autentificare",
+      "forgot_password": "Ai uitat parola?"
+    },
+    "register": {
+      "title": "Înregistrare",
+      "have_account": "Ai deja un cont?",
+      "sign_in": "Autentifică-te",
+      "button": "Înregistrare"
+    },
+    "forgot_password": {
+      "title": "Am uitat parola",
+      "button": "Trimite-mi un email",
+      "go_back": "Înapoi"
+    },
+    "change_password": {
+      "title": "Schimbă parola",
+      "button": "Schimbă parola"
+    },
+    "placeholders": {
+      "email": "Email",
+      "username": "Nume de utilizator",
+      "password": "Parolă"
+    }
+  },
+  "navbar": {
+    "dashboard": "Tablou de bord",
+    "wallets": "Portofele",
+    "add": "Adaugă",
+    "analytics": "Analiză",
+    "settings": "Setări"
+  }
+}
