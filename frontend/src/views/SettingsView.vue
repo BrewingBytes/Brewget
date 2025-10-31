@@ -4,7 +4,9 @@ import { useI18n } from "vue-i18n";
 
 import type { SupportedLocale } from "@/i18n";
 
+import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
 import { SUPPORTED_LOCALES } from "@/i18n";
+import { versionService } from "@/services/version";
 import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
@@ -19,6 +21,17 @@ const currency = ref("");
 const alarmSet = ref(false);
 const alarmTime = ref("");
 const nightMode = ref(false);
+
+// Version and changelog
+const frontendVersion = ref("");
+const showChangelog = ref(false);
+
+// Load frontend version
+onMounted(async () => {
+  frontendVersion.value = versionService.getFrontendVersion();
+  await settingsStore.loadSettings();
+  syncFormFields(settingsStore.settings);
+});
 
 // Sync form fields with store settings
 function syncFormFields(newSettings: typeof settingsStore.settings) {
@@ -35,12 +48,6 @@ function syncFormFields(newSettings: typeof settingsStore.settings) {
     }
   }
 }
-
-// Load settings on mount
-onMounted(async () => {
-  await settingsStore.loadSettings();
-  syncFormFields(settingsStore.settings);
-});
 
 // Watch for settings changes from store
 watch(() => settingsStore.settings, syncFormFields);
@@ -75,6 +82,10 @@ async function handleSave() {
 
 function handleLogout() {
   authStore.logout();
+}
+
+function openChangelog() {
+  showChangelog.value = true;
 }
 
 function getLocaleToUtcOffsetMinutes(): number {
@@ -193,5 +204,19 @@ function getLocaleToUtcOffsetMinutes(): number {
         </div>
       </template>
     </Card>
+
+    <!-- Version Display -->
+    <div class="mt-4 text-center">
+      <button
+        @click="openChangelog"
+        class="text-white/70 hover:text-white text-sm transition-colors cursor-pointer"
+        :title="t('settings.click_to_view_changelog')"
+      >
+        {{ t('settings.version') }}: v{{ frontendVersion }}
+      </button>
+    </div>
+
+    <!-- Changelog Modal -->
+    <ChangelogModal v-model:visible="showChangelog" />
   </div>
 </template>

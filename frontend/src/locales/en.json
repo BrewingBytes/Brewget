@@ -42,6 +42,8 @@
     "alarm_time": "Alarm Time",
     "save_settings": "Save Settings",
     "logout": "Logout",
+    "version": "Version",
+    "click_to_view_changelog": "Click to view changelog",
     "settings_updated": "Settings updated successfully",
     "failed_to_load": "Failed to load settings",
     "failed_to_update": "Failed to update settings",

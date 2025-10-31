@@ -2,6 +2,17 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [0.0.10] - 2024-12-21
+### Added
+- Add version display in settings page footer
+- Add changelog modal with tabs for all services
+- Add logout button in settings page
+- Add translations for cookie consent modal
+- Version fetching from backend services /health endpoints
+
+### Changed
+- Cookie consent now uses i18n translations
+
 ## [0.0.9] - 2024-12-20
 ### Added
 - Implement i18n with browser language detection

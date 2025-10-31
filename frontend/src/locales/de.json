@@ -42,6 +42,8 @@
     "alarm_time": "Alarmzeit",
     "save_settings": "Einstellungen speichern",
     "logout": "Abmelden",
+    "version": "Version",
+    "click_to_view_changelog": "Klicken Sie, um das Änderungsprotokoll anzuzeigen",
     "settings_updated": "Einstellungen erfolgreich aktualisiert",
     "failed_to_load": "Einstellungen konnten nicht geladen werden",
     "failed_to_update": "Einstellungen konnten nicht aktualisiert werden",
