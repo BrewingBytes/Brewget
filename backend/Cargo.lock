@@ -503,6 +503,7 @@ dependencies = [
  "prost",
  "serde",
  "serde_json",
+ "shared-types",
  "tokio",
  "tonic",
  "tonic-prost",

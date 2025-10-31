@@ -1,12 +1,5 @@
 use axum::{Json, Router, routing::get};
-use serde::{Deserialize, Serialize};
-
-/// Health status response structure
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Health {
-    pub status: String,
-    pub version: String,
-}
+use shared_types::response::{Health, HealthStatus};
 
 /// Creates a router for the health routes
 pub fn get_router() -> Router {
@@ -23,13 +16,14 @@ pub fn get_router() -> Router {
 /// # Example Response
 /// ```json
 /// {
-///     "status": "healthy",
+///     "status": "Healthy",
 ///     "version": "0.0.9"
 /// }
 /// ```
 async fn health_checker_handler() -> Json<Health> {
     Json(Health {
-        status: "healthy".to_string(),
-        version: env!("CARGO_PKG_VERSION").to_string(),
+        status: HealthStatus::Healthy,
+        database: None,
+        version: env!("CARGO_PKG_VERSION").into(),
     })
 }

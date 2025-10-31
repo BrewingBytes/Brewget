@@ -34,7 +34,7 @@ async fn health_checker_handler(State(state): State<Arc<AppState>>) -> impl Into
     match sqlx::query("SELECT 1").execute(pool).await {
         Ok(_) => Json(Health {
             status: HealthStatus::Healthy,
-            database: DatabaseConnection::Connected,
+            database: Some(DatabaseConnection::Connected),
             version: env!("CARGO_PKG_VERSION").into(),
         })
         .into_response(),
@@ -42,7 +42,7 @@ async fn health_checker_handler(State(state): State<Arc<AppState>>) -> impl Into
             StatusCode::SERVICE_UNAVAILABLE,
             Json(Health {
                 status: HealthStatus::Unhealthy,
-                database: DatabaseConnection::Disconnected,
+                database: Some(DatabaseConnection::Disconnected),
                 version: env!("CARGO_PKG_VERSION").into(),
             }),
         )
