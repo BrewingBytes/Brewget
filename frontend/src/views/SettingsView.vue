@@ -67,7 +67,8 @@ async function handleSave() {
     alarm_offset_minutes: getLocaleToUtcOffsetMinutes(),
     night_mode: nightMode.value,
   });
-  // locale.value update is handled by syncFormFields via the watcher
+  // Update locale immediately after saving settings to avoid waiting for watcher
+  locale.value = language.value;
 }
 
 function getLocaleToUtcOffsetMinutes(): number {

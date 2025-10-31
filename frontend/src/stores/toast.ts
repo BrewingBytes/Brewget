@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useToast } from "primevue";
-import { useI18n } from "vue-i18n";
+
+import i18n from "@/i18n";
 
 export enum ToastSeverity {
   SUCCESS = "success",
@@ -11,14 +12,13 @@ export enum ToastSeverity {
 
 export const useToastStore = defineStore("toast", () => {
   const toast = useToast();
-  const { t } = useI18n();
 
   function showError(message: string, life: number = 5000) {
     toast.add({
       severity: ToastSeverity.ERROR,
       life,
       detail: message,
-      summary: t("toast.error"),
+      summary: i18n.global.t("toast.error"),
     });
   }
 
@@ -27,7 +27,7 @@ export const useToastStore = defineStore("toast", () => {
       severity: ToastSeverity.INFO,
       life,
       detail: message,
-      summary: t("toast.info"),
+      summary: i18n.global.t("toast.info"),
     });
   }
 
@@ -36,7 +36,7 @@ export const useToastStore = defineStore("toast", () => {
       severity: ToastSeverity.SUCCESS,
       life,
       detail: message,
-      summary: t("toast.success"),
+      summary: i18n.global.t("toast.success"),
     });
   }
 
@@ -48,13 +48,13 @@ export const useToastStore = defineStore("toast", () => {
   function getSummaryForSeverity(severity: ToastSeverity): string {
     switch (severity) {
       case ToastSeverity.ERROR:
-        return t("toast.error");
+        return i18n.global.t("toast.error");
       case ToastSeverity.SUCCESS:
-        return t("toast.success");
+        return i18n.global.t("toast.success");
       case ToastSeverity.WARN:
-        return t("toast.warn");
+        return i18n.global.t("toast.warn");
       default:
-        return t("toast.info");
+        return i18n.global.t("toast.info");
     }
   }
 
@@ -69,7 +69,7 @@ export const useToastStore = defineStore("toast", () => {
     severity: ToastSeverity = ToastSeverity.INFO,
     life: number = 5000,
   ) {
-    const message = t(`translation_keys.${translationKey}`);
+    const message = i18n.global.t(`translation_keys.${translationKey}`);
 
     toast.add({
       severity,
