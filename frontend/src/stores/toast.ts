@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useToast } from "primevue";
+import { useToast } from "primevue/usetoast";
 
 import i18n from "@/i18n";
 
@@ -11,10 +11,13 @@ export enum ToastSeverity {
 }
 
 export const useToastStore = defineStore("toast", () => {
-  const toast = useToast();
+  // Lazy getter for toast instance to avoid calling useToast at store definition
+  function getToast() {
+    return useToast();
+  }
 
   function showError(message: string, life: number = 5000) {
-    toast.add({
+    getToast().add({
       severity: ToastSeverity.ERROR,
       life,
       detail: message,
@@ -23,7 +26,7 @@ export const useToastStore = defineStore("toast", () => {
   }
 
   function showInfo(message: string, life: number = 5000) {
-    toast.add({
+    getToast().add({
       severity: ToastSeverity.INFO,
       life,
       detail: message,
@@ -32,7 +35,7 @@ export const useToastStore = defineStore("toast", () => {
   }
 
   function showSuccess(message: string, life: number = 5000) {
-    toast.add({
+    getToast().add({
       severity: ToastSeverity.SUCCESS,
       life,
       detail: message,
@@ -71,7 +74,7 @@ export const useToastStore = defineStore("toast", () => {
   ) {
     const message = i18n.global.t(`translation_keys.${translationKey}`);
 
-    toast.add({
+    getToast().add({
       severity,
       life,
       detail: message,
