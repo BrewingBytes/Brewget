@@ -154,6 +154,34 @@ export const useAuthStore = defineStore(
       router.push("/login");
     }
 
+    async function verifyToken(): Promise<boolean> {
+      if (token.value === "") {
+        return false;
+      }
+
+      const response = await authService.verify();
+
+      // If token is invalid or expired, log out
+      if (response.status !== ServerStatus.NO_ERROR) {
+        const errorResponse = response as ErrorResponse;
+        
+        // If the token expired, show the appropriate message
+        if (errorResponse.data.translation_key === "TOKEN_EXPIRED") {
+          useToastStore().showTranslationKey(
+            "TOKEN_EXPIRED",
+            ToastSeverity.ERROR,
+          );
+        }
+        
+        // Clear token and redirect to login
+        token.value = "";
+        router.push("/login");
+        return false;
+      }
+
+      return true;
+    }
+
     return {
       token,
       activate,
@@ -164,6 +192,7 @@ export const useAuthStore = defineStore(
       register,
       forgotPassword,
       logout,
+      verifyToken,
     };
   },
   {

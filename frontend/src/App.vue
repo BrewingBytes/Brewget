@@ -6,15 +6,22 @@ import { RouterView, useRoute } from "vue-router";
 import CookieConsent from "./components/CookieConsent.vue";
 import FloatingNavbar from "./components/FloatingNavbar.vue";
 import { isAuthRoute } from "./router";
+import { useAuthStore } from "./stores/auth";
 import { setToastInstance } from "./stores/toast";
 
 const route = useRoute();
 const shouldShowNavbar = computed(() => isAuthRoute(route.name));
 
 // Initialize toast instance for the store
-onMounted(() => {
+onMounted(async () => {
   const toast = useToast();
   setToastInstance(toast);
+
+  // Verify token on app load if user is authenticated
+  const authStore = useAuthStore();
+  if (authStore.isAuthenticated) {
+    await authStore.verifyToken();
+  }
 });
 </script>
 

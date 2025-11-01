@@ -1,4 +1,4 @@
-import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse } from "./types";
+import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse, VerifyResponse } from "./types";
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
@@ -57,4 +57,16 @@ async function logout(): Promise<ServerResponse<LogoutResponse>> {
     }
 }
 
-export const authService = { activate, changePassword, forgotPassword, login, logout, register };
+async function verify(): Promise<ServerResponse<VerifyResponse>> {
+    try {
+        return await authApi.get("/verify", {
+            headers: {
+                Authorization: useAuthStore().bearerToken,
+            },
+        });
+    } catch (error) {
+        return (error as AxiosError).response as ErrorResponse;
+    }
+}
+
+export const authService = { activate, changePassword, forgotPassword, login, logout, register, verify };
