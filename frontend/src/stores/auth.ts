@@ -50,8 +50,9 @@ export const useAuthStore = defineStore(
       username: string;
       password: string;
       captchaToken: string;
-    }): Promise<void> {
+    }): Promise<boolean> {
       const response = await authService.login(values);
+      console.log(response);
 
       // If error fail
       if (response.status !== ServerStatus.NO_ERROR) {
@@ -60,21 +61,23 @@ export const useAuthStore = defineStore(
           errorResponse.data.translation_key,
           ToastSeverity.ERROR,
         );
-        return;
+        return false;
       }
 
       // Set bearer token
       token.value = response.data.token;
-      
+
       // Load user settings and apply language preference
       const settingsStore = useSettingsStore();
       await settingsStore.loadSettings();
-      
+
       if (settingsStore.settings && SUPPORTED_LOCALES.includes(settingsStore.settings.language as SupportedLocale)) {
         i18n.global.locale.value = settingsStore.settings.language as SupportedLocale;
       }
-      
+
       router.push("/");
+
+      return true;
     }
 
     async function register(values: {
