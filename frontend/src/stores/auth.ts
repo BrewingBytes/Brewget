@@ -161,21 +161,9 @@ export const useAuthStore = defineStore(
 
       const response = await authService.verify();
 
-      // If token is invalid or expired, log out
+      // If token is invalid or expired, the axios interceptor will handle logout
+      // and show the appropriate message
       if (response.status !== ServerStatus.NO_ERROR) {
-        const errorResponse = response as ErrorResponse;
-        
-        // If the token expired, show the appropriate message
-        if (errorResponse.data.translation_key === "TOKEN_EXPIRED") {
-          useToastStore().showTranslationKey(
-            "TOKEN_EXPIRED",
-            ToastSeverity.ERROR,
-          );
-        }
-        
-        // Clear token and redirect to login
-        token.value = "";
-        router.push("/login");
         return false;
       }
 
