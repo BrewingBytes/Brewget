@@ -87,7 +87,9 @@ impl User {
 
 /// Represents a new user to be inserted into the database
 ///
-/// This struct is used for creating new user accounts
+/// This struct is used for creating new user accounts with password authentication.
+/// For passkey-only accounts (created via passkey registration), users are created
+/// directly via SQL with no password field.
 ///
 /// # Fields
 /// * `id` - Given UUID for the new account

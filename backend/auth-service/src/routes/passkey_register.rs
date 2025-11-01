@@ -255,18 +255,13 @@ async fn passkey_register_finish(
             .into()
     })?;
 
-    // Store passkey credential - serialize the entire Passkey object as JSON
+    // Store passkey credential
+    // The credential ID from webauthn-rs is a HumanBinaryData type that contains raw bytes
+    let credential_id_bytes: Vec<u8> = passkey.cred_id().clone().into();
+
+    // Serialize the entire Passkey object as JSON for storage
     let public_key_json = serde_json::to_vec(&passkey).map_err(|e| -> Error {
         tracing::error!("Failed to serialize passkey: {}", e);
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::SomethingWentWrong,
-        )
-            .into()
-    })?;
-
-    let credential_id_bytes = serde_json::to_vec(&passkey.cred_id()).map_err(|e| -> Error {
-        tracing::error!("Failed to serialize credential ID: {}", e);
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             TranslationKey::SomethingWentWrong,

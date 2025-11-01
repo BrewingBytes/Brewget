@@ -227,20 +227,14 @@ async fn passkey_login_finish(
     }
 
     // Update credential counter
+    // Extract credential ID as raw bytes for comparison
+    let auth_cred_id_bytes: Vec<u8> = authentication_result.cred_id().clone().into();
+
     // Find the credential to get its stored format
     let stored_credential = database::passkey_credentials::find_by_user_id(user.get_uuid(), pool)
         .await?
         .into_iter()
-        .find(|c| {
-            // Compare credential IDs
-            serde_json::to_vec(&authentication_result.cred_id())
-                .ok()
-                .map(|id_bytes| {
-                    // Try to match the credential_id
-                    c.credential_id == id_bytes
-                })
-                .unwrap_or(false)
-        })
+        .find(|c| c.credential_id == auth_cred_id_bytes)
         .ok_or_else(|| -> Error {
             (StatusCode::NOT_FOUND, TranslationKey::PasskeyNotFound).into()
         })?;

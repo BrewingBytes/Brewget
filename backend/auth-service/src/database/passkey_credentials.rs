@@ -107,14 +107,17 @@ pub async fn find_by_credential_id(
 
 /// Update the counter value for a passkey credential after successful authentication
 ///
+/// This function enforces monotonic counter increases to prevent replay attacks.
+/// If the new counter is not greater than the stored counter, the update will fail.
+///
 /// # Arguments
 /// * `credential_id` - The credential ID to update
-/// * `new_counter` - The new counter value
+/// * `new_counter` - The new counter value (must be greater than current counter)
 /// * `pool` - Database connection pool
 ///
 /// # Returns
 /// * `Ok(())` - Counter updated successfully
-/// * `Err(Error)` - Database error
+/// * `Err(Error)` - Database error or counter validation failure
 pub async fn update_counter(
     credential_id: &[u8],
     new_counter: i64,
@@ -124,7 +127,7 @@ pub async fn update_counter(
         r#"
         UPDATE passkey_credentials
         SET counter = $2, last_used_at = NOW()
-        WHERE credential_id = $1
+        WHERE credential_id = $1 AND counter < $2
         "#,
     )
     .bind(credential_id)
@@ -132,15 +135,27 @@ pub async fn update_counter(
     .execute(pool)
     .await;
 
-    result.map_err(|e: sqlx::Error| {
-        tracing::error!("Failed to update passkey counter: {}", e);
-        Error::from((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::SomethingWentWrong,
-        ))
-    })?;
-
-    Ok(())
+    match result {
+        Ok(query_result) => {
+            if query_result.rows_affected() == 0 {
+                tracing::error!(
+                    "Failed to update passkey counter: counter validation failed or credential not found"
+                );
+                return Err(Error::from((
+                    StatusCode::UNAUTHORIZED,
+                    TranslationKey::PasskeyAuthenticationFailed,
+                )));
+            }
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!("Failed to update passkey counter: {}", e);
+            Err(Error::from((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                TranslationKey::SomethingWentWrong,
+            )))
+        }
+    }
 }
 
 /// Deactivate a passkey credential (soft delete)
