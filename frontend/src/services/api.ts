@@ -1,5 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
 
+import router from "@/router";
+
 // Auth service axios instance
 // Dev: http://localhost:8000
 // Prod: /api/auth (proxied by nginx)
@@ -22,22 +24,23 @@ const setupInterceptors = (apiInstance: AxiosInstance) => {
             // Check if error is 401 and has TOKEN_EXPIRED translation key
             if (
                 error.response?.status === 401 &&
-                error.response?.data?.translation_key === "TOKEN_EXPIRED"
+                (error.response?.data?.translation_key === "TOKEN_EXPIRED" || error.response?.data?.translation_key === "TOKEN_INVALID")
             ) {
                 // Import dynamically to avoid circular dependency
                 const { useAuthStore } = await import("@/stores/auth");
                 const { useToastStore, ToastSeverity } = await import("@/stores/toast");
-                
+
                 const authStore = useAuthStore();
                 const toastStore = useToastStore();
-                
+
                 // Show error message
-                toastStore.showTranslationKey("TOKEN_EXPIRED", ToastSeverity.ERROR);
-                
+                toastStore.showTranslationKey(error.response?.data?.translation_key, ToastSeverity.ERROR);
+
                 // Use logout method to ensure proper cleanup
-                await authStore.logout();
+                authStore.token = "";
+                router.push("/login");
             }
-            
+
             return Promise.reject(error);
         },
     );

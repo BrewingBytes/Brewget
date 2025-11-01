@@ -57,11 +57,14 @@ pub async fn auth_guard(
         received_token,
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
-    )?;
+    )
+    .map_err(|_| (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid))?;
 
     // Check if token exists in database
     let pool = state.get_database_pool();
-    let token_res = database::tokens::find(received_token, pool).await?;
+    let token_res = database::tokens::find(received_token, pool)
+        .await
+        .map_err(|_| (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid))?;
 
     // Verify token is not expired
     if token_res.is_expired() {
