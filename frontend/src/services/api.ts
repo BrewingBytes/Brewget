@@ -31,15 +31,11 @@ const setupInterceptors = (apiInstance: AxiosInstance) => {
                 const authStore = useAuthStore();
                 const toastStore = useToastStore();
                 
-                // Clear token
-                authStore.token = "";
-                
                 // Show error message
                 toastStore.showTranslationKey("TOKEN_EXPIRED", ToastSeverity.ERROR);
                 
-                // Redirect to login
-                const { default: router } = await import("@/router");
-                router.push("/login");
+                // Use logout method to ensure proper cleanup
+                await authStore.logout();
             }
             
             return Promise.reject(error);

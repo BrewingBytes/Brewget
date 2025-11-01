@@ -5,9 +5,7 @@ use crate::{
     models::response::{Error, TranslationKey, TranslationKeyMessage},
     routes::middlewares::auth_guard::auth_guard,
 };
-use axum::{
-    Extension, Json, Router, extract::State, middleware, response::IntoResponse, routing::get,
-};
+use axum::{Extension, Json, Router, middleware, response::IntoResponse, routing::get};
 
 /// Creates a router for the verify token routes
 pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
@@ -30,7 +28,6 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// 3. Returns OK message
 ///
 /// # Arguments
-/// * `state` - Application state
 /// * `user_uuid` - User ID from auth middleware (proves token is valid)
 ///
 /// # Returns
@@ -44,7 +41,6 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// }
 /// ```
 async fn verify_handler(
-    State(_state): State<Arc<AppState>>,
     Extension(_user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::debug!("Token verification successful");

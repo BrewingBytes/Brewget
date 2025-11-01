@@ -65,7 +65,12 @@ async function verify(): Promise<ServerResponse<VerifyResponse>> {
             },
         });
     } catch (error) {
-        return (error as AxiosError).response as ErrorResponse;
+        const axiosError = error as AxiosError;
+        if (axiosError.response) {
+            return axiosError.response as ErrorResponse;
+        }
+        // Fallback if response is not available
+        throw error;
     }
 }
 
