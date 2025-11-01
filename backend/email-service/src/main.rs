@@ -28,14 +28,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::init();
     tracing::info!("✅ Configuration loaded successfully");
     tracing::debug!(
-        "HTTP port: {}, gRPC port: {}",
-        config.email_http_port,
-        config.email_grpc_port
+        http_port = config.email_http_port,
+        grpc_port = config.email_grpc_port,
+        smtp_relay = %config.smtp_relay,
+        smtp_email = %config.smtp_email,
+        "Configuration details"
     );
 
     // Parse the gRPC server address
     let grpc_addr: std::net::SocketAddr = format!("0.0.0.0:{}", config.email_grpc_port).parse()?;
-    tracing::info!("✅ GRPC listener bound to port {}", config.email_grpc_port);
+    tracing::info!(
+        grpc_port = config.email_grpc_port,
+        grpc_addr = %grpc_addr,
+        "✅ gRPC listener configured"
+    );
 
     // Create the email service instance with SMTP configuration
     let service = Service::new(config.clone().into())?;
@@ -49,7 +55,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.email_http_port))
             .await
             .expect("Could not bind TcpListener for HTTP.");
-    tracing::info!("✅ HTTP listener bound to port {}", config.email_http_port);
+    tracing::info!(
+        http_port = config.email_http_port,
+        "✅ HTTP listener bound successfully"
+    );
 
     let http_server = tokio::spawn(async move {
         axum::serve(http_listener, app)
@@ -66,11 +75,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .expect("Could not start grpc server.");
     });
 
-    tracing::info!("🚀 HTTP Server started on port {}", config.email_http_port);
-    tracing::info!("🚀 gRPC Server starting on port {}", config.email_grpc_port);
+    tracing::info!(
+        http_port = config.email_http_port,
+        grpc_port = config.email_grpc_port,
+        "🚀 Starting HTTP and gRPC servers"
+    );
 
     // Wait for both servers
-    tracing::info!("✅ Both servers are running");
+    tracing::info!("✅ Both servers are running and ready to accept requests");
     tokio::try_join!(http_server, grpc_server).expect("Server error");
 
     Ok(())

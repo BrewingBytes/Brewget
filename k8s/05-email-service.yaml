@@ -37,7 +37,7 @@ spec:
       - name: ghcr-login-secret
       containers:
       - name: email-service
-        image: ghcr.io/brewingbytes/brewget-email-service:0.0.9
+        image: ghcr.io/brewingbytes/brewget-email-service:0.0.10
         ports:
         - containerPort: 9001
           name: grpc
