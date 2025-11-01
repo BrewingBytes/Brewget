@@ -57,7 +57,8 @@ pub async fn auth_guard(
         received_token,
         &DecodingKey::from_secret(state.config.jwt_secret.as_ref()),
         &Validation::default(),
-    )?;
+    )
+    .map_err(|_| (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid))?;
 
     // Check if token exists in database
     let pool = state.get_database_pool();

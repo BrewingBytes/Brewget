@@ -154,6 +154,22 @@ export const useAuthStore = defineStore(
       router.push("/login");
     }
 
+    async function verifyToken(): Promise<boolean> {
+      if (token.value === "") {
+        return false;
+      }
+
+      const response = await authService.verify();
+
+      // If token is invalid or expired, the axios interceptor will handle logout
+      // and show the appropriate message
+      if (response.status !== ServerStatus.NO_ERROR) {
+        return false;
+      }
+
+      return true;
+    }
+
     return {
       token,
       activate,
@@ -164,6 +180,7 @@ export const useAuthStore = defineStore(
       register,
       forgotPassword,
       logout,
+      verifyToken,
     };
   },
   {

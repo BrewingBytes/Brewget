@@ -11,3 +11,4 @@ export type ForgotPasswordResponse = TranslationKeyMessage;
 export type ChangePasswordResponse = TranslationKeyMessage;
 export type LogoutResponse = TranslationKeyMessage;
 export type ActivateResponse = TranslationKeyMessage;
+export type VerifyResponse = TranslationKeyMessage;

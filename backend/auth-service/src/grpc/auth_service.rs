@@ -30,7 +30,7 @@ impl AuthService for AuthServiceImpl {
     /// * `request` - gRPC request containing the token to verify
     ///
     /// # Returns
-    /// * `Ok(Response<VerifyTokenResponse>)` - Contains user_id if token is valid, None otherwise
+    /// * `Ok(Response<VerifyTokenResponse>)` - Contains user_id if token is valid, error_reason otherwise
     /// * `Err(Status)` - gRPC error if something went wrong
     async fn verify_token(
         &self,
@@ -52,7 +52,10 @@ impl AuthService for AuthServiceImpl {
             Err(e) => {
                 tracing::warn!("Failed to decode JWT token: {}", e);
                 // Invalid token format or signature
-                return Ok(Response::new(VerifyTokenResponse { user_id: None }));
+                return Ok(Response::new(VerifyTokenResponse {
+                    user_id: None,
+                    error_reason: Some("TOKEN_INVALID".to_string()),
+                }));
             }
         };
 
@@ -67,7 +70,10 @@ impl AuthService for AuthServiceImpl {
             Err(_) => {
                 tracing::warn!("Token not found in database");
                 // Token not found in database
-                return Ok(Response::new(VerifyTokenResponse { user_id: None }));
+                return Ok(Response::new(VerifyTokenResponse {
+                    user_id: None,
+                    error_reason: Some("TOKEN_INVALID".to_string()),
+                }));
             }
         };
 
@@ -78,8 +84,13 @@ impl AuthService for AuthServiceImpl {
                 token_res.get_uuid()
             );
             // Clean up expired token
-            let _ = database::tokens::delete_by_token(token_res.get_token(), pool).await;
-            return Ok(Response::new(VerifyTokenResponse { user_id: None }));
+            if let Err(e) = database::tokens::delete_by_token(token_res.get_token(), pool).await {
+                tracing::error!("Failed to delete expired token from database: {:?}", e);
+            }
+            return Ok(Response::new(VerifyTokenResponse {
+                user_id: None,
+                error_reason: Some("TOKEN_EXPIRED".to_string()),
+            }));
         }
 
         // Verify token belongs to the correct user
@@ -89,7 +100,10 @@ impl AuthService for AuthServiceImpl {
                 token_res.get_uuid(),
                 decoded_token.claims.sub
             );
-            return Ok(Response::new(VerifyTokenResponse { user_id: None }));
+            return Ok(Response::new(VerifyTokenResponse {
+                user_id: None,
+                error_reason: Some("TOKEN_INVALID".to_string()),
+            }));
         }
 
         // Token is valid, return user ID
@@ -97,6 +111,7 @@ impl AuthService for AuthServiceImpl {
         tracing::info!("Token verified successfully for user: {}", user_id);
         Ok(Response::new(VerifyTokenResponse {
             user_id: Some(user_id),
+            error_reason: None,
         }))
     }
 }

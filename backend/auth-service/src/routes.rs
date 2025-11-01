@@ -6,6 +6,7 @@ mod login;
 mod logout;
 mod middlewares;
 mod register;
+mod verify;
 
 use std::sync::Arc;
 
@@ -73,6 +74,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
         )
         .nest("/login", login::get_router(state.clone()))
         .nest("/logout", logout::get_router(state.clone()))
+        .nest("/verify", verify::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)

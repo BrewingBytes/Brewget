@@ -76,10 +76,22 @@ pub async fn auth_guard(
         )
     })?;
 
+    let response_inner = response.into_inner();
+
     // Check if token is valid (auth service returns Some(user_id) if valid)
-    let user_id = response.into_inner().user_id.ok_or_else(|| {
-        tracing::warn!("Auth guard: Token validation failed - invalid or expired token");
-        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid)
+    let user_id = response_inner.user_id.ok_or_else(|| {
+        // Check error reason to return appropriate error
+        let error_reason = response_inner
+            .error_reason
+            .as_deref()
+            .unwrap_or("TOKEN_INVALID");
+        tracing::warn!("Auth guard: Token validation failed - {}", error_reason);
+
+        if error_reason == "TOKEN_EXPIRED" {
+            (StatusCode::UNAUTHORIZED, TranslationKey::TokenExpired)
+        } else {
+            (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid)
+        }
     })?;
 
     // Parse user_id as UUID
