@@ -85,7 +85,7 @@ pub enum TranslationKey {
 ///     "translation_key": "ACCOUNT_CREATED"
 /// }
 /// ```
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Debug)]
 pub struct TranslationKeyMessage {
     pub translation_key: TranslationKey,
 }

@@ -12,4 +12,5 @@ message VerifyTokenRequest {
 
 message VerifyTokenResponse {
     optional string user_id = 1;
+    optional string error_reason = 2; // "TOKEN_EXPIRED" or "TOKEN_INVALID"
 }

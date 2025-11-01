@@ -13,6 +13,7 @@ use crate::response::{TranslationKey, TranslationKeyMessage};
 /// # Fields
 /// * `code` - HTTP status code for the error response
 /// * `body` - JSON message containing error translation key
+#[derive(Debug)]
 pub struct Error {
     code: StatusCode,
     body: Json<TranslationKeyMessage>,
