@@ -13,6 +13,11 @@ interface ChangeEntry {
   };
 }
 
+interface ServiceChangelog {
+  service: string;
+  entries: ChangeEntry[];
+}
+
 interface VersionInfo {
   service: string;
   version: string;
@@ -45,20 +50,23 @@ async function loadVersions() {
       versionService.getEmailVersion(),
     ]);
 
-    // Fetch changelog content from public directory
-    const [frontendChangelog, authChangelog, settingsChangelog, emailChangelog] = await Promise.all([
-      fetchChangelog("frontend"),
-      fetchChangelog("auth-service"),
-      fetchChangelog("settings-service"),
-      fetchChangelog("email-service"),
-    ]);
+    // Fetch pre-built changelogs JSON
+    const changelogsData = await fetchChangelogsJson();
 
-    versions.value = [
-      { service: "Frontend", version: frontendVersion, entries: parseChangelog(frontendChangelog) },
-      { service: "Auth Service", version: authVersion, entries: parseChangelog(authChangelog) },
-      { service: "Settings Service", version: settingsVersion, entries: parseChangelog(settingsChangelog) },
-      { service: "Email Service", version: emailVersion, entries: parseChangelog(emailChangelog) },
-    ];
+    // Map service names to versions
+    const versionMap: Record<string, string> = {
+      "Frontend": frontendVersion,
+      "Auth Service": authVersion,
+      "Settings Service": settingsVersion,
+      "Email Service": emailVersion,
+    };
+
+    // Build version info with changelogs
+    versions.value = changelogsData.map((changelog) => ({
+      service: changelog.service,
+      version: versionMap[changelog.service] || "unknown",
+      entries: changelog.entries,
+    }));
   } catch (error) {
     console.error("Failed to load versions:", error);
   } finally {
@@ -66,75 +74,18 @@ async function loadVersions() {
   }
 }
 
-async function fetchChangelog(service: string): Promise<string> {
+async function fetchChangelogsJson(): Promise<ServiceChangelog[]> {
   try {
-    const response = await fetch(`/changelogs/${service}-CHANGELOG.md`);
+    const response = await fetch("/changelogs.json");
     if (!response.ok) {
-      return "";
+      console.error("Failed to fetch changelogs.json");
+      return [];
     }
-    return await response.text();
+    return await response.json();
   } catch (error) {
-    console.error(`Failed to fetch changelog for ${service}:`, error);
-    return "";
+    console.error("Failed to fetch changelogs JSON:", error);
+    return [];
   }
-}
-
-function parseChangelog(content: string): ChangeEntry[] {
-  const entries: ChangeEntry[] = [];
-  const lines = content.split("\n");
-
-  let currentEntry: ChangeEntry | null = null;
-  let currentSection: "added" | "changed" | "fixed" | null = null;
-
-  for (const line of lines) {
-    // Skip header lines
-    if (line.startsWith("# Changelog") || line.startsWith("All notable changes")) {
-      continue;
-    }
-
-    // Match version header: ## [0.0.10] - 2025-10-31
-    const versionMatch = line.match(/^## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})/);
-    if (versionMatch && versionMatch[1] && versionMatch[2]) {
-      if (currentEntry) {
-        entries.push(currentEntry);
-      }
-      currentEntry = {
-        version: versionMatch[1],
-        date: versionMatch[2],
-        changes: { added: [], changed: [], fixed: [] },
-      };
-      currentSection = null;
-      continue;
-    }
-
-    // Match section headers
-    if (line.startsWith("### Added")) {
-      currentSection = "added";
-      continue;
-    }
-    if (line.startsWith("### Changed")) {
-      currentSection = "changed";
-      continue;
-    }
-    if (line.startsWith("### Fixed")) {
-      currentSection = "fixed";
-      continue;
-    }
-
-    // Match bullet points
-    if (line.startsWith("- ") && currentEntry && currentSection) {
-      const change = line.substring(2).trim();
-      if (change) {
-        currentEntry.changes[currentSection].push(change);
-      }
-    }
-  }
-
-  if (currentEntry) {
-    entries.push(currentEntry);
-  }
-
-  return entries;
 }
 
 function handleClose() {

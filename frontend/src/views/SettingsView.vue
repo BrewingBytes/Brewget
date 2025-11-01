@@ -193,9 +193,7 @@ function getLocaleToUtcOffsetMinutes(): number {
                   <i class="pi pi-clock mr-2"></i> {{ t("settings.alarm_time") }}
                 </label>
                 <InputText id="alarmTime" v-model="alarmTime" type="time"
-                  class="w-full bg-transparent! border-white! text-white!" :pt="{
-
-                  }" />
+                  class="w-full bg-transparent! border-white! text-white!" />
               </div>
             </div>
           </div>
