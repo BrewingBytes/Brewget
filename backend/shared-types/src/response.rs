@@ -94,7 +94,7 @@ pub struct TranslationKeyMessage {
 ///
 /// # Fields
 /// * `status` - The current status of the service
-/// * `database` - The current status of the connection to the db
+/// * `database` - The current status of the connection to the db (optional)
 /// * `version` - The current version of the service
 ///
 /// # Example
@@ -108,7 +108,8 @@ pub struct TranslationKeyMessage {
 #[derive(Serialize)]
 pub struct Health {
     pub status: HealthStatus,
-    pub database: DatabaseConnection,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub database: Option<DatabaseConnection>,
     pub version: String,
 }
 

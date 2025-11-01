@@ -1,12 +1,13 @@
 {
   "name": "frontend",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
+    "prebuild": "node scripts/build-changelogs.mjs",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint .",

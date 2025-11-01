@@ -41,6 +41,9 @@
     "enable_alarm": "Enable Alarm",
     "alarm_time": "Alarm Time",
     "save_settings": "Save Settings",
+    "logout": "Logout",
+    "version": "Version",
+    "click_to_view_changelog": "Click to view changelog",
     "settings_updated": "Settings updated successfully",
     "failed_to_load": "Failed to load settings",
     "failed_to_update": "Failed to update settings",
@@ -100,5 +103,10 @@
     "success": "Success",
     "info": "Info",
     "warn": "Warning"
+  },
+  "cookie_consent": {
+    "title": "Cookie Consent",
+    "message": "We use cookies to enhance your experience on our website. You must accept cookies to use this site.",
+    "accept": "Accept"
   }
 }

@@ -45,3 +45,10 @@ See [k8s/README.md](k8s/README.md) for detailed instructions.
 - [Kubernetes Deployment Guide](k8s/README.md)
 - [Database Migrations](backend/MIGRATIONS.md)
 - [Separate Databases Configuration](backend/SEPARATE_DATABASES.md)
+
+## Changelogs
+
+- [Frontend Changelog](frontend/public/changelogs/frontend-CHANGELOG.md)
+- [Auth Service Changelog](frontend/public/changelogs/auth-service-CHANGELOG.md)
+- [Settings Service Changelog](frontend/public/changelogs/settings-service-CHANGELOG.md)
+- [Email Service Changelog](frontend/public/changelogs/email-service-CHANGELOG.md)

@@ -41,6 +41,9 @@
     "enable_alarm": "Activer l'alarme",
     "alarm_time": "Heure de l'alarme",
     "save_settings": "Enregistrer les paramètres",
+    "logout": "Se déconnecter",
+    "version": "Version",
+    "click_to_view_changelog": "Cliquez pour voir le journal des modifications",
     "settings_updated": "Paramètres mis à jour avec succès",
     "failed_to_load": "Échec du chargement des paramètres",
     "failed_to_update": "Échec de la mise à jour des paramètres",
@@ -100,5 +103,10 @@
     "success": "Succès",
     "info": "Info",
     "warn": "Avertissement"
+  },
+  "cookie_consent": {
+    "title": "Consentement aux cookies",
+    "message": "Nous utilisons des cookies pour améliorer votre expérience sur notre site web. Vous devez accepter les cookies pour utiliser ce site.",
+    "accept": "Accepter"
   }
 }

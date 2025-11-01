@@ -11,6 +11,9 @@ spec:
     - port: 9001
       targetPort: 9001
       name: grpc
+    - port: 8001
+      targetPort: 8001
+      name: http
   selector:
     app: email-service
 
@@ -34,10 +37,12 @@ spec:
       - name: ghcr-login-secret
       containers:
       - name: email-service
-        image: ghcr.io/brewingbytes/brewget-email-service:0.0.8
+        image: ghcr.io/brewingbytes/brewget-email-service:0.0.9
         ports:
         - containerPort: 9001
           name: grpc
+        - containerPort: 8001
+          name: http
         env:
         - name: SMTP_EMAIL
           valueFrom:
@@ -69,6 +74,11 @@ spec:
             configMapKeyRef:
               name: shared-config
               key: EMAIL_GRPC_PORT
+        - name: EMAIL_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: EMAIL_HTTP_PORT
         resources:
           requests:
             memory: "128Mi"
@@ -77,12 +87,14 @@ spec:
             memory: "256Mi"
             cpu: "200m"
         livenessProbe:
-          tcpSocket:
-            port: 9001
+          httpGet:
+            path: /health
+            port: 8001
           initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
-          tcpSocket:
-            port: 9001
+          httpGet:
+            path: /health
+            port: 8001
           initialDelaySeconds: 5
           periodSeconds: 5

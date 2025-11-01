@@ -7,7 +7,8 @@ data:
   # Service ports
   AUTH_HTTP_PORT: "8000"
   AUTH_GRPC_PORT: "9000"
-  SETTINGS_HTTP_PORT: "8001"
+  SETTINGS_HTTP_PORT: "8002"
+  EMAIL_HTTP_PORT: "8001"
   EMAIL_GRPC_PORT: "9001"
 
   # Service hostnames

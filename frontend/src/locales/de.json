@@ -41,6 +41,9 @@
     "enable_alarm": "Alarm aktivieren",
     "alarm_time": "Alarmzeit",
     "save_settings": "Einstellungen speichern",
+    "logout": "Abmelden",
+    "version": "Version",
+    "click_to_view_changelog": "Klicken Sie, um das Änderungsprotokoll anzuzeigen",
     "settings_updated": "Einstellungen erfolgreich aktualisiert",
     "failed_to_load": "Einstellungen konnten nicht geladen werden",
     "failed_to_update": "Einstellungen konnten nicht aktualisiert werden",
@@ -100,5 +103,10 @@
     "success": "Erfolg",
     "info": "Info",
     "warn": "Warnung"
+  },
+  "cookie_consent": {
+    "title": "Cookie-Zustimmung",
+    "message": "Wir verwenden Cookies, um Ihre Erfahrung auf unserer Website zu verbessern. Sie müssen Cookies akzeptieren, um diese Seite zu nutzen.",
+    "accept": "Akzeptieren"
   }
 }
