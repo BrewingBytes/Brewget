@@ -25,7 +25,7 @@ const username = ref("");
 const password = ref("");
 const email = ref("");
 
-const turnstileRef = ref<HTMLElement | null>(null);
+const turnstileKey = ref(0);
 const captchaToken = ref("");
 
 const texts = computed(() => {
@@ -74,27 +74,7 @@ function onCaptchaVerify(token: string) {
 }
 
 function resetTurnstile() {
-  // clear stored token so v-model is empty
-  captchaToken.value = "";
-
-  try {
-    // try widget instance reset first (vue-turnstile exposes reset on ref in some versions)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const widget = (turnstileRef.value as any);
-    if (widget && typeof widget.reset === "function") {
-      widget.reset();
-      return;
-    }
-    // fallback to global API
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).turnstile && typeof (window as any).turnstile.reset === "function") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).turnstile.reset();
-    }
-  } catch (e) {
-    // ignore
-    console.error("Failed to reset turnstile:", e);
-  }
+  turnstileKey.value++;
 }
 
 async function buttonAction() {
@@ -175,8 +155,8 @@ async function buttonAction() {
         </IconField>
       </div>
       <div class="flex justify-center w-full">
-        <VueTurnstile ref="turnstileRef" v-model="captchaToken" :site-key="TURNSTILE_SITE_KEY" @verify="onCaptchaVerify"
-          theme="dark" />
+        <VueTurnstile :key="turnstileKey" v-model="captchaToken" :site-key="TURNSTILE_SITE_KEY"
+          @verify="onCaptchaVerify" theme="dark" />
       </div>
       <Button @click="buttonAction" :label="texts.buttonText"
         class="w-full! rounded-3xl! bg-surface-950! border! border-surface-950! text-white! hover:bg-surface-950/80!" />

@@ -52,7 +52,6 @@ export const useAuthStore = defineStore(
       captchaToken: string;
     }): Promise<boolean> {
       const response = await authService.login(values);
-      console.log(response);
 
       // If error fail
       if (response.status !== ServerStatus.NO_ERROR) {
