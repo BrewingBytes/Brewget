@@ -6,7 +6,7 @@ CREATE TABLE passkey_credentials (
     -- WebAuthn credential data
     credential_id BYTEA NOT NULL UNIQUE,
     public_key BYTEA NOT NULL,
-    counter BIGINT NOT NULL DEFAULT 0,
+    counter BIGINT NOT NULL DEFAULT 0 CHECK (counter >= 0),
     
     -- Credential metadata
     aaguid BYTEA,
