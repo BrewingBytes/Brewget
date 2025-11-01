@@ -7,6 +7,7 @@ use lettre::{
 };
 use serde_json::json;
 use tonic::{Request, Response, Result, Status};
+use tracing::{error, info, instrument, warn};
 
 use crate::{
     config::Config,
@@ -70,12 +71,20 @@ impl Service {
     /// let config = Arc::new(Config::init());
     /// let service = Service::new(config)?;
     /// ```
+    #[instrument(skip(config), fields(smtp_relay = %config.smtp_relay))]
     pub fn new(config: Arc<Config>) -> Result<Self, Box<dyn std::error::Error>> {
+        info!("Initializing email service with SMTP configuration");
+
         let creds = Credentials::new(config.smtp_username.clone(), config.smtp_password.clone());
-        let mailer = SmtpTransport::starttls_relay(&config.smtp_relay)?
+        let mailer = SmtpTransport::starttls_relay(&config.smtp_relay)
+            .map_err(|e| {
+                error!(error = %e, smtp_relay = %config.smtp_relay, "Failed to create SMTP transport");
+                e
+            })?
             .credentials(creds)
             .build();
 
+        info!("Email service initialized successfully");
         Ok(Self { config, mailer })
     }
 
@@ -92,19 +101,26 @@ impl Service {
     ///
     /// * `Ok(Message)` - Successfully created email message
     /// * `Err(())` - Error occurred during message creation
+    #[instrument(skip(self, request), fields(email = %request.email, username = %request.username))]
     async fn create_activate_account_mail(
         &self,
         request: &ActivateAccountRequest,
     ) -> Result<Message, ()> {
+        info!("Creating activation account email message");
+
         let m = Message::builder()
             .from(
                 format!("{} <{}>", self.config.smtp_name, self.config.smtp_email)
                     .parse()
-                    .map_err(|_| ())?,
+                    .map_err(|e| {
+                        error!(error = ?e, from_email = %self.config.smtp_email, "Failed to parse 'from' email address");
+                    })?,
             )
             .to(format!("{} <{}>", request.username, request.email)
                 .parse()
-                .map_err(|_| ())?)
+                .map_err(|e| {
+                    error!(error = ?e, to_email = %request.email, "Failed to parse 'to' email address");
+                })?)
             .subject("Activate your account");
 
         let plain = format!(
@@ -117,10 +133,15 @@ impl Service {
                 ACTIVATE_ACCOUNT_TEMPLATE,
                 &json!({"activation_link": request.link}),
             )
-            .map_err(|_| ())?;
+            .map_err(|e| {
+                error!(error = %e, "Failed to render activation email template");
+            })?;
 
+        info!("Successfully created activation account email message");
         m.multipart(MultiPart::alternative_plain_html(plain, html))
-            .map_err(|_| ())
+            .map_err(|e| {
+                error!(error = ?e, "Failed to create multipart email message");
+            })
     }
 
     /// Creates a password reset email message
@@ -136,19 +157,26 @@ impl Service {
     ///
     /// * `Ok(Message)` - Successfully created email message
     /// * `Err(())` - Error occurred during message creation
+    #[instrument(skip(self, request), fields(email = %request.email, username = %request.username))]
     async fn create_forgot_password_mail(
         &self,
         request: &ForgotPasswordRequest,
     ) -> Result<Message, ()> {
+        info!("Creating forgot password email message");
+
         let m = Message::builder()
             .from(
                 format!("{} <{}>", self.config.smtp_name, self.config.smtp_email)
                     .parse()
-                    .map_err(|_| ())?,
+                    .map_err(|e| {
+                        error!(error = ?e, from_email = %self.config.smtp_email, "Failed to parse 'from' email address");
+                    })?,
             )
             .to(format!("{} <{}>", request.username, request.email)
                 .parse()
-                .map_err(|_| ())?)
+                .map_err(|e| {
+                    error!(error = ?e, to_email = %request.email, "Failed to parse 'to' email address");
+                })?)
             .subject("Reset your password");
 
         let plain = format!(
@@ -161,10 +189,15 @@ impl Service {
                 FORGOT_PASSWORD_TEMPLATE,
                 &json!({"forgot_password_link": request.link}),
             )
-            .map_err(|_| ())?;
+            .map_err(|e| {
+                error!(error = %e, "Failed to render forgot password email template");
+            })?;
 
+        info!("Successfully created forgot password email message");
         m.multipart(MultiPart::alternative_plain_html(plain, html))
-            .map_err(|_| ())
+            .map_err(|e| {
+                error!(error = ?e, "Failed to create multipart email message");
+            })
     }
 
     /// Sends an email using the configured SMTP transport
@@ -179,8 +212,18 @@ impl Service {
     ///
     /// * `Ok(())` - Email sent successfully
     /// * `Err(())` - Error occurred during email sending
+    #[instrument(skip(self, message), fields(subject = ?message.headers().get_raw("Subject")))]
     fn send_email(&self, message: Message) -> Result<(), ()> {
-        self.mailer.send(&message).map_err(|_| ()).map(|_| ())
+        info!("Sending email via SMTP");
+
+        self.mailer
+            .send(&message)
+            .map_err(|e| {
+                error!(error = %e, "Failed to send email via SMTP transport");
+            })
+            .map(|response| {
+                info!(smtp_code = ?response.code(), "Email sent successfully via SMTP");
+            })
     }
 }
 
@@ -209,24 +252,41 @@ impl EmailService for Service {
     /// # Response Fields
     ///
     /// * `success` - Boolean indicating whether the email was sent successfully
+    #[instrument(skip(self, request))]
     async fn send_activate_account(
         &self,
         request: Request<ActivateAccountRequest>,
     ) -> Result<Response<ActivateAccountResponse>, Status> {
         let req = request.into_inner();
-        tracing::info!("Sending activation email to: {}", req.email);
+        info!(
+            email = %req.email,
+            username = %req.username,
+            "Received request to send activation email"
+        );
 
         let message = self.create_activate_account_mail(&req).await.map_err(|_| {
-            tracing::error!("Failed to create activation email for: {}", req.email);
+            error!(
+                email = %req.email,
+                username = %req.username,
+                "Failed to create activation email"
+            );
             Status::internal("Could not create email.")
         })?;
 
         self.send_email(message).map_err(|_| {
-            tracing::error!("Failed to send activation email to: {}", req.email);
+            error!(
+                email = %req.email,
+                username = %req.username,
+                "Failed to send activation email"
+            );
             Status::internal("Could not send email.")
         })?;
 
-        tracing::info!("Activation email sent successfully to: {}", req.email);
+        info!(
+            email = %req.email,
+            username = %req.username,
+            "Activation email sent successfully"
+        );
         let reply = ActivateAccountResponse { success: true };
         Ok(Response::new(reply))
     }
@@ -254,24 +314,41 @@ impl EmailService for Service {
     /// # Response Fields
     ///
     /// * `success` - Boolean indicating whether the email was sent successfully
+    #[instrument(skip(self, request))]
     async fn send_forgot_password(
         &self,
         request: Request<ForgotPasswordRequest>,
     ) -> Result<Response<ForgotPasswordResponse>, Status> {
         let req = request.into_inner();
-        tracing::info!("Sending forgot password email to: {}", req.email);
+        info!(
+            email = %req.email,
+            username = %req.username,
+            "Received request to send forgot password email"
+        );
 
         let message = self.create_forgot_password_mail(&req).await.map_err(|_| {
-            tracing::error!("Failed to create forgot password email for: {}", req.email);
+            error!(
+                email = %req.email,
+                username = %req.username,
+                "Failed to create forgot password email"
+            );
             Status::internal("Could not create email.")
         })?;
 
         self.send_email(message).map_err(|_| {
-            tracing::error!("Failed to send forgot password email to: {}", req.email);
+            error!(
+                email = %req.email,
+                username = %req.username,
+                "Failed to send forgot password email"
+            );
             Status::internal("Could not send email.")
         })?;
 
-        tracing::info!("Forgot password email sent successfully to: {}", req.email);
+        info!(
+            email = %req.email,
+            username = %req.username,
+            "Forgot password email sent successfully"
+        );
         let reply = ForgotPasswordResponse { success: true };
         Ok(Response::new(reply))
     }
