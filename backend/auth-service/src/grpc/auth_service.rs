@@ -84,7 +84,9 @@ impl AuthService for AuthServiceImpl {
                 token_res.get_uuid()
             );
             // Clean up expired token
-            let _ = database::tokens::delete_by_token(token_res.get_token(), pool).await;
+            if let Err(e) = database::tokens::delete_by_token(token_res.get_token(), pool).await {
+                tracing::error!("Failed to delete expired token from database: {:?}", e);
+            }
             return Ok(Response::new(VerifyTokenResponse {
                 user_id: None,
                 error_reason: Some("TOKEN_EXPIRED".to_string()),
