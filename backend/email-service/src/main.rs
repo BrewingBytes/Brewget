@@ -11,21 +11,15 @@ mod service;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize tracing/logging with structured output
+    // Initialize tracing/logging
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
         )
-        .with_target(true)
-        .with_thread_ids(true)
-        .with_line_number(true)
         .init();
 
-    tracing::info!(
-        version = env!("CARGO_PKG_VERSION"),
-        "🚀 Starting Email Service"
-    );
+    tracing::info!("🚀 Starting Email Service...");
 
     // Load environment variables from .env file
     dotenv::dotenv().ok();

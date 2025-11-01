@@ -7,7 +7,7 @@ use lettre::{
 };
 use serde_json::json;
 use tonic::{Request, Response, Result, Status};
-use tracing::{error, info, instrument, warn};
+use tracing::{error, info, instrument};
 
 use crate::{
     config::Config,
@@ -26,6 +26,34 @@ const FORGOT_PASSWORD_TEMPLATE: &str = include_str!("../emails/forgot_password_t
 pub mod email_service {
     tonic::include_proto!("email_service");
 }
+
+/// Email creation and sending errors
+#[derive(Debug)]
+pub enum EmailError {
+    /// Error parsing email address
+    AddressParse(String),
+    /// Error rendering email template
+    TemplateRender(String),
+    /// Error creating email message
+    MessageBuild(String),
+    /// Error sending email via SMTP
+    SmtpSend(String),
+}
+
+impl std::fmt::Display for EmailError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EmailError::AddressParse(msg) => write!(f, "Failed to parse email address: {}", msg),
+            EmailError::TemplateRender(msg) => {
+                write!(f, "Failed to render email template: {}", msg)
+            }
+            EmailError::MessageBuild(msg) => write!(f, "Failed to build email message: {}", msg),
+            EmailError::SmtpSend(msg) => write!(f, "Failed to send email: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for EmailError {}
 
 /// Email service implementation
 ///
@@ -100,12 +128,12 @@ impl Service {
     /// # Returns
     ///
     /// * `Ok(Message)` - Successfully created email message
-    /// * `Err(())` - Error occurred during message creation
+    /// * `Err(EmailError)` - Error occurred during message creation
     #[instrument(skip(self, request), fields(email = %request.email, username = %request.username))]
     async fn create_activate_account_mail(
         &self,
         request: &ActivateAccountRequest,
-    ) -> Result<Message, ()> {
+    ) -> std::result::Result<Message, EmailError> {
         info!("Creating activation account email message");
 
         let m = Message::builder()
@@ -114,12 +142,14 @@ impl Service {
                     .parse()
                     .map_err(|e| {
                         error!(error = ?e, from_email = %self.config.smtp_email, "Failed to parse 'from' email address");
+                        EmailError::AddressParse(format!("Invalid 'from' address: {}", e))
                     })?,
             )
             .to(format!("{} <{}>", request.username, request.email)
                 .parse()
                 .map_err(|e| {
                     error!(error = ?e, to_email = %request.email, "Failed to parse 'to' email address");
+                    EmailError::AddressParse(format!("Invalid 'to' address: {}", e))
                 })?)
             .subject("Activate your account");
 
@@ -135,12 +165,14 @@ impl Service {
             )
             .map_err(|e| {
                 error!(error = %e, "Failed to render activation email template");
+                EmailError::TemplateRender(e.to_string())
             })?;
 
         info!("Successfully created activation account email message");
         m.multipart(MultiPart::alternative_plain_html(plain, html))
             .map_err(|e| {
                 error!(error = ?e, "Failed to create multipart email message");
+                EmailError::MessageBuild(e.to_string())
             })
     }
 
@@ -156,12 +188,12 @@ impl Service {
     /// # Returns
     ///
     /// * `Ok(Message)` - Successfully created email message
-    /// * `Err(())` - Error occurred during message creation
+    /// * `Err(EmailError)` - Error occurred during message creation
     #[instrument(skip(self, request), fields(email = %request.email, username = %request.username))]
     async fn create_forgot_password_mail(
         &self,
         request: &ForgotPasswordRequest,
-    ) -> Result<Message, ()> {
+    ) -> std::result::Result<Message, EmailError> {
         info!("Creating forgot password email message");
 
         let m = Message::builder()
@@ -170,12 +202,14 @@ impl Service {
                     .parse()
                     .map_err(|e| {
                         error!(error = ?e, from_email = %self.config.smtp_email, "Failed to parse 'from' email address");
+                        EmailError::AddressParse(format!("Invalid 'from' address: {}", e))
                     })?,
             )
             .to(format!("{} <{}>", request.username, request.email)
                 .parse()
                 .map_err(|e| {
                     error!(error = ?e, to_email = %request.email, "Failed to parse 'to' email address");
+                    EmailError::AddressParse(format!("Invalid 'to' address: {}", e))
                 })?)
             .subject("Reset your password");
 
@@ -191,12 +225,14 @@ impl Service {
             )
             .map_err(|e| {
                 error!(error = %e, "Failed to render forgot password email template");
+                EmailError::TemplateRender(e.to_string())
             })?;
 
         info!("Successfully created forgot password email message");
         m.multipart(MultiPart::alternative_plain_html(plain, html))
             .map_err(|e| {
                 error!(error = ?e, "Failed to create multipart email message");
+                EmailError::MessageBuild(e.to_string())
             })
     }
 
@@ -211,15 +247,16 @@ impl Service {
     /// # Returns
     ///
     /// * `Ok(())` - Email sent successfully
-    /// * `Err(())` - Error occurred during email sending
+    /// * `Err(EmailError)` - Error occurred during email sending
     #[instrument(skip(self, message), fields(subject = ?message.headers().get_raw("Subject")))]
-    fn send_email(&self, message: Message) -> Result<(), ()> {
+    fn send_email(&self, message: Message) -> std::result::Result<(), EmailError> {
         info!("Sending email via SMTP");
 
         self.mailer
             .send(&message)
             .map_err(|e| {
                 error!(error = %e, "Failed to send email via SMTP transport");
+                EmailError::SmtpSend(e.to_string())
             })
             .map(|response| {
                 info!(smtp_code = ?response.code(), "Email sent successfully via SMTP");
@@ -264,22 +301,24 @@ impl EmailService for Service {
             "Received request to send activation email"
         );
 
-        let message = self.create_activate_account_mail(&req).await.map_err(|_| {
+        let message = self.create_activate_account_mail(&req).await.map_err(|e| {
             error!(
                 email = %req.email,
                 username = %req.username,
+                error = %e,
                 "Failed to create activation email"
             );
-            Status::internal("Could not create email.")
+            Status::internal(format!("Could not create email: {}", e))
         })?;
 
-        self.send_email(message).map_err(|_| {
+        self.send_email(message).map_err(|e| {
             error!(
                 email = %req.email,
                 username = %req.username,
+                error = %e,
                 "Failed to send activation email"
             );
-            Status::internal("Could not send email.")
+            Status::internal(format!("Could not send email: {}", e))
         })?;
 
         info!(
@@ -326,22 +365,24 @@ impl EmailService for Service {
             "Received request to send forgot password email"
         );
 
-        let message = self.create_forgot_password_mail(&req).await.map_err(|_| {
+        let message = self.create_forgot_password_mail(&req).await.map_err(|e| {
             error!(
                 email = %req.email,
                 username = %req.username,
+                error = %e,
                 "Failed to create forgot password email"
             );
-            Status::internal("Could not create email.")
+            Status::internal(format!("Could not create email: {}", e))
         })?;
 
-        self.send_email(message).map_err(|_| {
+        self.send_email(message).map_err(|e| {
             error!(
                 email = %req.email,
                 username = %req.username,
+                error = %e,
                 "Failed to send forgot password email"
             );
-            Status::internal("Could not send email.")
+            Status::internal(format!("Could not send email: {}", e))
         })?;
 
         info!(
