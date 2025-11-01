@@ -52,6 +52,38 @@ Technical specifications for backend and frontend implementation.
 
 ---
 
+### [PASSKEY_ARCHITECTURE_DIAGRAMS.md](./PASSKEY_ARCHITECTURE_DIAGRAMS.md)
+Visual architecture and flow diagrams.
+
+**Contents:**
+- System architecture overview
+- Registration/login sequence diagrams
+- Password fallback flows
+- Recovery mechanisms
+- Data model relationships
+- Security architecture layers
+- Browser capability detection
+- Deployment architecture
+
+**Audience:** All developers, architects, technical leads
+
+---
+
+### [PASSKEY_IMPLEMENTATION_CHECKLIST.md](./PASSKEY_IMPLEMENTATION_CHECKLIST.md)
+Detailed step-by-step implementation checklist.
+
+**Contents:**
+- Phase-by-phase task breakdown
+- Backend development tasks
+- Frontend development tasks
+- Testing requirements
+- Deployment steps
+- Progress tracking
+
+**Audience:** Development team, project managers
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### For Product Managers
@@ -72,14 +104,16 @@ Technical specifications for backend and frontend implementation.
 1. Read [PASSKEY_SUMMARY.md](./PASSKEY_SUMMARY.md) for context
 2. Jump to [PASSKEY_IMPLEMENTATION_GUIDE.md](./PASSKEY_IMPLEMENTATION_GUIDE.md)
 3. Review database schemas and API designs
-4. Follow implementation steps in the guide
+4. Use [PASSKEY_IMPLEMENTATION_CHECKLIST.md](./PASSKEY_IMPLEMENTATION_CHECKLIST.md) for tasks
+5. Follow implementation steps phase by phase
 
 ### For Frontend Developers
 
 1. Read [PASSKEY_SUMMARY.md](./PASSKEY_SUMMARY.md) for context
 2. Check user flows in [PASSKEY_AUTHENTICATION_UX.md](./PASSKEY_AUTHENTICATION_UX.md)
 3. Review frontend sections in [PASSKEY_IMPLEMENTATION_GUIDE.md](./PASSKEY_IMPLEMENTATION_GUIDE.md)
-4. Implement WebAuthn integration and UI components
+4. Use [PASSKEY_IMPLEMENTATION_CHECKLIST.md](./PASSKEY_IMPLEMENTATION_CHECKLIST.md) for tasks
+5. Implement WebAuthn integration and UI components
 
 ### For QA/Testing
 
