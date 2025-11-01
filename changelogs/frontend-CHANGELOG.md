@@ -6,6 +6,7 @@ All notable changes to the Frontend will be documented in this file.
 ### Fixed
 - Fix Turnstile captcha not resetting on failed login/register attempts
 - Fix login taking too long due to waiting for settings load
+- Fix token expiration handling to properly log out user on invalid/expired token
 
 ## [0.0.10] - 2025-10-31
 ### Added

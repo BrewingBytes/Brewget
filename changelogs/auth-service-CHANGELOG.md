@@ -2,6 +2,10 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- Fix token validation to properly handle invalid tokens and return unauthorized status
+
 ## [0.0.12] - 2025-10-31
 ### Changed
 - Replace static message strings with translation keys for frontend localization
