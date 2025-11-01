@@ -68,11 +68,16 @@ export const useAuthStore = defineStore(
 
       // Load user settings and apply language preference
       const settingsStore = useSettingsStore();
-      await settingsStore.loadSettings();
-
-      if (settingsStore.settings && SUPPORTED_LOCALES.includes(settingsStore.settings.language as SupportedLocale)) {
-        i18n.global.locale.value = settingsStore.settings.language as SupportedLocale;
-      }
+      settingsStore.loadSettings().then(() => {
+        if (settingsStore.settings && SUPPORTED_LOCALES.includes(settingsStore.settings.language as SupportedLocale)) {
+          i18n.global.locale.value = settingsStore.settings.language as SupportedLocale;
+        }
+      }).catch(() => {
+        useToastStore().showTranslationKey(
+          "settings.failed_to_load",
+          ToastSeverity.ERROR,
+        );
+      });
 
       router.push("/");
 
