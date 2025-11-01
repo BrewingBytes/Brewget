@@ -27,7 +27,6 @@ CREATE TABLE passkey_credentials (
 
 -- Indexes for performance
 CREATE INDEX idx_passkey_user_id ON passkey_credentials(user_id);
-CREATE INDEX idx_passkey_credential_id ON passkey_credentials(credential_id);
 CREATE INDEX idx_passkey_active ON passkey_credentials(is_active) WHERE is_active = TRUE;
 
 -- Trigger to update users.has_passkey when passkeys are added or removed
@@ -43,7 +42,7 @@ BEGIN
             WHERE user_id = OLD.user_id AND is_active = TRUE
         )
         WHERE id = OLD.user_id;
-    ELSIF TG_OP = 'UPDATE' AND OLD.is_active != NEW.is_active THEN
+    ELSIF TG_OP = 'UPDATE' AND OLD.is_active IS DISTINCT FROM NEW.is_active THEN
         UPDATE users 
         SET has_passkey = EXISTS(
             SELECT 1 FROM passkey_credentials 
