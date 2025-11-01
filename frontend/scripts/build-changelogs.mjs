@@ -100,7 +100,7 @@ const services = [
 const changelogs = [];
 
 for (const service of services) {
-  const filePath = join(__dirname, "..", "public", "changelogs", service.file);
+  const filePath = join(__dirname, "..", "..", "changelogs", service.file);
   try {
     const content = readFileSync(filePath, "utf-8");
     const entries = parseChangelog(content);
