@@ -30,6 +30,11 @@ use std::env::var;
 ///
 /// ## Password Security Configuration
 /// * `password_history_limit` - Number of previous passwords to prevent reuse (default: 3)
+///
+/// ## WebAuthn Configuration
+/// * `rp_id` - Relying Party ID for WebAuthn (e.g., "brewget.com" or "localhost")
+/// * `rp_origin` - Relying Party origin URL for WebAuthn (e.g., "https://brewget.com" or "http://localhost:5173")
+/// * `rp_name` - Relying Party name displayed to users (e.g., "BrewGet")
 #[derive(Clone)]
 pub struct Config {
     pub auth_http_port: u32,
@@ -47,6 +52,9 @@ pub struct Config {
     pub frontend_hostname: String,
     pub turnstile_secret: String,
     pub password_history_limit: i64,
+    pub rp_id: String,
+    pub rp_origin: String,
+    pub rp_name: String,
 }
 
 impl Config {
@@ -73,6 +81,9 @@ impl Config {
     /// - `FRONTEND_HOSTNAME` - Frontend application hostname
     /// - `TURNSTILE_SECRET` - Cloudflare Turnstile secret key
     /// - `PASSWORD_HISTORY_LIMIT` - Number of previous passwords to prevent reuse (optional, defaults to 3)
+    /// - `RP_ID` - Relying Party ID for WebAuthn (optional, defaults to "localhost")
+    /// - `RP_ORIGIN` - Relying Party origin URL for WebAuthn (optional, defaults to "http://localhost:5173")
+    /// - `RP_NAME` - Relying Party name for WebAuthn (optional, defaults to "BrewGet")
     ///
     /// # Panics
     ///
@@ -132,6 +143,9 @@ impl Config {
             .ok()
             .and_then(|limit| limit.parse::<i64>().ok())
             .unwrap_or(3);
+        let rp_id = var("RP_ID").unwrap_or_else(|_| "localhost".to_string());
+        let rp_origin = var("RP_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".to_string());
+        let rp_name = var("RP_NAME").unwrap_or_else(|_| "BrewGet".to_string());
 
         Self {
             auth_http_port,
@@ -149,6 +163,24 @@ impl Config {
             frontend_hostname,
             turnstile_secret,
             password_history_limit,
+            rp_id,
+            rp_origin,
+            rp_name,
         }
+    }
+
+    /// Build a WebAuthn instance from the configuration
+    ///
+    /// # Returns
+    /// * `Ok(Webauthn)` - A configured WebAuthn instance
+    /// * `Err(Box<dyn std::error::Error>)` - If WebAuthn cannot be built
+    pub fn build_webauthn(&self) -> Result<webauthn_rs::Webauthn, Box<dyn std::error::Error>> {
+        use url::Url;
+        use webauthn_rs::WebauthnBuilder;
+
+        let rp_origin = Url::parse(&self.rp_origin)?;
+        let builder = WebauthnBuilder::new(&self.rp_id, &rp_origin)?.rp_name(&self.rp_name);
+
+        Ok(builder.build()?)
     }
 }

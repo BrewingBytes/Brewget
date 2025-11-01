@@ -1,6 +1,10 @@
 use sqlx::PgPool;
-use tokio::sync::Mutex;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tokio::sync::{Mutex, RwLock};
 use tonic::{Response, Status, transport::Channel};
+use uuid::Uuid;
+use webauthn_rs::prelude::{PasskeyAuthentication, PasskeyRegistration};
 
 use crate::{
     Config,
@@ -19,6 +23,9 @@ use crate::{
 /// * `config` - Application configuration settings
 /// * `db` - PostgreSQL connection pool for async database operations
 /// * `email_service` - A mutex for the EmailServiceClient GRPC
+/// * `passkey_registrations` - Temporary storage for WebAuthn registration challenges
+/// * `passkey_authentications` - Temporary storage for WebAuthn authentication challenges
+/// * `pending_users` - Temporary storage for pending user registration data (user_id -> (username, email))
 ///
 /// # Usage
 /// ```rust
@@ -33,6 +40,9 @@ pub struct AppState {
     pub config: Config,
     db: PgPool,
     email_service: Mutex<EmailServiceClient<Channel>>,
+    passkey_registrations: Arc<RwLock<HashMap<Uuid, PasskeyRegistration>>>,
+    passkey_authentications: Arc<RwLock<HashMap<String, PasskeyAuthentication>>>,
+    pending_users: Arc<RwLock<HashMap<Uuid, (String, String)>>>,
 }
 
 impl AppState {
@@ -45,6 +55,9 @@ impl AppState {
             config,
             db,
             email_service: Mutex::new(email_service),
+            passkey_registrations: Arc::new(RwLock::new(HashMap::new())),
+            passkey_authentications: Arc::new(RwLock::new(HashMap::new())),
+            pending_users: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
@@ -98,5 +111,66 @@ impl AppState {
             .await
             .send_forgot_password(request)
             .await
+    }
+
+    /// Store a passkey registration challenge temporarily (5 minute expiry)
+    pub async fn store_passkey_registration(&self, user_id: Uuid, reg: PasskeyRegistration) {
+        let mut map = self.passkey_registrations.write().await;
+        map.insert(user_id, reg);
+
+        // Set expiry (clean up after 5 minutes)
+        let registrations = Arc::clone(&self.passkey_registrations);
+        tokio::spawn(async move {
+            tokio::time::sleep(tokio::time::Duration::from_secs(300)).await;
+            registrations.write().await.remove(&user_id);
+        });
+    }
+
+    /// Retrieve and remove a passkey registration challenge
+    pub async fn get_passkey_registration(&self, user_id: Uuid) -> Option<PasskeyRegistration> {
+        self.passkey_registrations.write().await.remove(&user_id)
+    }
+
+    /// Store a passkey authentication challenge temporarily (5 minute expiry)
+    pub async fn store_passkey_authentication(
+        &self,
+        username: String,
+        auth: PasskeyAuthentication,
+    ) {
+        let mut map = self.passkey_authentications.write().await;
+        map.insert(username.clone(), auth);
+
+        // Set expiry
+        let authentications = Arc::clone(&self.passkey_authentications);
+        tokio::spawn(async move {
+            tokio::time::sleep(tokio::time::Duration::from_secs(300)).await;
+            authentications.write().await.remove(&username);
+        });
+    }
+
+    /// Retrieve and remove a passkey authentication challenge
+    pub async fn get_passkey_authentication(
+        &self,
+        username: &str,
+    ) -> Option<PasskeyAuthentication> {
+        self.passkey_authentications.write().await.remove(username)
+    }
+
+    /// Store pending user registration data temporarily (5 minute expiry)
+    pub async fn store_pending_user(&self, user_id: Uuid, username: String, email: String) {
+        let mut map = self.pending_users.write().await;
+        map.insert(user_id, (username, email));
+
+        // Set expiry
+        let users = Arc::clone(&self.pending_users);
+        tokio::spawn(async move {
+            tokio::time::sleep(tokio::time::Duration::from_secs(300)).await;
+            users.write().await.remove(&user_id);
+        });
+    }
+
+    /// Retrieve and remove pending user registration data
+    pub async fn get_pending_user(&self, user_id: Uuid) -> Option<(String, String)> {
+        self.pending_users.write().await.remove(&user_id)
     }
 }
