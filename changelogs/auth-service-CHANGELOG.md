@@ -2,15 +2,11 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
-## [Unreleased]
-### Added
-- Add authentication audit log tracking for password and passkey login attempts
-- Track successful and failed authentication attempts with IP address, user agent, and metadata
-
-## [0.0.16] - 2025-11-02
+## [0.0.17] - 2025-11-02
 ### Added
 - Add passkey support for passwordless authentication
 - Add manage passkeys endpoint to allow users to view and delete their passkeys
+- Add authentication audit log tracking for password and passkey login attempts
 
 ### Fixed
 - Small fix to passkey

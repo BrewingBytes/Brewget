@@ -46,3 +46,15 @@ export interface PasskeyCredential {
 }
 
 export type PasskeyListResponse = PasskeyCredential[];
+
+// Authentication audit log types
+export interface AuthenticationAuditLog {
+  id: string;
+  auth_method: "password" | "passkey" | "otp";
+  success: boolean;
+  ip_address: string | null;
+  user_agent: string | null;
+  attempted_at: string;
+}
+
+export type AuthAuditListResponse = AuthenticationAuditLog[];

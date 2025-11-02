@@ -1,4 +1,4 @@
-import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, PasskeyAddResponse, PasskeyListResponse, PasskeyLoginStartResponse, PasskeyRegisterStartResponse, PasskeyRemoveResponse, RegisterResponse, VerifyResponse } from "./types";
+import type { ActivateResponse, AuthAuditListResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, PasskeyAddResponse, PasskeyListResponse, PasskeyLoginStartResponse, PasskeyRegisterStartResponse, PasskeyRemoveResponse, RegisterResponse, VerifyResponse } from "./types";
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
@@ -172,4 +172,18 @@ async function passkeyRemove(id: string): Promise<ServerResponse<PasskeyRemoveRe
   }
 }
 
-export const authService = { activate, changePassword, forgotPassword, login, logout, passkeyAddFinish, passkeyAddStart, passkeyList, passkeyLoginFinish, passkeyLoginStart, passkeyRegisterFinish, passkeyRegisterStart, passkeyRemove, register, verify };
+async function auditList(limit?: number): Promise<ServerResponse<AuthAuditListResponse>> {
+  try {
+    const params = limit ? { limit } : {};
+    return await authApi.get("/audit", {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+      params,
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+export const authService = { activate, auditList, changePassword, forgotPassword, login, logout, passkeyAddFinish, passkeyAddStart, passkeyList, passkeyLoginFinish, passkeyLoginStart, passkeyRegisterFinish, passkeyRegisterStart, passkeyRemove, register, verify };

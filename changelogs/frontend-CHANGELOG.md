@@ -2,9 +2,10 @@
 
 All notable changes to the Frontend will be documented in this file.
 
-## [0.0.14] - 2025-11-02
+## [0.0.15] - 2025-11-02
 ### Added
 - Add manage passkeys UI to allow users to view and delete their passkeys
+- Add authentication activity audit viewer in the settings page
 
 ### Fixed
 - Fix issue with settings not loading at all
