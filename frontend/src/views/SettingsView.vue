@@ -282,10 +282,6 @@ async function handleDeletePasskey() {
               <label class="text-white/90 font-medium">
                 <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
               </label>
-              <span v-if="hasPasskey && passkeyInfo" class="text-white/60 text-sm mt-1">
-                {{ passkeyInfo.device_name || t("settings.passkey_device_name") }} - 
-                Last used: {{ formatDate(passkeyInfo.last_used_at) }}
-              </span>
             </div>
             <Button v-if="hasPasskey" @click="handleDeletePasskey" :label="t('settings.remove_passkey')"
               icon="pi pi-trash" :loading="loadingPasskey" class="!rounded-3xl text-white! hover:text-blue-600!"
@@ -319,8 +315,7 @@ async function handleDeletePasskey() {
 
     <!-- Add Passkey Dialog -->
     <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"
-      :style="{ width: '90vw', maxWidth: '500px' }"
-      :pt="{
+      :style="{ width: '90vw', maxWidth: '500px' }" :pt="{
         root: {
           class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
         },
@@ -333,15 +328,13 @@ async function handleDeletePasskey() {
         footer: {
           class: 'bg-transparent!',
         },
-      }"
-      pt:mask:class="backdrop-blur-xs! bg-transparent!">
+      }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
           <label for="deviceName" class="text-white/90 font-medium">
             {{ t("settings.passkey_device_name") }}
           </label>
-          <InputText id="deviceName" v-model="deviceName" :placeholder="t('settings.enter_device_name')"
-            class="w-full bg-transparent! border-white! text-white!" />
+          <InputText id="deviceName" v-model="deviceName" class="w-full bg-transparent! border-white! text-white!" />
         </div>
       </div>
       <template #footer>

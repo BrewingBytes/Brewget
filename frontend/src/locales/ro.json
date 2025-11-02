@@ -52,8 +52,7 @@
     "passkey": "Cheia de acces",
     "add_passkey": "Adaugă cheie de acces",
     "remove_passkey": "Șterge",
-    "passkey_device_name": "Nume dispozitiv",
-    "enter_device_name": "Introduceți un nume pentru acest dispozitiv"
+    "passkey_device_name": "Nume dispozitiv"
   },
   "languages": {
     "en": "English",

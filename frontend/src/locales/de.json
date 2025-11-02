@@ -49,16 +49,10 @@
     "failed_to_update": "Einstellungen konnten nicht aktualisiert werden",
     "select_language": "Sprache auswählen",
     "select_currency": "Währung auswählen",
-    "passkeys": "Passkeys",
-    "passkeys_description": "Verwalten Sie Ihre Passkeys für passwortlose Authentifizierung",
+    "passkey": "Passkey",
     "add_passkey": "Passkey hinzufügen",
-    "remove_passkey": "Entfernen",
-    "no_passkeys": "Keine Passkeys konfiguriert",
-    "passkey_device_name": "Gerätename",
-    "passkey_created": "Erstellt",
-    "passkey_last_used": "Zuletzt verwendet",
-    "passkey_never_used": "Nie verwendet",
-    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein"
+    "remove_passkey": "Löschen",
+    "passkey_device_name": "Gerätename"
   },
   "languages": {
     "en": "English",
