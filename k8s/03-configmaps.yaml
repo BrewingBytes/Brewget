@@ -35,7 +35,7 @@ data:
         }
 
         upstream settings_upstream {
-            server settings-service:8001;
+            server settings-service:8002;
         }
 
         server {
