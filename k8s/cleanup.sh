@@ -93,6 +93,26 @@ echo ""
 echo "🗑️  Deleting PersistentVolume..."
 kubectl delete pv brewget-postgres-pv --ignore-not-found=true
 
+# Stop and remove minikube tunnel service if it exists
+if systemctl list-unit-files | grep -q minikube-tunnel.service; then
+    echo ""
+    echo "🗑️  Stopping and removing minikube tunnel service..."
+    
+    # Stop the service
+    sudo systemctl stop minikube-tunnel.service 2>/dev/null || true
+    
+    # Disable the service
+    sudo systemctl disable minikube-tunnel.service 2>/dev/null || true
+    
+    # Remove the service file
+    sudo rm -f /etc/systemd/system/minikube-tunnel.service
+    
+    # Reload systemd
+    sudo systemctl daemon-reload
+    
+    echo "✅ Minikube tunnel service removed"
+fi
+
 # Delete minikube if it exists
 if command -v minikube &> /dev/null; then
     if minikube status &> /dev/null; then

@@ -1,0 +1,16 @@
+[Unit]
+Description=Minikube Tunnel Service for BrewGet
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=MINIKUBE_PATH tunnel --bind-address=0.0.0.0
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+User=root
+
+[Install]
+WantedBy=multi-user.target

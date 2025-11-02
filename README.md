@@ -50,3 +50,4 @@ See [k8s/README.md](k8s/README.md) for detailed instructions.
 - [Auth Service Changelog](changelogs/auth-service-CHANGELOG.md)
 - [Settings Service Changelog](changelogs/settings-service-CHANGELOG.md)
 - [Email Service Changelog](changelogs/email-service-CHANGELOG.md)
+- [Infrastructure Changelog](changelogs/infrastructure-CHANGELOG.md)
