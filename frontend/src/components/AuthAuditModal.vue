@@ -5,8 +5,7 @@ import { useI18n } from "vue-i18n";
 import type { AuthenticationAuditLog } from "@/services/auth/types";
 
 import { authService } from "@/services/auth";
-import { useToastStore } from "@/stores/toast";
-import { ToastSeverity } from "@/stores/toast";
+import { ToastSeverity, useToastStore  } from "@/stores/toast";
 
 const props = defineProps<{
   visible: boolean;

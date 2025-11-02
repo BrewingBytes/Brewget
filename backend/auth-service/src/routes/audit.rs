@@ -69,10 +69,10 @@ async fn list_audit_logs(
     Query(query): Query<AuditLogsQuery>,
 ) -> Result<impl IntoResponse, Error> {
     let user_id = Uuid::from_str(&user_uuid)?;
-    
+
     // Cap the limit to a maximum of 100 to prevent abuse
-    let limit = query.limit.min(100).max(1);
-    
+    let limit = query.limit.clamp(1, 100);
+
     tracing::info!("Fetching {} audit logs for user: {}", limit, user_id);
 
     let pool = state.get_database_pool();
