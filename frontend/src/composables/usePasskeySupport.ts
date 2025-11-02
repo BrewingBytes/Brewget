@@ -1,5 +1,6 @@
 import { onMounted, ref } from "vue";
-import { checkPasskeySupport, type PasskeySupport } from "@/services/webauthn";
+
+import { type PasskeySupport, checkPasskeySupport } from "@/services/webauthn";
 
 /**
  * Composable to detect and track passkey support in the browser

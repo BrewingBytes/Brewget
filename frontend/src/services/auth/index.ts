@@ -88,7 +88,7 @@ async function passkeyRegisterStart(values: {
 
 async function passkeyRegisterFinish(values: {
   user_id: string;
-  credential: any;
+  credential: Record<string, unknown>;
   device_name?: string;
 }): Promise<ServerResponse<RegisterResponse>> {
   try {
@@ -111,7 +111,7 @@ async function passkeyLoginStart(values: {
 
 async function passkeyLoginFinish(values: {
   username: string;
-  credential: any;
+  credential: Record<string, unknown>;
 }): Promise<ServerResponse<LoginResponse>> {
   try {
     return await authApi.post("/passkey/login/complete", values);

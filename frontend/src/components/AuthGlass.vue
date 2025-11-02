@@ -3,8 +3,8 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import VueTurnstile from "vue-turnstile";
 
-import { useAuthStore } from "@/stores/auth";
 import { usePasskeySupport } from "@/composables/usePasskeySupport";
+import { useAuthStore } from "@/stores/auth";
 import { TURNSTILE_SITE_KEY } from "@/utils/consts";
 
 enum ShownPage {

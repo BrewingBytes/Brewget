@@ -9,13 +9,13 @@ import type { SupportedLocale } from "@/i18n";
 
 import i18n, { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
+import { type ErrorResponse, ServerStatus } from "@/services/types";
 import {
   assertionToJSON,
   authenticateWithPasskey,
   credentialToJSON,
   registerPasskey,
 } from "@/services/webauthn";
-import { type ErrorResponse, ServerStatus } from "@/services/types";
 
 export const useAuthStore = defineStore(
   "auth",
@@ -194,14 +194,14 @@ export const useAuthStore = defineStore(
           const errorResponse = startResponse as ErrorResponse;
           useToastStore().showTranslationKey(
             errorResponse.data.translation_key,
-            ToastSeverity.ERROR
+            ToastSeverity.ERROR,
           );
           return false;
         }
 
         // Create passkey with the user's authenticator
         const credential = await registerPasskey(
-          startResponse.data.creation_options
+          startResponse.data.creation_options,
         );
         const credentialJSON = credentialToJSON(credential);
 
@@ -216,14 +216,14 @@ export const useAuthStore = defineStore(
           const errorResponse = finishResponse as ErrorResponse;
           useToastStore().showTranslationKey(
             errorResponse.data.translation_key,
-            ToastSeverity.ERROR
+            ToastSeverity.ERROR,
           );
           return false;
         }
 
         useToastStore().showTranslationKey(
           finishResponse.data.translation_key,
-          ToastSeverity.SUCCESS
+          ToastSeverity.SUCCESS,
         );
 
         return true;
@@ -231,7 +231,7 @@ export const useAuthStore = defineStore(
         console.error("Passkey registration error:", error);
         useToastStore().showTranslationKey(
           "PASSKEY_REGISTRATION_FAILED",
-          ToastSeverity.ERROR
+          ToastSeverity.ERROR,
         );
         return false;
       }
@@ -252,14 +252,14 @@ export const useAuthStore = defineStore(
           const errorResponse = startResponse as ErrorResponse;
           useToastStore().showTranslationKey(
             errorResponse.data.translation_key,
-            ToastSeverity.ERROR
+            ToastSeverity.ERROR,
           );
           return false;
         }
 
         // Authenticate with passkey
         const credential = await authenticateWithPasskey(
-          startResponse.data.request_options
+          startResponse.data.request_options,
         );
         const assertionJSON = assertionToJSON(credential);
 
@@ -273,7 +273,7 @@ export const useAuthStore = defineStore(
           const errorResponse = finishResponse as ErrorResponse;
           useToastStore().showTranslationKey(
             errorResponse.data.translation_key,
-            ToastSeverity.ERROR
+            ToastSeverity.ERROR,
           );
           return false;
         }
@@ -300,7 +300,7 @@ export const useAuthStore = defineStore(
         console.error("Passkey login error:", error);
         useToastStore().showTranslationKey(
           "PASSKEY_AUTHENTICATION_FAILED",
-          ToastSeverity.ERROR
+          ToastSeverity.ERROR,
         );
         return false;
       }

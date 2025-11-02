@@ -38,23 +38,25 @@ export async function checkPasskeySupport(): Promise<PasskeySupport> {
  * @returns Promise resolving to the created credential
  */
 export async function registerPasskey(
-  creationOptions: any
+  creationOptions: Record<string, unknown>,
 ): Promise<PublicKeyCredential> {
   // Convert base64url strings to ArrayBuffers
-  const challenge = base64URLStringToBuffer(creationOptions.publicKey.challenge);
-  const userId = base64URLStringToBuffer(creationOptions.publicKey.user.id);
+  const publicKeyOptions = creationOptions.publicKey as Record<string, unknown>;
+  const challenge = base64URLStringToBuffer(publicKeyOptions.challenge as string);
+  const user = publicKeyOptions.user as Record<string, unknown>;
+  const userId = base64URLStringToBuffer(user.id as string);
 
-  const publicKeyOptions: PublicKeyCredentialCreationOptions = {
-    ...creationOptions.publicKey,
+  const options: PublicKeyCredentialCreationOptions = {
+    ...publicKeyOptions,
     challenge,
     user: {
-      ...creationOptions.publicKey.user,
+      ...user,
       id: userId,
-    },
-  };
+    } as PublicKeyCredentialUserEntity,
+  } as PublicKeyCredentialCreationOptions;
 
   const credential = (await navigator.credentials.create({
-    publicKey: publicKeyOptions,
+    publicKey: options,
   })) as PublicKeyCredential;
 
   if (!credential) {
@@ -70,26 +72,27 @@ export async function registerPasskey(
  * @returns Promise resolving to the authentication credential
  */
 export async function authenticateWithPasskey(
-  requestOptions: any
+  requestOptions: Record<string, unknown>,
 ): Promise<PublicKeyCredential> {
   // Convert base64url strings to ArrayBuffers
-  const challenge = base64URLStringToBuffer(requestOptions.publicKey.challenge);
+  const publicKeyOptions = requestOptions.publicKey as Record<string, unknown>;
+  const challenge = base64URLStringToBuffer(publicKeyOptions.challenge as string);
 
-  const allowCredentials = requestOptions.publicKey.allowCredentials?.map(
-    (cred: any) => ({
+  const allowCredentials = (publicKeyOptions.allowCredentials as Array<Record<string, unknown>>)?.map(
+    (cred) => ({
       ...cred,
-      id: base64URLStringToBuffer(cred.id),
-    })
+      id: base64URLStringToBuffer(cred.id as string),
+    }),
   );
 
-  const publicKeyOptions: PublicKeyCredentialRequestOptions = {
-    ...requestOptions.publicKey,
+  const options: PublicKeyCredentialRequestOptions = {
+    ...publicKeyOptions,
     challenge,
     allowCredentials,
-  };
+  } as PublicKeyCredentialRequestOptions;
 
   const credential = (await navigator.credentials.get({
-    publicKey: publicKeyOptions,
+    publicKey: options,
   })) as PublicKeyCredential;
 
   if (!credential) {
@@ -104,7 +107,7 @@ export async function authenticateWithPasskey(
  * @param credential - The PublicKeyCredential from registration
  * @returns JSON-serializable credential object
  */
-export function credentialToJSON(credential: PublicKeyCredential): any {
+export function credentialToJSON(credential: PublicKeyCredential): Record<string, unknown> {
   const response = credential.response as AuthenticatorAttestationResponse;
 
   return {
@@ -123,7 +126,7 @@ export function credentialToJSON(credential: PublicKeyCredential): any {
  * @param credential - The PublicKeyCredential from authentication
  * @returns JSON-serializable credential object
  */
-export function assertionToJSON(credential: PublicKeyCredential): any {
+export function assertionToJSON(credential: PublicKeyCredential): Record<string, unknown> {
   const response = credential.response as AuthenticatorAssertionResponse;
 
   return {
