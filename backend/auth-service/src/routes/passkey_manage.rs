@@ -29,7 +29,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/list", get(list_passkeys))
         .route("/add/options", post(add_passkey_start))
         .route("/add/complete", post(add_passkey_finish))
-        .route("/{id}", delete(remove_passkey))
+        .route("/{credential_id}", delete(remove_passkey))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard))
         .with_state(state)
 }
