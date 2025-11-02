@@ -102,7 +102,7 @@ pub async fn update_counter(
         r#"
         UPDATE passkey_credentials
         SET counter = $2, last_used_at = NOW()
-        WHERE credential_id = $1 AND counter < $2
+        WHERE credential_id = $1 AND (counter < $2 OR ($2 = 0 AND counter = 0))
         "#,
     )
     .bind(credential_id)
