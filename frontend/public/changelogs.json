@@ -1,0 +1,536 @@
+[
+  {
+    "service": "Frontend",
+    "entries": [
+      {
+        "version": "0.0.12",
+        "date": "2025-11-02",
+        "changes": {
+          "added": [],
+          "changed": [],
+          "fixed": [
+            "Fix issue with settings not loading at all"
+          ]
+        }
+      },
+      {
+        "version": "0.0.11",
+        "date": "2025-11-02",
+        "changes": {
+          "added": [
+            "Add passkey support for passwordless authentication"
+          ],
+          "changed": [],
+          "fixed": [
+            "Fix Turnstile captcha not resetting on failed login/register attempts",
+            "Fix login taking too long due to waiting for settings load",
+            "Fix token expiration handling to properly log out user on invalid/expired token"
+          ]
+        }
+      },
+      {
+        "version": "0.0.10",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [
+            "Add version display in settings page footer",
+            "Add changelog modal with tabs for all services",
+            "Add logout button in settings page",
+            "Add translations for cookie consent modal",
+            "Version fetching from backend services /health endpoints"
+          ],
+          "changed": [
+            "Cookie consent now uses i18n translations"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.9",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [
+            "Implement i18n with browser language detection",
+            "Support for multiple languages (en, es, fr, de, ro)",
+            "Backend language constraints integration"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.8",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [
+            "Implement cookie consent modal at bottom with blocking overlay"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.7",
+        "date": "2025-10-29",
+        "changes": {
+          "added": [
+            "Add Cloudflare Turnstile captcha to authentication endpoints"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.6",
+        "date": "2025-10-29",
+        "changes": {
+          "added": [],
+          "changed": [],
+          "fixed": [
+            "Fix SPA routing by replacing busybox httpd with nginx in frontend container"
+          ]
+        }
+      },
+      {
+        "version": "0.0.5",
+        "date": "2025-10-28",
+        "changes": {
+          "added": [
+            "Create UI User Settings page with PrimeVue",
+            "Add settings management (language, currency, alarm, night mode)",
+            "Add settings persistence"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.4",
+        "date": "2025-09-22",
+        "changes": {
+          "added": [
+            "Add navbar to frontend with navigation"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.3",
+        "date": "2025-09-21",
+        "changes": {
+          "added": [],
+          "changed": [],
+          "fixed": [
+            "Fix frontend connection to API in production"
+          ]
+        }
+      },
+      {
+        "version": "0.0.2",
+        "date": "2025-09-21",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Connect the auth backend and frontend",
+            "Add authentication flow"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.1",
+        "date": "2025-09-20",
+        "changes": {
+          "added": [
+            "Initial PrimeVue frontend implementation",
+            "Add forgot password UI",
+            "Login and registration pages",
+            "Basic Vue 3 application structure with TypeScript"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      }
+    ]
+  },
+  {
+    "service": "Auth Service",
+    "entries": [
+      {
+        "version": "0.0.14",
+        "date": "2025-11-02",
+        "changes": {
+          "added": [],
+          "changed": [],
+          "fixed": [
+            "Small fix to passkey"
+          ]
+        }
+      },
+      {
+        "version": "0.0.13",
+        "date": "2025-11-02",
+        "changes": {
+          "added": [
+            "Add passkey support for passwordless authentication"
+          ],
+          "changed": [],
+          "fixed": [
+            "Fix token validation to properly handle invalid tokens and return unauthorized status"
+          ]
+        }
+      },
+      {
+        "version": "0.0.12",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Replace static message strings with translation keys for frontend localization"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.11",
+        "date": "2025-10-30",
+        "changes": {
+          "added": [
+            "Add logging to backend routes"
+          ],
+          "changed": [
+            "Update dependencies"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.10",
+        "date": "2025-10-30",
+        "changes": {
+          "added": [
+            "Prevent password reuse by tracking configurable number of passwords with transactional integrity"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.9",
+        "date": "2025-10-29",
+        "changes": {
+          "added": [
+            "Add Cloudflare Turnstile captcha to authentication endpoints"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.8",
+        "date": "2025-10-28",
+        "changes": {
+          "added": [
+            "Add gRPC token verification with persistent connection",
+            "Add comprehensive logging",
+            "Add environment-based API configuration"
+          ],
+          "changed": [
+            "Create UI User Settings with PrimeVue integration"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.7",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared-types to docker build"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.6",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared library for errors and responses"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.5",
+        "date": "2025-09-21",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Connect the auth backend and frontend"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.4",
+        "date": "2025-09-21",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Improve Docker image sizes"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.3",
+        "date": "2025-09-08",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Update email service and auth service configurations",
+            "Remove hardcoded strings and use configs"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.2",
+        "date": "2025-09-07",
+        "changes": {
+          "added": [
+            "Create verification email for account registration",
+            "Implement forgot password functionality",
+            "Add basic login/register and logout endpoints"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.1",
+        "date": "2025-09-06",
+        "changes": {
+          "added": [
+            "Initial auth service with database functions",
+            "Add migrations",
+            "Add Docker files and database to app state"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      }
+    ]
+  },
+  {
+    "service": "Settings Service",
+    "entries": [
+      {
+        "version": "0.0.6",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [
+            "Add i18n support with browser language detection and backend constraints"
+          ],
+          "changed": [
+            "Replace static message strings with translation keys for frontend localization"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.5",
+        "date": "2025-10-30",
+        "changes": {
+          "added": [
+            "Add logging to backend routes"
+          ],
+          "changed": [
+            "Update dependencies"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.4",
+        "date": "2025-10-28",
+        "changes": {
+          "added": [
+            "Add gRPC token verification with persistent connection",
+            "Add comprehensive logging",
+            "Add environment-based API configuration"
+          ],
+          "changed": [
+            "Create UI User Settings with PrimeVue integration"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.3",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared-types to docker build"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.2",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared library for errors and responses"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.1",
+        "date": "2025-09-16",
+        "changes": {
+          "added": [
+            "Initial settings service with user settings management",
+            "Database support with SQLX",
+            "RESTful API for settings CRUD operations",
+            "Integration with auth service via gRPC"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      }
+    ]
+  },
+  {
+    "service": "Email Service",
+    "entries": [
+      {
+        "version": "0.0.10",
+        "date": "2025-11-01",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Enhanced tracing and logging with structured fields for better observability",
+            "Added instrumentation spans to all service methods for distributed tracing",
+            "Improved error logging with detailed context (email, username, SMTP details)",
+            "Added SMTP response code logging for successful email deliveries"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.9",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [
+            "Add HTTP health endpoint on dedicated port (8001) for version reporting",
+            "Add axum and serde dependencies for HTTP health endpoint"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.8",
+        "date": "2025-10-31",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Replace static message strings with translation keys for frontend localization"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.7",
+        "date": "2025-10-30",
+        "changes": {
+          "added": [
+            "Add logging to backend routes"
+          ],
+          "changed": [
+            "Update dependencies"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.6",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared-types to docker build"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.5",
+        "date": "2025-09-17",
+        "changes": {
+          "added": [
+            "Add shared library for errors and responses"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.4",
+        "date": "2025-09-21",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Improve Docker image sizes"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.3",
+        "date": "2025-09-08",
+        "changes": {
+          "added": [],
+          "changed": [
+            "Update email service configurations",
+            "Remove hardcoded strings and use configs"
+          ],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.2",
+        "date": "2025-09-07",
+        "changes": {
+          "added": [
+            "Add forgot password email functionality",
+            "Create verification email for account registration"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.1",
+        "date": "2025-09-07",
+        "changes": {
+          "added": [
+            "Initial email service with gRPC support",
+            "SMTP configuration for sending emails",
+            "Email templates using Handlebars"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      }
+    ]
+  }
+]

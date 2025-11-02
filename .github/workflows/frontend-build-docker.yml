@@ -44,8 +44,7 @@ jobs:
             echo "Tag already exists."
             echo "build=false" >> "$GITHUB_OUTPUT"
           else
-            cd ..
-            docker build -t frontend -f frontend/Dockerfile .
+            docker build -t frontend .
             docker tag frontend ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}
             docker tag frontend ghcr.io/brewingbytes/brewget-frontend:latest
             echo "build=true" >> "$GITHUB_OUTPUT"

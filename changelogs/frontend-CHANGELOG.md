@@ -2,7 +2,7 @@
 
 All notable changes to the Frontend will be documented in this file.
 
-## [0.0.12] - 2025-11-02
+## [0.0.13] - 2025-11-02
 ### Fixed
 - Fix issue with settings not loading at all
 
