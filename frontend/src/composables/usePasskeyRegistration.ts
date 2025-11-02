@@ -12,7 +12,6 @@ import { ToastSeverity, useToastStore } from "@/stores/toast";
  */
 export function usePasskeyRegistration() {
   const isRegistering = ref(false);
-  const toast = useToastStore();
 
   /**
    * Register a new passkey during account registration
@@ -26,6 +25,7 @@ export function usePasskeyRegistration() {
     deviceName?: string;
   }): Promise<boolean> {
     isRegistering.value = true;
+    const toast = useToastStore();
     try {
       // Start passkey registration
       const startResponse = await authService.passkeyRegisterStart({
@@ -35,7 +35,7 @@ export function usePasskeyRegistration() {
       });
 
       if (startResponse.status !== ServerStatus.NO_ERROR) {
-        handleError(startResponse);
+        handleError(startResponse, toast);
         return false;
       }
 
@@ -53,7 +53,7 @@ export function usePasskeyRegistration() {
       });
 
       if (finishResponse.status !== ServerStatus.NO_ERROR) {
-        handleError(finishResponse);
+        handleError(finishResponse, toast);
         return false;
       }
 
@@ -84,12 +84,13 @@ export function usePasskeyRegistration() {
     deviceName?: string,
   ): Promise<boolean> {
     isRegistering.value = true;
+    const toast = useToastStore();
     try {
       // Start passkey addition
       const startResponse = await authService.passkeyAddStart();
 
       if (startResponse.status !== ServerStatus.NO_ERROR) {
-        handleError(startResponse);
+        handleError(startResponse, toast);
         return false;
       }
 
@@ -107,7 +108,7 @@ export function usePasskeyRegistration() {
       });
 
       if (finishResponse.status !== ServerStatus.NO_ERROR) {
-        handleError(finishResponse);
+        handleError(finishResponse, toast);
         return false;
       }
 
@@ -132,8 +133,9 @@ export function usePasskeyRegistration() {
   /**
    * Handle error responses from the server
    * @param response Error response from the server
+   * @param toast Toast store instance
    */
-  function handleError(response: ServerResponse<unknown>) {
+  function handleError(response: ServerResponse<unknown>, toast: ReturnType<typeof useToastStore>) {
     const errorKey =
       (response.data as { translation_key?: string })?.translation_key ||
       "SOMETHING_WENT_WRONG";
