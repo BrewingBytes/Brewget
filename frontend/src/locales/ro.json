@@ -89,6 +89,14 @@
       "email": "Email",
       "username": "Nume de utilizator",
       "password": "Parolă"
+    },
+    "passkey": {
+      "register_button": "Continuă cu passkey",
+      "login_button": "Autentificare cu passkey",
+      "use_password": "Folosește parola în schimb",
+      "show_password_option": "Arată opțiunea de parolă",
+      "back_to_passkey": "Înapoi la passkey",
+      "or_divider": "SAU"
     }
   },
   "navbar": {

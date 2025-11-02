@@ -12,6 +12,7 @@ use webauthn_rs_proto::CreationChallengeResponse;
 pub struct PasskeyRegisterStartRequest {
     pub username: String,
     pub email: String,
+    #[serde(rename = "captchaToken")]
     pub captcha_token: String,
 }
 

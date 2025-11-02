@@ -89,6 +89,14 @@
       "email": "E-mail",
       "username": "Nom d'utilisateur",
       "password": "Mot de passe"
+    },
+    "passkey": {
+      "register_button": "Continuer avec une clé d'accès",
+      "login_button": "Se connecter avec une clé d'accès",
+      "use_password": "Utiliser un mot de passe à la place",
+      "show_password_option": "Afficher l'option mot de passe",
+      "back_to_passkey": "Retour à la clé d'accès",
+      "or_divider": "OU"
     }
   },
   "navbar": {

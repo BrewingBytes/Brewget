@@ -48,7 +48,7 @@ where
 pub async fn filter_by_username(find_username: &str, pool: &PgPool) -> Result<User, Error> {
     sqlx::query_as::<_, User>(
         r#"
-        SELECT id, username, password, email, is_verified, is_active
+        SELECT id, username, password, email, is_verified, is_active, has_passkey
         FROM users
         WHERE username = $1
         "#,
@@ -83,7 +83,7 @@ pub async fn filter_by_username_or_email(
 ) -> Result<User, Error> {
     sqlx::query_as::<_, User>(
         r#"
-        SELECT id, username, password, email, is_verified, is_active
+        SELECT id, username, password, email, is_verified, is_active, has_passkey
         FROM users
         WHERE username = $1 OR email = $2
         "#,
@@ -116,7 +116,7 @@ pub async fn filter_by_username_or_email(
 pub async fn filter_by_email(find_email: &str, pool: &PgPool) -> Result<User, Error> {
     sqlx::query_as::<_, User>(
         r#"
-        SELECT id, username, password, email, is_verified, is_active
+        SELECT id, username, password, email, is_verified, is_active, has_passkey
         FROM users
         WHERE email = $1
         "#,

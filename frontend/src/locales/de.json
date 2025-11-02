@@ -89,6 +89,14 @@
       "email": "E-Mail",
       "username": "Benutzername",
       "password": "Passwort"
+    },
+    "passkey": {
+      "register_button": "Mit Passkey fortfahren",
+      "login_button": "Mit Passkey anmelden",
+      "use_password": "Stattdessen Passwort verwenden",
+      "show_password_option": "Passwort-Option anzeigen",
+      "back_to_passkey": "Zurück zum Passkey",
+      "or_divider": "ODER"
     }
   },
   "navbar": {

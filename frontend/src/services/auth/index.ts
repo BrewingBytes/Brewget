@@ -1,4 +1,4 @@
-import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, RegisterResponse, VerifyResponse } from "./types";
+import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, PasskeyLoginStartResponse, PasskeyRegisterStartResponse, RegisterResponse, VerifyResponse } from "./types";
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
@@ -74,4 +74,50 @@ async function verify(): Promise<ServerResponse<VerifyResponse>> {
     }
 }
 
-export const authService = { activate, changePassword, forgotPassword, login, logout, register, verify };
+async function passkeyRegisterStart(values: {
+  username: string;
+  email: string;
+  captchaToken: string;
+}): Promise<ServerResponse<PasskeyRegisterStartResponse>> {
+  try {
+    return await authApi.post("/passkey/register/options", values);
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyRegisterFinish(values: {
+  user_id: string;
+  credential: Record<string, unknown>;
+  device_name?: string;
+}): Promise<ServerResponse<RegisterResponse>> {
+  try {
+    return await authApi.post("/passkey/register/complete", values);
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyLoginStart(values: {
+  username: string;
+  captchaToken: string;
+}): Promise<ServerResponse<PasskeyLoginStartResponse>> {
+  try {
+    return await authApi.post("/passkey/login/options", values);
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyLoginFinish(values: {
+  username: string;
+  credential: Record<string, unknown>;
+}): Promise<ServerResponse<LoginResponse>> {
+  try {
+    return await authApi.post("/passkey/login/complete", values);
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+export const authService = { activate, changePassword, forgotPassword, login, logout, passkeyLoginFinish, passkeyLoginStart, passkeyRegisterFinish, passkeyRegisterStart, register, verify };

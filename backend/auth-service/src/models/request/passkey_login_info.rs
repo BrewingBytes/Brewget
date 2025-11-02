@@ -9,6 +9,7 @@ use webauthn_rs_proto::RequestChallengeResponse;
 #[derive(Deserialize)]
 pub struct PasskeyLoginStartRequest {
     pub username: String,
+    #[serde(rename = "captchaToken")]
     pub captcha_token: String,
 }
 

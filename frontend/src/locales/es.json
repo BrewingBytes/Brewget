@@ -89,6 +89,14 @@
       "email": "Correo electrónico",
       "username": "Nombre de usuario",
       "password": "Contraseña"
+    },
+    "passkey": {
+      "register_button": "Continuar con passkey",
+      "login_button": "Iniciar sesión con passkey",
+      "use_password": "Usar contraseña en su lugar",
+      "show_password_option": "Mostrar opción de contraseña",
+      "back_to_passkey": "Volver a passkey",
+      "or_divider": "O"
     }
   },
   "navbar": {
