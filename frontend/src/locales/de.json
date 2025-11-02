@@ -58,9 +58,7 @@
     "passkey_created": "Erstellt",
     "passkey_last_used": "Zuletzt verwendet",
     "passkey_never_used": "Nie verwendet",
-    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein",
-    "adding_passkey": "Passkey wird hinzugefügt...",
-    "removing_passkey": "Passkey wird entfernt..."
+    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein"
   },
   "languages": {
     "en": "English",

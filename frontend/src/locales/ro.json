@@ -58,9 +58,7 @@
     "passkey_created": "Creat",
     "passkey_last_used": "Ultima utilizare",
     "passkey_never_used": "Niciodată utilizat",
-    "enter_device_name": "Introduceți un nume pentru acest dispozitiv",
-    "adding_passkey": "Se adaugă cheia de acces...",
-    "removing_passkey": "Se șterge cheia de acces..."
+    "enter_device_name": "Introduceți un nume pentru acest dispozitiv"
   },
   "languages": {
     "en": "English",
