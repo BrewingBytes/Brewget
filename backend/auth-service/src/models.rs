@@ -1,4 +1,5 @@
 pub mod activation_link;
+pub mod authentication_audit_log;
 pub mod forgot_password_link;
 pub mod passkey_credential;
 pub mod password_history;

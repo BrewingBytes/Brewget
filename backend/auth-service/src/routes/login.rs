@@ -1,17 +1,25 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::post,
+};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 
 use crate::{
     AppState, database,
     models::{
+        authentication_audit_log::AuthMethod,
         request::login_info::LoginInfo,
         response::{Error, Token, TranslationKey},
         token::NewToken,
         token_claim::TokenClaim,
     },
+    utils,
 };
 
 /// Creates a router for the login routes
@@ -55,9 +63,13 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// ```
 async fn login_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<LoginInfo>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!("Login attempt for username: {}", body.username);
+
+    // Extract IP address and user agent from headers
+    let (ip_address, user_agent) = utils::audit::extract_request_metadata(&headers);
 
     // Verify captcha token
     tracing::debug!("Verifying captcha token");
@@ -83,6 +95,19 @@ async fn login_handler(
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
         tracing::warn!("Invalid password for username: {}", body.username);
+
+        // Log failed authentication attempt
+        utils::audit::log_authentication_attempt(
+            user.get_uuid(),
+            AuthMethod::Password,
+            false,
+            ip_address.clone(),
+            user_agent.clone(),
+            Some("invalid_password"),
+            pool,
+        )
+        .await;
+
         return Err((
             StatusCode::BAD_REQUEST,
             TranslationKey::UsernameOrPasswordInvalid,
@@ -96,6 +121,19 @@ async fn login_handler(
             "Unverified account login attempt for username: {}",
             body.username
         );
+
+        // Log failed authentication attempt
+        utils::audit::log_authentication_attempt(
+            user.get_uuid(),
+            AuthMethod::Password,
+            false,
+            ip_address.clone(),
+            user_agent.clone(),
+            Some("account_not_verified"),
+            pool,
+        )
+        .await;
+
         return Err((StatusCode::UNAUTHORIZED, TranslationKey::EmailNotVerified).into());
     }
 
@@ -105,6 +143,19 @@ async fn login_handler(
             "Inactive account login attempt for username: {}",
             body.username
         );
+
+        // Log failed authentication attempt
+        utils::audit::log_authentication_attempt(
+            user.get_uuid(),
+            AuthMethod::Password,
+            false,
+            ip_address.clone(),
+            user_agent.clone(),
+            Some("account_inactive"),
+            pool,
+        )
+        .await;
+
         return Err((
             StatusCode::UNAUTHORIZED,
             TranslationKey::AccountDeletedTemporarily,
@@ -135,6 +186,18 @@ async fn login_handler(
     // Store token into database
     let new_token = NewToken::new(&user, &token, None, None);
     database::tokens::insert(new_token, pool).await?;
+
+    // Log successful authentication attempt
+    utils::audit::log_authentication_attempt(
+        user.get_uuid(),
+        AuthMethod::Password,
+        true,
+        ip_address,
+        user_agent,
+        None,
+        pool,
+    )
+    .await;
 
     tracing::info!(
         "Login successful for username: {}, user_id: {}",

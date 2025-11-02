@@ -1,6 +1,12 @@
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::post};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::post,
+};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use webauthn_rs::prelude::*;
@@ -8,6 +14,7 @@ use webauthn_rs::prelude::*;
 use crate::{
     AppState, database,
     models::{
+        authentication_audit_log::AuthMethod,
         request::passkey_login_info::{
             PasskeyLoginFinishRequest, PasskeyLoginStartRequest, PasskeyLoginStartResponse,
         },
@@ -160,9 +167,13 @@ async fn passkey_login_start(
 /// * `Err(Error)` - Verification or database errors
 async fn passkey_login_finish(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
     Json(body): Json<PasskeyLoginFinishRequest>,
 ) -> Result<impl IntoResponse, Error> {
     tracing::info!("Passkey login finish for: {}", body.username);
+
+    // Extract IP address and user agent from headers
+    let (ip_address, user_agent) = utils::audit::extract_request_metadata(&headers);
 
     // Retrieve stored challenge
     let passkey_authentication = state
@@ -188,7 +199,7 @@ async fn passkey_login_finish(
 
     // Parse the credential from JSON
     let credential: PublicKeyCredential =
-        serde_json::from_value(body.credential).map_err(|e| -> Error {
+        serde_json::from_value(body.credential.clone()).map_err(|e| -> Error {
             tracing::error!("Failed to parse credential: {}", e);
             (
                 StatusCode::BAD_REQUEST,
@@ -197,28 +208,68 @@ async fn passkey_login_finish(
                 .into()
         })?;
 
-    let authentication_result = webauthn
-        .finish_passkey_authentication(&credential, &passkey_authentication)
-        .map_err(|e| -> Error {
-            tracing::error!("Passkey authentication failed: {}", e);
-            (
-                StatusCode::UNAUTHORIZED,
-                TranslationKey::PasskeyAuthenticationFailed,
-            )
-                .into()
-        })?;
-
-    // Get user
+    // Get user and pool early so we can log audit events
     let pool = state.get_database_pool();
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
+    // Attempt authentication
+    let authentication_result =
+        match webauthn.finish_passkey_authentication(&credential, &passkey_authentication) {
+            Ok(result) => result,
+            Err(e) => {
+                tracing::error!("Passkey authentication failed: {}", e);
+
+                // Log failed authentication attempt
+                utils::audit::log_authentication_attempt(
+                    user.get_uuid(),
+                    AuthMethod::Passkey,
+                    false,
+                    ip_address.clone(),
+                    user_agent.clone(),
+                    Some("passkey_verification_failed"),
+                    pool,
+                )
+                .await;
+
+                return Err((
+                    StatusCode::UNAUTHORIZED,
+                    TranslationKey::PasskeyAuthenticationFailed,
+                )
+                    .into());
+            }
+        };
+
     // Check if account is verified
     if !user.is_account_verified() {
+        // Log failed authentication attempt
+        utils::audit::log_authentication_attempt(
+            user.get_uuid(),
+            AuthMethod::Passkey,
+            false,
+            ip_address.clone(),
+            user_agent.clone(),
+            Some("account_not_verified"),
+            pool,
+        )
+        .await;
+
         return Err((StatusCode::FORBIDDEN, TranslationKey::EmailNotVerified).into());
     }
 
     // Check if account is active
     if !user.is_account_active() {
+        // Log failed authentication attempt
+        utils::audit::log_authentication_attempt(
+            user.get_uuid(),
+            AuthMethod::Passkey,
+            false,
+            ip_address.clone(),
+            user_agent.clone(),
+            Some("account_inactive"),
+            pool,
+        )
+        .await;
+
         return Err((
             StatusCode::FORBIDDEN,
             TranslationKey::AccountDeletedTemporarily,
@@ -266,6 +317,18 @@ async fn passkey_login_finish(
     // Store token
     let new_token = NewToken::new(&user, &token, None, None);
     database::tokens::insert(new_token, pool).await?;
+
+    // Log successful authentication attempt
+    utils::audit::log_authentication_attempt(
+        user.get_uuid(),
+        AuthMethod::Passkey,
+        true,
+        ip_address,
+        user_agent,
+        None,
+        pool,
+    )
+    .await;
 
     tracing::info!("Passkey login successful for: {}", body.username);
 
