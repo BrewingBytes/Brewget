@@ -34,6 +34,7 @@ shared-types = { path = "../shared-types" }
 webauthn-rs = "0.5"
 webauthn-rs-proto = "0.5"
 url = "2.5"
+moka = { version = "0.12", features = ["future"] }
 
 [build-dependencies]
 tonic-prost-build = "0.14.2"
