@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import type { AuthenticationAuditLog } from "@/services/auth/types";
 
 import { authService } from "@/services/auth";
-import { ToastSeverity, useToastStore  } from "@/stores/toast";
+import { ToastSeverity, useToastStore } from "@/stores/toast";
 
 const props = defineProps<{
   visible: boolean;
@@ -33,9 +33,9 @@ async function loadAuditLogs() {
     const response = await authService.auditList();
     if (response.status === 200 && response.data) {
       auditLogs.value = response.data;
-    } else {
+    } else if (response.status !== 200) {
       // Handle non-200 responses
-      const errorKey = response.data?.translation_key || "SOMETHING_WENT_WRONG";
+      const errorKey = response.data.translation_key || "SOMETHING_WENT_WRONG";
       toast.showTranslationKey(errorKey, ToastSeverity.ERROR);
       auditLogs.value = [];
     }
