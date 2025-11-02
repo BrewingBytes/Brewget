@@ -53,7 +53,22 @@
     "add_passkey": "Ajouter une clé d'authentification",
     "remove_passkey": "Supprimer",
     "passkey_device_name": "Nom de l'appareil",
-    "enter_device_name": "Entrez un nom pour cet appareil"
+    "enter_device_name": "Entrez un nom pour cet appareil",
+    "auth_activity": "Activité d'authentification",
+    "view_auth_activity": "Voir l'activité d'authentification"
+  },
+  "auth_audit": {
+    "title": "Activité d'authentification",
+    "no_logs": "Aucun journal d'authentification disponible",
+    "methods": {
+      "password": "Mot de passe",
+      "passkey": "Clé d'authentification",
+      "otp": "Mot de passe à usage unique"
+    },
+    "status": {
+      "success": "Succès",
+      "failed": "Échoué"
+    }
   },
   "languages": {
     "en": "English",

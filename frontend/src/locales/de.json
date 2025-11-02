@@ -53,7 +53,22 @@
     "add_passkey": "Passkey hinzufügen",
     "remove_passkey": "Löschen",
     "passkey_device_name": "Gerätename",
-    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein"
+    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein",
+    "auth_activity": "Authentifizierungsaktivität",
+    "view_auth_activity": "Authentifizierungsaktivität anzeigen"
+  },
+  "auth_audit": {
+    "title": "Authentifizierungsaktivität",
+    "no_logs": "Keine Authentifizierungsprotokolle verfügbar",
+    "methods": {
+      "password": "Passwort",
+      "passkey": "Passkey",
+      "otp": "Einmalpasswort"
+    },
+    "status": {
+      "success": "Erfolg",
+      "failed": "Fehlgeschlagen"
+    }
   },
   "languages": {
     "en": "English",

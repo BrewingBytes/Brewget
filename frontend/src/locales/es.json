@@ -53,7 +53,22 @@
     "add_passkey": "Agregar clave de acceso",
     "remove_passkey": "Eliminar",
     "passkey_device_name": "Nombre del dispositivo",
-    "enter_device_name": "Ingrese un nombre para este dispositivo"
+    "enter_device_name": "Ingrese un nombre para este dispositivo",
+    "auth_activity": "Actividad de autenticación",
+    "view_auth_activity": "Ver actividad de autenticación"
+  },
+  "auth_audit": {
+    "title": "Actividad de autenticación",
+    "no_logs": "No hay registros de autenticación disponibles",
+    "methods": {
+      "password": "Contraseña",
+      "passkey": "Clave de acceso",
+      "otp": "Contraseña de un solo uso"
+    },
+    "status": {
+      "success": "Éxito",
+      "failed": "Fallido"
+    }
   },
   "languages": {
     "en": "English",

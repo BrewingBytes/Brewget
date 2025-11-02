@@ -6,6 +6,7 @@ All notable changes to the Auth Service will be documented in this file.
 ### Added
 - Add authentication audit log tracking for password and passkey login attempts
 - Track successful and failed authentication attempts with IP address, user agent, and metadata
+- Add `/audit` endpoint to retrieve authentication activity logs for authenticated users
 
 ## [0.0.16] - 2025-11-02
 ### Added

@@ -37,3 +37,29 @@ pub struct AuthenticationAuditLog {
     attempted_at: DateTime<Utc>,
     metadata: Option<serde_json::Value>,
 }
+
+/// Response struct for authentication audit log entries
+///
+/// This is used for API responses to clients
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AuthenticationAuditLogResponse {
+    pub id: Uuid,
+    pub auth_method: AuthMethod,
+    pub success: bool,
+    pub ip_address: Option<String>,
+    pub user_agent: Option<String>,
+    pub attempted_at: DateTime<Utc>,
+}
+
+impl From<AuthenticationAuditLog> for AuthenticationAuditLogResponse {
+    fn from(log: AuthenticationAuditLog) -> Self {
+        Self {
+            id: log.id,
+            auth_method: log.auth_method,
+            success: log.success,
+            ip_address: log.ip_address,
+            user_agent: log.user_agent,
+            attempted_at: log.attempted_at,
+        }
+    }
+}

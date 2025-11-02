@@ -62,7 +62,22 @@
     "add_passkey": "Add Passkey",
     "remove_passkey": "Delete",
     "passkey_device_name": "Device name",
-    "enter_device_name": "Enter a name for this device"
+    "enter_device_name": "Enter a name for this device",
+    "auth_activity": "Authentication Activity",
+    "view_auth_activity": "See authentication activity"
+  },
+  "auth_audit": {
+    "title": "Authentication Activity",
+    "no_logs": "No authentication logs available",
+    "methods": {
+      "password": "Password",
+      "passkey": "Passkey",
+      "otp": "One-Time Password"
+    },
+    "status": {
+      "success": "Success",
+      "failed": "Failed"
+    }
   },
   "languages": {
     "en": "English",

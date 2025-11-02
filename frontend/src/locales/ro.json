@@ -53,7 +53,22 @@
     "add_passkey": "Adaugă cheie de acces",
     "remove_passkey": "Șterge",
     "passkey_device_name": "Nume dispozitiv",
-    "enter_device_name": "Introduceți un nume pentru acest dispozitiv"
+    "enter_device_name": "Introduceți un nume pentru acest dispozitiv",
+    "auth_activity": "Activitate de autentificare",
+    "view_auth_activity": "Vezi activitatea de autentificare"
+  },
+  "auth_audit": {
+    "title": "Activitate de autentificare",
+    "no_logs": "Nu există jurnale de autentificare disponibile",
+    "methods": {
+      "password": "Parolă",
+      "passkey": "Cheia de acces",
+      "otp": "Parolă unică"
+    },
+    "status": {
+      "success": "Succes",
+      "failed": "Eșuat"
+    }
   },
   "languages": {
     "en": "English",

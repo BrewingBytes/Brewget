@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import type { SupportedLocale } from "@/i18n";
 
 import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
+import AuthAuditModal from "@/components/AuthAuditModal.vue";
 import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
@@ -38,6 +39,7 @@ const deviceName = ref("");
 // Version and changelog
 const frontendVersion = ref("");
 const showChangelog = ref(false);
+const showAuthAudit = ref(false);
 
 // Load frontend version and check passkey
 onMounted(async () => {
@@ -106,6 +108,10 @@ function handleLogout() {
 
 function openChangelog() {
   showChangelog.value = true;
+}
+
+function openAuthAudit() {
+  showAuthAudit.value = true;
 }
 
 function getLocaleToUtcOffsetMinutes(): number {
@@ -291,6 +297,17 @@ async function handleDeletePasskey() {
               :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
 
+          <!-- Auth Audit Button -->
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+              <label class="text-white/90 font-medium">
+                <i class="pi pi-history mr-2"></i> {{ t("settings.auth_activity") }}
+              </label>
+            </div>
+            <Button @click="openAuthAudit" :label="t('settings.view_auth_activity')" icon="pi pi-eye"
+              class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
+          </div>
+
           <!-- Buttons and Version Row -->
           <div class="flex justify-between items-center mt-4">
             <Button @click="handleLogout" :label="t('settings.logout')" icon="pi pi-sign-out"
@@ -312,6 +329,9 @@ async function handleDeletePasskey() {
 
     <!-- Changelog Modal -->
     <ChangelogModal v-model:visible="showChangelog" />
+
+    <!-- Auth Audit Modal -->
+    <AuthAuditModal v-model:visible="showAuthAudit" />
 
     <!-- Add Passkey Dialog -->
     <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"

@@ -2,6 +2,11 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add authentication activity audit viewer in settings page with glass design
+- Add "See authentication activity" button in settings to view recent authentication attempts
+
 ## [0.0.14] - 2025-11-02
 ### Added
 - Add manage passkeys UI to allow users to view and delete their passkeys

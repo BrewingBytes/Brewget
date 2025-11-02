@@ -1,4 +1,5 @@
 mod activate;
+mod audit;
 mod change_password;
 mod forgot_password;
 mod health;
@@ -84,6 +85,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
         )
         .nest("/passkey/login", passkey_login::get_router(state.clone()))
         .nest("/passkey/manage", passkey_manage::get_router(state.clone()))
+        .nest("/audit", audit::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)
