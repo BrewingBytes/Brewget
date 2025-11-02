@@ -12,12 +12,12 @@ import { versionService } from "@/services/version";
 import { checkPasskeySupport } from "@/services/webauthn";
 import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
-import { useToast } from "@/stores/toast";
+import { useToastStore } from "@/stores/toast";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
-const toast = useToast();
+const toast = useToastStore();
 const { t, locale } = useI18n();
 const { addPasskeyToExistingAccount, isRegistering: addingPasskey } = usePasskeyRegistration();
 
@@ -44,11 +44,11 @@ onMounted(async () => {
   frontendVersion.value = versionService.getFrontendVersion();
   await settingsStore.loadSettings();
   syncFormFields(settingsStore.settings);
-  
+
   // Check passkey support
   const support = await checkPasskeySupport();
   passkeySupported.value = support.available;
-  
+
   // Check if user has passkey
   await checkUserPasskey();
 });
@@ -140,7 +140,7 @@ async function handleAddPasskey() {
   }
 
   const success = await addPasskeyToExistingAccount(deviceName.value.trim());
-  
+
   if (success) {
     showAddPasskeyDialog.value = false;
     await checkUserPasskey();
@@ -152,7 +152,7 @@ async function handleDeletePasskey() {
   try {
     const response = await authService.passkeyList();
     if (response.status === 200 && response.data && response.data.length > 0) {
-      const passkeyId = response.data[0].id;
+      const passkeyId = response.data[0]?.id as string;
       const deleteResponse = await authService.passkeyRemove(passkeyId);
       if (deleteResponse.status === 200) {
         toast.showTranslationKey("PASSKEY_REMOVED_SUCCESSFULLY");
@@ -279,26 +279,13 @@ async function handleDeletePasskey() {
           <!-- Passkey Management Row -->
           <div v-if="passkeySupported" class="flex items-center justify-between">
             <label class="text-white/90 font-medium">
-              <i class="pi pi-key mr-2"></i> {{ t("settings.passkeys") }}
+              <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
             </label>
-            <Button 
-              v-if="hasPasskey"
-              @click="handleDeletePasskey" 
-              label="DELETE" 
-              icon="pi pi-trash"
-              severity="danger"
-              :loading="loadingPasskey"
-              class="!rounded-3xl" 
-            />
-            <Button 
-              v-else
-              @click="handleCreatePasskey" 
-              label="CREATE" 
-              icon="pi pi-plus"
-              :loading="loadingPasskey"
-              class="!rounded-3xl text-white! hover:text-blue-600!" 
-              :pt="glassButtonsStyles.selectedButtonPt" 
-            />
+            <Button v-if="hasPasskey" @click="handleDeletePasskey" :label="t('settings.remove_passkey')"
+              icon="pi pi-trash" severity="danger" :loading="loadingPasskey" class="!rounded-3xl" />
+            <Button v-else @click="handleCreatePasskey" :label="t('settings.add_passkey')" icon="pi pi-plus"
+              :loading="loadingPasskey" class="!rounded-3xl text-white! hover:text-blue-600!"
+              :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
 
           <!-- Buttons and Version Row -->
@@ -325,8 +312,7 @@ async function handleDeletePasskey() {
 
     <!-- Add Passkey Dialog -->
     <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"
-      class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!"
-      :pt="{
+      class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!" :pt="{
         root: {
           class: 'backdrop-blur-2xl! bg-white/10! border! border-white/80!',
         },
@@ -351,8 +337,8 @@ async function handleDeletePasskey() {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button :label="t('auth.forgot_password.go_back')" @click="showAddPasskeyDialog = false"
-            severity="secondary" class="!rounded-3xl" />
+          <Button :label="t('auth.forgot_password.go_back')" @click="showAddPasskeyDialog = false" severity="secondary"
+            class="!rounded-3xl" />
           <Button :label="t('settings.add_passkey')" @click="handleAddPasskey" :loading="addingPasskey"
             icon="pi pi-plus" class="!rounded-3xl text-white! hover:text-blue-600!"
             :pt="glassButtonsStyles.selectedButtonPt" />
