@@ -142,6 +142,7 @@ async function handlePasskeyAction() {
           email: email.value,
           username: username.value,
           captchaToken: captchaToken.value,
+          deviceName: username.value,
         })
       ) {
         resetToLogin();

@@ -2,11 +2,6 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
-## [Unreleased]
-### Added
-- Add passkey management endpoints for authenticated users (list, add, remove)
-- Add `filter_by_uuid` function for user database operations
-
 ## [0.0.15] - 2025-11-02
 ### Fixed
 - Small fix to passkey
