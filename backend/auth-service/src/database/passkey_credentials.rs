@@ -83,11 +83,12 @@ pub async fn find_by_user_id(
 /// Update the counter value for a passkey credential after successful authentication
 ///
 /// This function enforces monotonic counter increases to prevent replay attacks.
-/// If the new counter is not greater than the stored counter, the update will fail.
+/// For counters > 0, the new counter must be greater than the stored counter.
+/// For counters = 0 (non-incrementing authenticators), repeated authentications are allowed.
 ///
 /// # Arguments
 /// * `credential_id` - The credential ID to update
-/// * `new_counter` - The new counter value (must be greater than current counter)
+/// * `new_counter` - The new counter value from the authenticator
 /// * `pool` - Database connection pool
 ///
 /// # Returns
@@ -102,7 +103,7 @@ pub async fn update_counter(
         r#"
         UPDATE passkey_credentials
         SET counter = $2, last_used_at = NOW()
-        WHERE credential_id = $1 AND counter < $2
+        WHERE credential_id = $1 AND (counter < $2 OR ($2 = 0 AND counter = 0))
         "#,
     )
     .bind(credential_id)

@@ -241,7 +241,7 @@ async fn passkey_login_finish(
 
     database::passkey_credentials::update_counter(
         &stored_credential.credential_id,
-        (authentication_result.counter() + 1) as i64,
+        authentication_result.counter() as i64,
         pool,
     )
     .await?;
