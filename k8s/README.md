@@ -98,6 +98,42 @@ kubectl port-forward -n brewget service/nginx 8080:80
 
 Then access at `http://localhost:8080`
 
+## Minikube Tunnel Service
+
+When deploying to minikube, the deploy script automatically sets up the minikube tunnel as a systemd service. This ensures the tunnel runs reliably and restarts automatically if it fails.
+
+### Service Management
+
+The minikube tunnel service is managed automatically by the deployment scripts:
+
+**Check service status:**
+```bash
+sudo systemctl status minikube-tunnel.service
+```
+
+**View service logs:**
+```bash
+sudo journalctl -u minikube-tunnel.service -f
+```
+
+**Manually restart the service:**
+```bash
+sudo systemctl restart minikube-tunnel.service
+```
+
+**Stop the service:**
+```bash
+sudo systemctl stop minikube-tunnel.service
+```
+
+The service is configured to:
+- Start automatically on system boot
+- Restart automatically if it crashes (with a 5-second delay)
+- Bind to `0.0.0.0` to allow external access
+- Run with root privileges (required for tunnel functionality)
+
+The cleanup script (`./cleanup.sh`) automatically stops and removes the systemd service when cleaning up the deployment.
+
 ## Configuration
 
 ### Secrets

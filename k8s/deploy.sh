@@ -109,10 +109,28 @@ if command -v minikube &> /dev/null; then
     
     echo ""
     
-    # Start minikube tunnel
-    echo "🌐 Starting minikube tunnel..."
-    sudo minikube tunnel --bind-address=0.0.0.0 &
-    echo "✅ Minikube tunnel started in background"
+    # Set up minikube tunnel as a systemd service
+    echo "🌐 Setting up minikube tunnel as a systemd service..."
+    
+    # Copy the service file to systemd
+    sudo cp "$SCRIPT_DIR/minikube-tunnel.service" /etc/systemd/system/
+    
+    # Reload systemd to recognize the new service
+    sudo systemctl daemon-reload
+    
+    # Enable the service to start on boot
+    sudo systemctl enable minikube-tunnel.service
+    
+    # Start the service
+    sudo systemctl start minikube-tunnel.service
+    
+    # Check if service started successfully
+    if sudo systemctl is-active --quiet minikube-tunnel.service; then
+        echo "✅ Minikube tunnel service started successfully"
+    else
+        echo "⚠️  Warning: Minikube tunnel service may not have started correctly"
+        echo "   Check status with: sudo systemctl status minikube-tunnel.service"
+    fi
     echo ""
 fi
 
