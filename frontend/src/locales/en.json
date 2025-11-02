@@ -31,7 +31,16 @@
     "COULD_NOT_UPDATE_PASSWORD": "Could not update password",
     "ACTIVATION_LINK_NOT_FOUND": "Activation link not found",
     "FORGOT_PASSWORD_LINK_NOT_FOUND": "Forgot password link not found",
-    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Failed to retrieve password history"
+    "FAILED_TO_RETRIEVE_PASSWORD_HISTORY": "Failed to retrieve password history",
+    "PASSKEY_NOT_SUPPORTED": "Passkeys are not supported on this device",
+    "PASSKEY_REGISTRATION_FAILED": "Passkey registration failed",
+    "PASSKEY_AUTHENTICATION_FAILED": "Passkey authentication failed",
+    "NO_PASSKEY_CONFIGURED": "No passkey configured for this account",
+    "PASSKEY_ADDED_SUCCESSFULLY": "Passkey added successfully",
+    "PASSKEY_REMOVED_SUCCESSFULLY": "Passkey removed successfully",
+    "REGISTRATION_SESSION_EXPIRED": "Registration session expired",
+    "AUTHENTICATION_SESSION_EXPIRED": "Authentication session expired",
+    "PASSKEY_NOT_FOUND": "Passkey not found"
   },
   "settings": {
     "title": "User Settings",
@@ -89,6 +98,22 @@
       "email": "Email",
       "username": "Username",
       "password": "Password"
+    },
+    "passkey": {
+      "title": "Sign in with Passkey",
+      "register_title": "Create Passkey",
+      "register_button": "Continue with Passkey",
+      "register_recommended": "Recommended - More Secure",
+      "register_explanation": "A passkey provides quick and secure access without passwords",
+      "login_button": "Sign in with Passkey",
+      "use_password": "Use password instead",
+      "show_password_option": "Show password option",
+      "benefits": {
+        "faster": "Faster login",
+        "secure": "More secure",
+        "no_passwords": "No passwords to remember"
+      },
+      "or_divider": "OR"
     }
   },
   "navbar": {
