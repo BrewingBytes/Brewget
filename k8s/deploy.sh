@@ -112,8 +112,21 @@ if command -v minikube &> /dev/null; then
     # Set up minikube tunnel as a systemd service
     echo "🌐 Setting up minikube tunnel as a systemd service..."
     
+    # Detect minikube path
+    MINIKUBE_PATH=$(which minikube)
+    if [ -z "$MINIKUBE_PATH" ]; then
+        echo "⚠️  Warning: Could not detect minikube path, using default /usr/local/bin/minikube"
+        MINIKUBE_PATH="/usr/local/bin/minikube"
+    fi
+    
+    # Create service file with the correct minikube path
+    sed "s|MINIKUBE_PATH|$MINIKUBE_PATH|g" "$SCRIPT_DIR/minikube-tunnel.service" > /tmp/minikube-tunnel.service
+    
     # Copy the service file to systemd
-    sudo cp "$SCRIPT_DIR/minikube-tunnel.service" /etc/systemd/system/
+    sudo cp /tmp/minikube-tunnel.service /etc/systemd/system/minikube-tunnel.service
+    
+    # Clean up temporary file
+    rm -f /tmp/minikube-tunnel.service
     
     # Reload systemd to recognize the new service
     sudo systemctl daemon-reload
