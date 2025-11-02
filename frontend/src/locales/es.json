@@ -52,7 +52,8 @@
     "passkey": "Clave de acceso",
     "add_passkey": "Agregar clave de acceso",
     "remove_passkey": "Eliminar",
-    "passkey_device_name": "Nombre del dispositivo"
+    "passkey_device_name": "Nombre del dispositivo",
+    "enter_device_name": "Ingrese un nombre para este dispositivo"
   },
   "languages": {
     "en": "English",

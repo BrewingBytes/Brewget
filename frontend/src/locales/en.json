@@ -61,7 +61,8 @@
     "passkey": "Passkey",
     "add_passkey": "Add Passkey",
     "remove_passkey": "Delete",
-    "passkey_device_name": "Device name"
+    "passkey_device_name": "Device name",
+    "enter_device_name": "Enter a name for this device"
   },
   "languages": {
     "en": "English",

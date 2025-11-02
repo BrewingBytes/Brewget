@@ -52,7 +52,8 @@
     "passkey": "Clé d'authentification",
     "add_passkey": "Ajouter une clé d'authentification",
     "remove_passkey": "Supprimer",
-    "passkey_device_name": "Nom de l'appareil"
+    "passkey_device_name": "Nom de l'appareil",
+    "enter_device_name": "Entrez un nom pour cet appareil"
   },
   "languages": {
     "en": "English",

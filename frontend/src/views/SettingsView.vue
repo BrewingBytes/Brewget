@@ -148,19 +148,20 @@ async function handleAddPasskey() {
 }
 
 async function handleDeletePasskey() {
+  if (!passkeyInfo.value?.id) {
+    toast.showTranslationKey("SOMETHING_WENT_WRONG");
+    return;
+  }
+
   loadingPasskey.value = true;
   try {
-    const response = await authService.passkeyList();
-    if (response.status === 200 && response.data && response.data.length > 0) {
-      const passkeyId = response.data[0]?.id as string;
-      const deleteResponse = await authService.passkeyRemove(passkeyId);
-      if (deleteResponse.status === 200) {
-        toast.showTranslationKey("PASSKEY_REMOVED_SUCCESSFULLY");
-        await checkUserPasskey();
-      } else {
-        const errorKey = deleteResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
-        toast.showTranslationKey(errorKey);
-      }
+    const deleteResponse = await authService.passkeyRemove(passkeyInfo.value.id);
+    if (deleteResponse.status === 200) {
+      toast.showTranslationKey("PASSKEY_REMOVED_SUCCESSFULLY");
+      await checkUserPasskey();
+    } else {
+      const errorKey = deleteResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
+      toast.showTranslationKey(errorKey);
     }
   } catch (error) {
     console.error("Failed to delete passkey:", error);
