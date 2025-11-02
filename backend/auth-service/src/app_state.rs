@@ -1,6 +1,5 @@
 use moka::future::Cache;
 use sqlx::PgPool;
-use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
 use tonic::{Response, Status, transport::Channel};

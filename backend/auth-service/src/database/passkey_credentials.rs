@@ -80,31 +80,6 @@ pub async fn find_by_user_id(
     })
 }
 
-/// Find a passkey credential by its credential ID
-///
-/// # Arguments
-/// * `credential_id` - The credential ID to search for
-/// * `pool` - Database connection pool
-///
-/// # Returns
-/// * `Ok(PasskeyCredential)` - The found credential
-/// * `Err(Error)` - Credential not found or database error
-pub async fn find_by_credential_id(
-    credential_id: &[u8],
-    pool: &PgPool,
-) -> Result<PasskeyCredential, Error> {
-    sqlx::query_as::<_, PasskeyCredential>(
-        r#"
-        SELECT * FROM passkey_credentials
-        WHERE credential_id = $1 AND is_active = TRUE
-        "#,
-    )
-    .bind(credential_id)
-    .fetch_one(pool)
-    .await
-    .map_err(|_| (StatusCode::NOT_FOUND, TranslationKey::PasskeyNotFound).into())
-}
-
 /// Update the counter value for a passkey credential after successful authentication
 ///
 /// This function enforces monotonic counter increases to prevent replay attacks.
@@ -156,38 +131,4 @@ pub async fn update_counter(
             )))
         }
     }
-}
-
-/// Deactivate a passkey credential (soft delete)
-///
-/// # Arguments
-/// * `credential_id` - UUID of the credential record to deactivate
-/// * `user_id` - UUID of the user who owns the credential (for authorization)
-/// * `pool` - Database connection pool
-///
-/// # Returns
-/// * `Ok(())` - Credential deactivated successfully
-/// * `Err(Error)` - Database error
-pub async fn delete(credential_id: Uuid, user_id: Uuid, pool: &PgPool) -> Result<(), Error> {
-    let result: Result<_, sqlx::Error> = sqlx::query(
-        r#"
-        UPDATE passkey_credentials
-        SET is_active = FALSE
-        WHERE id = $1 AND user_id = $2
-        "#,
-    )
-    .bind(credential_id)
-    .bind(user_id)
-    .execute(pool)
-    .await;
-
-    result.map_err(|e: sqlx::Error| {
-        tracing::error!("Failed to delete passkey credential: {}", e);
-        Error::from((
-            StatusCode::INTERNAL_SERVER_ERROR,
-            TranslationKey::SomethingWentWrong,
-        ))
-    })?;
-
-    Ok(())
 }

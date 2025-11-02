@@ -21,6 +21,7 @@ use uuid::Uuid;
 /// * `last_used_at` - When this credential was last used for authentication
 /// * `is_active` - Whether this credential is active or has been revoked
 #[derive(FromRow, Clone)]
+#[allow(dead_code)]
 pub struct PasskeyCredential {
     pub id: Uuid,
     pub user_id: Uuid,
