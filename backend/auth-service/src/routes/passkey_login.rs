@@ -213,32 +213,31 @@ async fn passkey_login_finish(
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
     // Attempt authentication
-    let authentication_result = match webauthn
-        .finish_passkey_authentication(&credential, &passkey_authentication)
-    {
-        Ok(result) => result,
-        Err(e) => {
-            tracing::error!("Passkey authentication failed: {}", e);
+    let authentication_result =
+        match webauthn.finish_passkey_authentication(&credential, &passkey_authentication) {
+            Ok(result) => result,
+            Err(e) => {
+                tracing::error!("Passkey authentication failed: {}", e);
 
-            // Log failed authentication attempt
-            utils::audit::log_authentication_attempt(
-                user.get_uuid(),
-                AuthMethod::Passkey,
-                false,
-                ip_address.clone(),
-                user_agent.clone(),
-                Some("passkey_verification_failed"),
-                pool,
-            )
-            .await;
+                // Log failed authentication attempt
+                utils::audit::log_authentication_attempt(
+                    user.get_uuid(),
+                    AuthMethod::Passkey,
+                    false,
+                    ip_address.clone(),
+                    user_agent.clone(),
+                    Some("passkey_verification_failed"),
+                    pool,
+                )
+                .await;
 
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                TranslationKey::PasskeyAuthenticationFailed,
-            )
-                .into());
-        }
-    };
+                return Err((
+                    StatusCode::UNAUTHORIZED,
+                    TranslationKey::PasskeyAuthenticationFailed,
+                )
+                    .into());
+            }
+        };
 
     // Check if account is verified
     if !user.is_account_verified() {
