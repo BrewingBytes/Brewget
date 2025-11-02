@@ -278,11 +278,18 @@ async function handleDeletePasskey() {
 
           <!-- Passkey Management Row -->
           <div v-if="passkeySupported" class="flex items-center justify-between">
-            <label class="text-white/90 font-medium">
-              <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
-            </label>
+            <div class="flex flex-col">
+              <label class="text-white/90 font-medium">
+                <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
+              </label>
+              <span v-if="hasPasskey && passkeyInfo" class="text-white/60 text-sm mt-1">
+                {{ passkeyInfo.device_name || t("settings.passkey_device_name") }} - 
+                Last used: {{ formatDate(passkeyInfo.last_used_at) }}
+              </span>
+            </div>
             <Button v-if="hasPasskey" @click="handleDeletePasskey" :label="t('settings.remove_passkey')"
-              icon="pi pi-trash" severity="danger" :loading="loadingPasskey" class="!rounded-3xl" />
+              icon="pi pi-trash" :loading="loadingPasskey" class="!rounded-3xl text-white! hover:text-blue-600!"
+              :pt="glassButtonsStyles.selectedButtonPt" />
             <Button v-else @click="handleCreatePasskey" :label="t('settings.add_passkey')" icon="pi pi-plus"
               :loading="loadingPasskey" class="!rounded-3xl text-white! hover:text-blue-600!"
               :pt="glassButtonsStyles.selectedButtonPt" />
@@ -312,20 +319,22 @@ async function handleDeletePasskey() {
 
     <!-- Add Passkey Dialog -->
     <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"
-      class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!" :pt="{
+      :style="{ width: '90vw', maxWidth: '500px' }"
+      :pt="{
         root: {
-          class: 'backdrop-blur-2xl! bg-white/10! border! border-white/80!',
+          class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
         },
         header: {
-          class: 'text-white! bg-transparent!',
+          class: 'bg-transparent! border-b! border-white/20! text-white!',
         },
         content: {
-          class: 'text-white! bg-transparent!',
+          class: 'bg-transparent! text-white!',
         },
         footer: {
           class: 'bg-transparent!',
         },
-      }">
+      }"
+      pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
           <label for="deviceName" class="text-white/90 font-medium">
