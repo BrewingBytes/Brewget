@@ -40,7 +40,7 @@
     "night_mode": "Mod nocturn",
     "enable_alarm": "Activează alarma",
     "alarm_time": "Ora alarmei",
-    "save_settings": "Salvează setările",
+    "save_settings": "Salvează",
     "logout": "Deconectare",
     "version": "Versiune",
     "click_to_view_changelog": "Faceți clic pentru a vizualiza jurnalul de modificări",
@@ -55,7 +55,7 @@
     "passkey_device_name": "Nume dispozitiv",
     "enter_device_name": "Introduceți un nume pentru acest dispozitiv",
     "auth_activity": "Activitate de autentificare",
-    "view_auth_activity": "Vezi activitatea de autentificare"
+    "view_auth_activity": "Vezi"
   },
   "auth_audit": {
     "title": "Activitate de autentificare",

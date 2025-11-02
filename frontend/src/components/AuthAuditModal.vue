@@ -52,7 +52,7 @@ function formatDate(dateString: string): string {
 }
 
 function getAuthMethodLabel(method: string): string {
-  return t(`auth_audit.methods.${method}`);
+  return t(`auth_audit.methods.${method.toLowerCase()}`);
 }
 
 function getStatusLabel(success: boolean): string {
@@ -78,9 +78,8 @@ function getMethodIcon(method: string): string {
 </script>
 
 <template>
-  <Dialog :visible="props.visible" modal :closable="true" @update:visible="handleClose"
-    :header="t('auth_audit.title')" :style="{ width: '90vw', maxWidth: '1000px' }"
-    :contentStyle="{ maxHeight: '70vh', overflow: 'auto' }" :pt="{
+  <Dialog :visible="props.visible" modal :closable="true" @update:visible="handleClose" :header="t('auth_audit.title')"
+    :style="{ width: '90vw', maxWidth: '1000px' }" :contentStyle="{ maxHeight: '70vh', overflow: 'auto' }" :pt="{
       root: {
         class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
       },

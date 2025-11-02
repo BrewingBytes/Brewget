@@ -4,8 +4,8 @@ import { useI18n } from "vue-i18n";
 
 import type { SupportedLocale } from "@/i18n";
 
-import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
 import AuthAuditModal from "@/components/AuthAuditModal.vue";
+import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
 import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
@@ -305,7 +305,7 @@ async function handleDeletePasskey() {
               </label>
             </div>
             <Button @click="openAuthAudit" :label="t('settings.view_auth_activity')" icon="pi pi-eye"
-              class="!rounded-3xl text-white! hover:text-blue-600! min-w-[250px]" :pt="glassButtonsStyles.selectedButtonPt" />
+              class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
 
           <!-- Buttons and Version Row -->

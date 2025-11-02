@@ -1,20 +1,13 @@
 use std::{str::FromStr, sync::Arc};
 
 use axum::{
-    Extension, Json, Router,
-    extract::State,
-    middleware,
-    response::IntoResponse,
-    routing::get,
+    Extension, Json, Router, extract::State, middleware, response::IntoResponse, routing::get,
 };
 use uuid::Uuid;
 
 use crate::{
     AppState, database,
-    models::{
-        authentication_audit_log::AuthenticationAuditLogResponse,
-        response::Error,
-    },
+    models::{authentication_audit_log::AuthenticationAuditLogResponse, response::Error},
     routes::middlewares::auth_guard::auth_guard,
 };
 
@@ -60,7 +53,8 @@ async fn list_audit_logs(
     tracing::info!("Fetching audit logs for user: {}", user_id);
 
     let pool = state.get_database_pool();
-    let audit_logs = database::authentication_audit_logs::find_by_user_id(user_id, 50, pool).await?;
+    let audit_logs =
+        database::authentication_audit_logs::find_by_user_id(user_id, 50, pool).await?;
 
     let response: Vec<AuthenticationAuditLogResponse> =
         audit_logs.into_iter().map(Into::into).collect();

@@ -40,7 +40,7 @@
     "night_mode": "Nachtmodus",
     "enable_alarm": "Alarm aktivieren",
     "alarm_time": "Alarmzeit",
-    "save_settings": "Einstellungen speichern",
+    "save_settings": "Speichern",
     "logout": "Abmelden",
     "version": "Version",
     "click_to_view_changelog": "Klicken Sie, um das Änderungsprotokoll anzuzeigen",
@@ -55,7 +55,7 @@
     "passkey_device_name": "Gerätename",
     "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein",
     "auth_activity": "Authentifizierungsaktivität",
-    "view_auth_activity": "Authentifizierungsaktivität anzeigen"
+    "view_auth_activity": "Anzeigen"
   },
   "auth_audit": {
     "title": "Authentifizierungsaktivität",

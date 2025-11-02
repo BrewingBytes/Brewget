@@ -49,7 +49,7 @@
     "night_mode": "Night Mode",
     "enable_alarm": "Enable Alarm",
     "alarm_time": "Alarm Time",
-    "save_settings": "Save Settings",
+    "save_settings": "Save",
     "logout": "Logout",
     "version": "Version",
     "click_to_view_changelog": "Click to view changelog",
@@ -64,7 +64,7 @@
     "passkey_device_name": "Device name",
     "enter_device_name": "Enter a name for this device",
     "auth_activity": "Authentication Activity",
-    "view_auth_activity": "See authentication activity"
+    "view_auth_activity": "See"
   },
   "auth_audit": {
     "title": "Authentication Activity",
