@@ -10,18 +10,20 @@ use crate::utils::password::{hash_password, verify_password};
 /// # Fields
 /// * `id` - Unique identifier for the user
 /// * `username` - User's chosen username
-/// * `password` - Hashed password string
+/// * `password` - Hashed password string (optional for passkey-only accounts)
 /// * `email` - User's email address
 /// * `is_verified` - Email verification status
 /// * `is_active` - Account active status
+/// * `has_passkey` - Whether the user has at least one active passkey
 #[derive(FromRow, Clone)]
 pub struct User {
     id: Uuid,
     username: String,
-    password: String,
+    password: Option<String>,
     email: String,
     is_verified: bool,
     is_active: bool,
+    has_passkey: bool,
 }
 
 impl User {
@@ -47,9 +49,21 @@ impl User {
     ///
     /// # Returns
     /// * `true` if the password matches
-    /// * `false` if the password is invalid
+    /// * `false` if the password is invalid or no password is set
     pub fn is_password_valid(&self, password: &str) -> bool {
-        verify_password(password, &self.password).is_ok()
+        self.password
+            .as_ref()
+            .map(|hash| verify_password(password, hash).is_ok())
+            .unwrap_or(false)
+    }
+
+    /// Checks if the user has at least one active passkey
+    ///
+    /// # Returns
+    /// * `true` if the user has at least one active passkey
+    /// * `false` if the user has no active passkeys
+    pub fn has_passkey(&self) -> bool {
+        self.has_passkey
     }
 
     /// Checks if the account email has been verified
@@ -73,7 +87,9 @@ impl User {
 
 /// Represents a new user to be inserted into the database
 ///
-/// This struct is used for creating new user accounts
+/// This struct is used for creating new user accounts with password authentication.
+/// For passkey-only accounts (created via passkey registration), users are created
+/// directly via SQL with no password field.
 ///
 /// # Fields
 /// * `id` - Given UUID for the new account

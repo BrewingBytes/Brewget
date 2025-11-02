@@ -70,6 +70,18 @@ pub enum TranslationKey {
     ForgotPasswordLinkNotFound,
     /// Failed to retrieve password history error
     FailedToRetrievePasswordHistory,
+    /// Passkey registration failed error
+    PasskeyRegistrationFailed,
+    /// Passkey authentication failed error
+    PasskeyAuthenticationFailed,
+    /// Passkey not found error
+    PasskeyNotFound,
+    /// No passkey configured for user error
+    NoPasskeyConfigured,
+    /// Registration session expired error
+    RegistrationSessionExpired,
+    /// Authentication session expired error
+    AuthenticationSessionExpired,
 }
 
 /// A message response structure containing a translation key

@@ -3,6 +3,9 @@
 All notable changes to the Auth Service will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Add passkey support for passwordless authentication
+
 ### Fixed
 - Fix token validation to properly handle invalid tokens and return unauthorized status
 

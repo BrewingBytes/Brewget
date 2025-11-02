@@ -1,6 +1,10 @@
+use moka::future::Cache;
 use sqlx::PgPool;
+use std::time::Duration;
 use tokio::sync::Mutex;
 use tonic::{Response, Status, transport::Channel};
+use uuid::Uuid;
+use webauthn_rs::prelude::{PasskeyAuthentication, PasskeyRegistration};
 
 use crate::{
     Config,
@@ -19,6 +23,9 @@ use crate::{
 /// * `config` - Application configuration settings
 /// * `db` - PostgreSQL connection pool for async database operations
 /// * `email_service` - A mutex for the EmailServiceClient GRPC
+/// * `passkey_registrations` - TTL cache for WebAuthn registration challenges (5 minute expiry)
+/// * `passkey_authentications` - TTL cache for WebAuthn authentication challenges (5 minute expiry)
+/// * `pending_users` - TTL cache for pending user registration data (5 minute expiry)
 ///
 /// # Usage
 /// ```rust
@@ -33,6 +40,9 @@ pub struct AppState {
     pub config: Config,
     db: PgPool,
     email_service: Mutex<EmailServiceClient<Channel>>,
+    passkey_registrations: Cache<Uuid, PasskeyRegistration>,
+    passkey_authentications: Cache<String, PasskeyAuthentication>,
+    pending_users: Cache<Uuid, (String, String)>,
 }
 
 impl AppState {
@@ -41,10 +51,26 @@ impl AppState {
     /// # Returns
     /// * `AppState` - the AppState that contains all the necessary configs
     pub fn new(config: Config, db: PgPool, email_service: EmailServiceClient<Channel>) -> Self {
+        // Create caches with 5 minute TTL for WebAuthn challenges
+        let passkey_registrations = Cache::builder()
+            .time_to_live(Duration::from_secs(300))
+            .build();
+
+        let passkey_authentications = Cache::builder()
+            .time_to_live(Duration::from_secs(300))
+            .build();
+
+        let pending_users = Cache::builder()
+            .time_to_live(Duration::from_secs(300))
+            .build();
+
         Self {
             config,
             db,
             email_service: Mutex::new(email_service),
+            passkey_registrations,
+            passkey_authentications,
+            pending_users,
         }
     }
 
@@ -98,5 +124,42 @@ impl AppState {
             .await
             .send_forgot_password(request)
             .await
+    }
+
+    /// Store a passkey registration challenge temporarily (5 minute expiry)
+    pub async fn store_passkey_registration(&self, user_id: Uuid, reg: PasskeyRegistration) {
+        self.passkey_registrations.insert(user_id, reg).await;
+    }
+
+    /// Retrieve and remove a passkey registration challenge
+    pub async fn get_passkey_registration(&self, user_id: Uuid) -> Option<PasskeyRegistration> {
+        self.passkey_registrations.remove(&user_id).await
+    }
+
+    /// Store a passkey authentication challenge temporarily (5 minute expiry)
+    pub async fn store_passkey_authentication(
+        &self,
+        username: String,
+        auth: PasskeyAuthentication,
+    ) {
+        self.passkey_authentications.insert(username, auth).await;
+    }
+
+    /// Retrieve and remove a passkey authentication challenge
+    pub async fn get_passkey_authentication(
+        &self,
+        username: &str,
+    ) -> Option<PasskeyAuthentication> {
+        self.passkey_authentications.remove(username).await
+    }
+
+    /// Store pending user registration data temporarily (5 minute expiry)
+    pub async fn store_pending_user(&self, user_id: Uuid, username: String, email: String) {
+        self.pending_users.insert(user_id, (username, email)).await;
+    }
+
+    /// Retrieve and remove pending user registration data
+    pub async fn get_pending_user(&self, user_id: Uuid) -> Option<(String, String)> {
+        self.pending_users.remove(&user_id).await
     }
 }
