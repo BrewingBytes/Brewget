@@ -109,8 +109,8 @@ async fn login_handler(
             user.get_uuid(),
             AuthMethod::Password,
             false,
-            ip_address,
-            user_agent,
+            ip_address.clone(),
+            user_agent.clone(),
             None,
             pool,
         )
