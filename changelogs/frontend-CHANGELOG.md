@@ -2,7 +2,10 @@
 
 All notable changes to the Frontend will be documented in this file.
 
-## [0.0.13] - 2025-11-02
+## [0.0.14] - 2025-11-02
+### Added
+- Add manage passkeys UI to allow users to view and delete their passkeys
+
 ### Fixed
 - Fix issue with settings not loading at all
 
@@ -11,6 +14,7 @@ All notable changes to the Frontend will be documented in this file.
 - Fix Turnstile captcha not resetting on failed login/register attempts
 - Fix login taking too long due to waiting for settings load
 - Fix token expiration handling to properly log out user on invalid/expired token
+
 ### Added
 - Add passkey support for passwordless authentication
 
