@@ -172,12 +172,14 @@ async function passkeyRemove(id: string): Promise<ServerResponse<PasskeyRemoveRe
   }
 }
 
-async function auditList(): Promise<ServerResponse<AuthAuditListResponse>> {
+async function auditList(limit?: number): Promise<ServerResponse<AuthAuditListResponse>> {
   try {
+    const params = limit ? { limit } : {};
     return await authApi.get("/audit", {
       headers: {
         Authorization: useAuthStore().bearerToken,
       },
+      params,
     });
   } catch (error) {
     return (error as AxiosError).response as ErrorResponse;

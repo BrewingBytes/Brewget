@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { AuthenticationAuditLog } from "@/services/auth/types";
 
 import { authService } from "@/services/auth";
+import { useToastStore } from "@/stores/toast";
+import { ToastSeverity } from "@/stores/toast";
 
 const props = defineProps<{
   visible: boolean;
@@ -14,12 +16,16 @@ const emit = defineEmits<{
   (e: "update:visible", value: boolean): void;
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const toast = useToastStore();
 const auditLogs = ref<AuthenticationAuditLog[]>([]);
-const loading = ref(true);
+const loading = ref(false);
 
-onMounted(async () => {
-  await loadAuditLogs();
+// Watch for modal visibility changes and reload logs when opened
+watch(() => props.visible, async (newVisible) => {
+  if (newVisible) {
+    await loadAuditLogs();
+  }
 });
 
 async function loadAuditLogs() {
@@ -28,9 +34,16 @@ async function loadAuditLogs() {
     const response = await authService.auditList();
     if (response.status === 200 && response.data) {
       auditLogs.value = response.data;
+    } else {
+      // Handle non-200 responses
+      const errorKey = response.data?.translation_key || "SOMETHING_WENT_WRONG";
+      toast.showTranslationKey(errorKey, ToastSeverity.ERROR);
+      auditLogs.value = [];
     }
   } catch (error) {
     console.error("Failed to load audit logs:", error);
+    toast.showTranslationKey("SOMETHING_WENT_WRONG", ToastSeverity.ERROR);
+    auditLogs.value = [];
   } finally {
     loading.value = false;
   }
@@ -42,7 +55,7 @@ function handleClose() {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale.value, {
     year: "numeric",
     month: "short",
     day: "numeric",
