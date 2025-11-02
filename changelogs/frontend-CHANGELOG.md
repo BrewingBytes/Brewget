@@ -2,6 +2,10 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [0.0.12] - 2025-11-02
+### Fixed
+- Fix issue with settings not loading at all
+
 ## [0.0.11] - 2025-11-02
 ### Fixed
 - Fix Turnstile captcha not resetting on failed login/register attempts

@@ -4,13 +4,16 @@ FROM oven/bun:1 AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb ./
+COPY frontend/package.json frontend/bun.lockb ./
 
 # Install dependencies
 RUN bun install
 
 # Copy source code
-COPY . .
+COPY frontend .
+
+# Copy changelogs
+COPY changelogs ../changelogs
 
 # Set build environment
 ENV NODE_ENV=production
@@ -25,7 +28,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration with SPA routing support
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port
 EXPOSE 80
