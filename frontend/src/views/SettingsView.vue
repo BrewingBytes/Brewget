@@ -6,10 +6,11 @@ import type { SupportedLocale } from "@/i18n";
 import type { PasskeyCredential } from "@/services/auth/types";
 
 import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
+import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
 import { versionService } from "@/services/version";
-import { checkPasskeySupport, credentialToJSON, registerPasskey } from "@/services/webauthn";
+import { checkPasskeySupport } from "@/services/webauthn";
 import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
 import { useToast } from "@/stores/toast";
@@ -19,6 +20,7 @@ const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const toast = useToast();
 const { t, locale } = useI18n();
+const { addPasskeyToExistingAccount, isRegistering: addingPasskey } = usePasskeyRegistration();
 
 // Form fields
 const language = ref("");
@@ -30,7 +32,6 @@ const nightMode = ref(false);
 // Passkey management
 const passkeys = ref<PasskeyCredential[]>([]);
 const loadingPasskeys = ref(false);
-const addingPasskey = ref(false);
 const removingPasskeyId = ref<string | null>(null);
 const passkeySupported = ref(false);
 const showAddPasskeyDialog = ref(false);
@@ -143,42 +144,11 @@ async function handleAddPasskey() {
     return;
   }
 
-  addingPasskey.value = true;
-  try {
-    // Start passkey registration
-    const startResponse = await authService.passkeyAddStart();
-    if (startResponse.status !== 200 || !startResponse.data) {
-      const errorKey = startResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
-      toast.error(t(`translation_keys.${errorKey}`));
-      return;
-    }
-
-    const { user_id, creation_options } = startResponse.data;
-
-    // Register passkey with browser
-    const credential = await registerPasskey(creation_options);
-    const credentialJSON = credentialToJSON(credential);
-
-    // Complete registration
-    const finishResponse = await authService.passkeyAddFinish({
-      user_id,
-      credential: credentialJSON,
-      device_name: deviceName.value.trim(),
-    });
-
-    if (finishResponse.status === 200) {
-      toast.success(t("translation_keys.PASSKEY_ADDED_SUCCESSFULLY"));
-      showAddPasskeyDialog.value = false;
-      await loadPasskeys();
-    } else {
-      const errorKey = finishResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
-      toast.error(t(`translation_keys.${errorKey}`));
-    }
-  } catch (error) {
-    console.error("Failed to add passkey:", error);
-    toast.error(t("translation_keys.PASSKEY_REGISTRATION_FAILED"));
-  } finally {
-    addingPasskey.value = false;
+  const success = await addPasskeyToExistingAccount(deviceName.value.trim());
+  
+  if (success) {
+    showAddPasskeyDialog.value = false;
+    await loadPasskeys();
   }
 }
 

@@ -2,6 +2,13 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add passkey management UI to settings page
+- Add ability to view, register, and remove passkeys in settings
+- Add `usePasskeyRegistration` composable for reusable passkey registration logic
+- Add translations for passkey management in all supported languages (en, es, fr, de, ro)
+
 ## [0.0.13] - 2025-11-02
 ### Fixed
 - Fix issue with settings not loading at all
