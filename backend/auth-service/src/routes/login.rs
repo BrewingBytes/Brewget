@@ -19,6 +19,7 @@ use crate::{
         token::NewToken,
         token_claim::TokenClaim,
     },
+    utils,
 };
 
 /// Creates a router for the login routes
@@ -68,16 +69,7 @@ async fn login_handler(
     tracing::info!("Login attempt for username: {}", body.username);
 
     // Extract IP address and user agent from headers
-    let ip_address = headers
-        .get("x-forwarded-for")
-        .or_else(|| headers.get("x-real-ip"))
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string());
-
-    let user_agent = headers
-        .get("user-agent")
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string());
+    let (ip_address, user_agent) = utils::audit::extract_request_metadata(&headers);
 
     // Verify captcha token
     tracing::debug!("Verifying captcha token");
@@ -103,15 +95,15 @@ async fn login_handler(
     // Validate user exists and password matches
     if !user.is_password_valid(&body.password) {
         tracing::warn!("Invalid password for username: {}", body.username);
-        
+
         // Log failed authentication attempt
-        let _ = database::authentication_audit_logs::insert(
+        utils::audit::log_authentication_attempt(
             user.get_uuid(),
             AuthMethod::Password,
             false,
             ip_address.clone(),
             user_agent.clone(),
-            None,
+            Some("invalid_password"),
             pool,
         )
         .await;
@@ -129,15 +121,15 @@ async fn login_handler(
             "Unverified account login attempt for username: {}",
             body.username
         );
-        
+
         // Log failed authentication attempt
-        let _ = database::authentication_audit_logs::insert(
+        utils::audit::log_authentication_attempt(
             user.get_uuid(),
             AuthMethod::Password,
             false,
             ip_address.clone(),
             user_agent.clone(),
-            Some(serde_json::json!({"reason": "account_not_verified"})),
+            Some("account_not_verified"),
             pool,
         )
         .await;
@@ -151,15 +143,15 @@ async fn login_handler(
             "Inactive account login attempt for username: {}",
             body.username
         );
-        
+
         // Log failed authentication attempt
-        let _ = database::authentication_audit_logs::insert(
+        utils::audit::log_authentication_attempt(
             user.get_uuid(),
             AuthMethod::Password,
             false,
             ip_address.clone(),
             user_agent.clone(),
-            Some(serde_json::json!({"reason": "account_inactive"})),
+            Some("account_inactive"),
             pool,
         )
         .await;
@@ -196,7 +188,7 @@ async fn login_handler(
     database::tokens::insert(new_token, pool).await?;
 
     // Log successful authentication attempt
-    let _ = database::authentication_audit_logs::insert(
+    utils::audit::log_authentication_attempt(
         user.get_uuid(),
         AuthMethod::Password,
         true,

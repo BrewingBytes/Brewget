@@ -173,16 +173,7 @@ async fn passkey_login_finish(
     tracing::info!("Passkey login finish for: {}", body.username);
 
     // Extract IP address and user agent from headers
-    let ip_address = headers
-        .get("x-forwarded-for")
-        .or_else(|| headers.get("x-real-ip"))
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string());
-
-    let user_agent = headers
-        .get("user-agent")
-        .and_then(|v| v.to_str().ok())
-        .map(|s| s.to_string());
+    let (ip_address, user_agent) = utils::audit::extract_request_metadata(&headers);
 
     // Retrieve stored challenge
     let passkey_authentication = state
@@ -230,13 +221,13 @@ async fn passkey_login_finish(
             tracing::error!("Passkey authentication failed: {}", e);
 
             // Log failed authentication attempt
-            let _ = database::authentication_audit_logs::insert(
+            utils::audit::log_authentication_attempt(
                 user.get_uuid(),
                 AuthMethod::Passkey,
                 false,
                 ip_address.clone(),
                 user_agent.clone(),
-                Some(serde_json::json!({"reason": "passkey_verification_failed"})),
+                Some("passkey_verification_failed"),
                 pool,
             )
             .await;
@@ -252,13 +243,13 @@ async fn passkey_login_finish(
     // Check if account is verified
     if !user.is_account_verified() {
         // Log failed authentication attempt
-        let _ = database::authentication_audit_logs::insert(
+        utils::audit::log_authentication_attempt(
             user.get_uuid(),
             AuthMethod::Passkey,
             false,
             ip_address.clone(),
             user_agent.clone(),
-            Some(serde_json::json!({"reason": "account_not_verified"})),
+            Some("account_not_verified"),
             pool,
         )
         .await;
@@ -269,13 +260,13 @@ async fn passkey_login_finish(
     // Check if account is active
     if !user.is_account_active() {
         // Log failed authentication attempt
-        let _ = database::authentication_audit_logs::insert(
+        utils::audit::log_authentication_attempt(
             user.get_uuid(),
             AuthMethod::Passkey,
             false,
             ip_address.clone(),
             user_agent.clone(),
-            Some(serde_json::json!({"reason": "account_inactive"})),
+            Some("account_inactive"),
             pool,
         )
         .await;
@@ -329,7 +320,7 @@ async fn passkey_login_finish(
     database::tokens::insert(new_token, pool).await?;
 
     // Log successful authentication attempt
-    let _ = database::authentication_audit_logs::insert(
+    utils::audit::log_authentication_attempt(
         user.get_uuid(),
         AuthMethod::Passkey,
         true,
