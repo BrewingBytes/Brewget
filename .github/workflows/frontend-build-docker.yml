@@ -6,51 +6,52 @@ on:
 name: Frontend Docker Build
 jobs:
   docker:
-      name: Build Frontend Docker Images
-      permissions:
-        packages: write
-        contents: read
-        attestations: write
-        id-token: write
-      defaults:
-        run:
-          working-directory: ./frontend
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v5
-        - uses: dorny/paths-filter@v3
-          id: changes
-          name: Changes
-          with:
-            filters: |
-              frontend:
-                - 'frontend/package.json'
-        - name: Get frontend version
-          id: get_version
-          run: |
-            VERSION=$(grep '^  "version": ' ./package.json | sed -n 's/^  "version": "\(.*\)",/\1/p')
-            echo "frontend_version=$VERSION" >> "$GITHUB_OUTPUT"
-        - name: Log in to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
-        - name: Build frontend image
-          id: frontend
-          if: steps.changes.outputs.frontend == 'true'
-          run: |
-            if docker manifest inspect ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}; then
-              echo "Tag already exists."
-              echo "build=false" >> "$GITHUB_OUTPUT"
-            else
-              docker build -t frontend .
-              docker tag frontend ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}
-              docker tag frontend ghcr.io/brewingbytes/brewget-frontend:latest
-              echo "build=true" >> "$GITHUB_OUTPUT"
-            fi
-        - name: Push frontend
-          if: steps.changes.outputs.frontend == 'true' && steps.frontend.outputs.build == 'true'
-          run: |
-            docker push ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}
-            docker push ghcr.io/brewingbytes/brewget-frontend:latest
+    name: Build Frontend Docker Images
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    defaults:
+      run:
+        working-directory: ./frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: changes
+        name: Changes
+        with:
+          filters: |
+            frontend:
+              - 'frontend/package.json'
+      - name: Get frontend version
+        id: get_version
+        run: |
+          VERSION=$(grep '^  "version": ' ./package.json | sed -n 's/^  "version": "\(.*\)",/\1/p')
+          echo "frontend_version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build frontend image
+        id: frontend
+        if: steps.changes.outputs.frontend == 'true'
+        run: |
+          if docker manifest inspect ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}; then
+            echo "Tag already exists."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            cd ..
+            docker build -t frontend -f frontend/Dockerfile .
+            docker tag frontend ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}
+            docker tag frontend ghcr.io/brewingbytes/brewget-frontend:latest
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Push frontend
+        if: steps.changes.outputs.frontend == 'true' && steps.frontend.outputs.build == 'true'
+        run: |
+          docker push ghcr.io/brewingbytes/brewget-frontend:${{ steps.get_version.outputs.frontend_version }}
+          docker push ghcr.io/brewingbytes/brewget-frontend:latest
