@@ -48,7 +48,19 @@
     "failed_to_load": "Error al cargar la configuración",
     "failed_to_update": "Error al actualizar la configuración",
     "select_language": "Seleccionar un idioma",
-    "select_currency": "Seleccionar una moneda"
+    "select_currency": "Seleccionar una moneda",
+    "passkeys": "Llaves de acceso",
+    "passkeys_description": "Administra tus llaves de acceso para autenticación sin contraseña",
+    "add_passkey": "Agregar llave de acceso",
+    "remove_passkey": "Eliminar",
+    "no_passkeys": "Sin llaves de acceso configuradas",
+    "passkey_device_name": "Nombre del dispositivo",
+    "passkey_created": "Creado",
+    "passkey_last_used": "Último uso",
+    "passkey_never_used": "Nunca usado",
+    "enter_device_name": "Ingrese un nombre para este dispositivo",
+    "adding_passkey": "Agregando llave de acceso...",
+    "removing_passkey": "Eliminando llave de acceso..."
   },
   "languages": {
     "en": "English",

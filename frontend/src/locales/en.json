@@ -57,7 +57,19 @@
     "failed_to_load": "Failed to load settings",
     "failed_to_update": "Failed to update settings",
     "select_language": "Select a language",
-    "select_currency": "Select a currency"
+    "select_currency": "Select a currency",
+    "passkeys": "Passkeys",
+    "passkeys_description": "Manage your passkeys for passwordless authentication",
+    "add_passkey": "Add Passkey",
+    "remove_passkey": "Remove",
+    "no_passkeys": "No passkeys configured",
+    "passkey_device_name": "Device Name",
+    "passkey_created": "Created",
+    "passkey_last_used": "Last Used",
+    "passkey_never_used": "Never used",
+    "enter_device_name": "Enter a name for this device",
+    "adding_passkey": "Adding passkey...",
+    "removing_passkey": "Removing passkey..."
   },
   "languages": {
     "en": "English",

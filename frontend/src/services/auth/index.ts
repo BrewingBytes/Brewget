@@ -1,4 +1,4 @@
-import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, PasskeyLoginStartResponse, PasskeyRegisterStartResponse, RegisterResponse, VerifyResponse } from "./types";
+import type { ActivateResponse, ChangePasswordResponse, ForgotPasswordResponse, LoginResponse, LogoutResponse, PasskeyAddResponse, PasskeyListResponse, PasskeyLoginStartResponse, PasskeyRegisterStartResponse, PasskeyRemoveResponse, RegisterResponse, VerifyResponse } from "./types";
 import type { ErrorResponse, ServerResponse } from "@/services/types";
 import type { AxiosError } from "axios";
 
@@ -120,4 +120,56 @@ async function passkeyLoginFinish(values: {
   }
 }
 
-export const authService = { activate, changePassword, forgotPassword, login, logout, passkeyLoginFinish, passkeyLoginStart, passkeyRegisterFinish, passkeyRegisterStart, register, verify };
+async function passkeyList(): Promise<ServerResponse<PasskeyListResponse>> {
+  try {
+    return await authApi.get("/passkey/manage/list", {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyAddStart(): Promise<ServerResponse<PasskeyRegisterStartResponse>> {
+  try {
+    return await authApi.post("/passkey/manage/add/options", {}, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyAddFinish(values: {
+  user_id: string;
+  credential: Record<string, unknown>;
+  device_name?: string;
+}): Promise<ServerResponse<PasskeyAddResponse>> {
+  try {
+    return await authApi.post("/passkey/manage/add/complete", values, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function passkeyRemove(id: string): Promise<ServerResponse<PasskeyRemoveResponse>> {
+  try {
+    return await authApi.delete(`/passkey/manage/${id}`, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+export const authService = { activate, changePassword, forgotPassword, login, logout, passkeyAddFinish, passkeyAddStart, passkeyList, passkeyLoginFinish, passkeyLoginStart, passkeyRegisterFinish, passkeyRegisterStart, passkeyRemove, register, verify };
