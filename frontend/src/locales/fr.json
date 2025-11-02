@@ -48,7 +48,12 @@
     "failed_to_load": "Échec du chargement des paramètres",
     "failed_to_update": "Échec de la mise à jour des paramètres",
     "select_language": "Sélectionner une langue",
-    "select_currency": "Sélectionner une devise"
+    "select_currency": "Sélectionner une devise",
+    "passkey": "Clé d'authentification",
+    "add_passkey": "Ajouter une clé d'authentification",
+    "remove_passkey": "Supprimer",
+    "passkey_device_name": "Nom de l'appareil",
+    "enter_device_name": "Entrez un nom pour cet appareil"
   },
   "languages": {
     "en": "English",

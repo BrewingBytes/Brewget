@@ -48,7 +48,12 @@
     "failed_to_load": "Einstellungen konnten nicht geladen werden",
     "failed_to_update": "Einstellungen konnten nicht aktualisiert werden",
     "select_language": "Sprache auswählen",
-    "select_currency": "Währung auswählen"
+    "select_currency": "Währung auswählen",
+    "passkey": "Passkey",
+    "add_passkey": "Passkey hinzufügen",
+    "remove_passkey": "Löschen",
+    "passkey_device_name": "Gerätename",
+    "enter_device_name": "Geben Sie einen Namen für dieses Gerät ein"
   },
   "languages": {
     "en": "English",

@@ -57,7 +57,12 @@
     "failed_to_load": "Failed to load settings",
     "failed_to_update": "Failed to update settings",
     "select_language": "Select a language",
-    "select_currency": "Select a currency"
+    "select_currency": "Select a currency",
+    "passkey": "Passkey",
+    "add_passkey": "Add Passkey",
+    "remove_passkey": "Delete",
+    "passkey_device_name": "Device name",
+    "enter_device_name": "Enter a name for this device"
   },
   "languages": {
     "en": "English",

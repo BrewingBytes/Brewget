@@ -12,6 +12,8 @@ export type ChangePasswordResponse = TranslationKeyMessage;
 export type LogoutResponse = TranslationKeyMessage;
 export type ActivateResponse = TranslationKeyMessage;
 export type VerifyResponse = TranslationKeyMessage;
+export type PasskeyAddResponse = TranslationKeyMessage;
+export type PasskeyRemoveResponse = TranslationKeyMessage;
 
 // WebAuthn public key credential types
 export interface WebAuthnCredential {
@@ -35,3 +37,12 @@ export interface PasskeyRegisterStartResponse {
 export interface PasskeyLoginStartResponse {
   request_options: Record<string, unknown>;
 }
+
+export interface PasskeyCredential {
+  id: string;
+  device_name: string | null;
+  created_at: string;
+  last_used_at: string | null;
+}
+
+export type PasskeyListResponse = PasskeyCredential[];

@@ -3,10 +3,12 @@
     "service": "Frontend",
     "entries": [
       {
-        "version": "0.0.12",
+        "version": "0.0.14",
         "date": "2025-11-02",
         "changes": {
-          "added": [],
+          "added": [
+            "Add manage passkeys UI to allow users to view and delete their passkeys"
+          ],
           "changed": [],
           "fixed": [
             "Fix issue with settings not loading at all"
@@ -158,25 +160,16 @@
     "service": "Auth Service",
     "entries": [
       {
-        "version": "0.0.14",
-        "date": "2025-11-02",
-        "changes": {
-          "added": [],
-          "changed": [],
-          "fixed": [
-            "Small fix to passkey"
-          ]
-        }
-      },
-      {
-        "version": "0.0.13",
+        "version": "0.0.16",
         "date": "2025-11-02",
         "changes": {
           "added": [
-            "Add passkey support for passwordless authentication"
+            "Add passkey support for passwordless authentication",
+            "Add manage passkeys endpoint to allow users to view and delete their passkeys"
           ],
           "changed": [],
           "fixed": [
+            "Small fix to passkey",
             "Fix token validation to properly handle invalid tokens and return unauthorized status"
           ]
         }

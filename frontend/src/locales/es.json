@@ -48,7 +48,12 @@
     "failed_to_load": "Error al cargar la configuración",
     "failed_to_update": "Error al actualizar la configuración",
     "select_language": "Seleccionar un idioma",
-    "select_currency": "Seleccionar una moneda"
+    "select_currency": "Seleccionar una moneda",
+    "passkey": "Clave de acceso",
+    "add_passkey": "Agregar clave de acceso",
+    "remove_passkey": "Eliminar",
+    "passkey_device_name": "Nombre del dispositivo",
+    "enter_device_name": "Ingrese un nombre para este dispositivo"
   },
   "languages": {
     "en": "English",

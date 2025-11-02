@@ -6,6 +6,7 @@ mod login;
 mod logout;
 mod middlewares;
 mod passkey_login;
+mod passkey_manage;
 mod passkey_register;
 mod register;
 mod verify;
@@ -82,6 +83,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
             passkey_register::get_router(state.clone()),
         )
         .nest("/passkey/login", passkey_login::get_router(state.clone()))
+        .nest("/passkey/manage", passkey_manage::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)

@@ -2,15 +2,13 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
-## [0.0.15] - 2025-11-02
-### Fixed
-- Small fix to passkey
-
-## [0.0.13] - 2025-11-02
+## [0.0.16] - 2025-11-02
 ### Added
 - Add passkey support for passwordless authentication
+- Add manage passkeys endpoint to allow users to view and delete their passkeys
 
 ### Fixed
+- Small fix to passkey
 - Fix token validation to properly handle invalid tokens and return unauthorized status
 
 ## [0.0.12] - 2025-10-31

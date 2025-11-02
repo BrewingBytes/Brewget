@@ -46,6 +46,17 @@ export async function registerPasskey(
   const user = publicKeyOptions.user as Record<string, unknown>;
   const userId = base64URLStringToBuffer(user.id as string);
 
+  // Convert excludeCredentials if present
+  let excludeCredentials;
+  if (publicKeyOptions.excludeCredentials) {
+    excludeCredentials = (publicKeyOptions.excludeCredentials as Array<Record<string, unknown>>).map(
+      (cred) => ({
+        ...cred,
+        id: base64URLStringToBuffer(cred.id as string),
+      }),
+    );
+  }
+
   const options: PublicKeyCredentialCreationOptions = {
     ...publicKeyOptions,
     challenge,
@@ -53,6 +64,7 @@ export async function registerPasskey(
       ...user,
       id: userId,
     } as PublicKeyCredentialUserEntity,
+    ...(excludeCredentials && { excludeCredentials }),
   } as PublicKeyCredentialCreationOptions;
 
   const credential = (await navigator.credentials.create({

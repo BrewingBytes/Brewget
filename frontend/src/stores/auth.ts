@@ -7,14 +7,13 @@ import { ToastSeverity, useToastStore } from "./toast";
 
 import type { SupportedLocale } from "@/i18n";
 
+import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import i18n, { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
 import { type ErrorResponse, ServerStatus } from "@/services/types";
 import {
   assertionToJSON,
   authenticateWithPasskey,
-  credentialToJSON,
-  registerPasskey,
 } from "@/services/webauthn";
 
 export const useAuthStore = defineStore(
@@ -182,59 +181,13 @@ export const useAuthStore = defineStore(
       captchaToken: string;
       deviceName?: string;
     }): Promise<boolean> {
-      try {
-        // Start passkey registration
-        const startResponse = await authService.passkeyRegisterStart({
-          username: values.username,
-          email: values.email,
-          captchaToken: values.captchaToken,
-        });
-
-        if (startResponse.status !== ServerStatus.NO_ERROR) {
-          const errorResponse = startResponse as ErrorResponse;
-          useToastStore().showTranslationKey(
-            errorResponse.data.translation_key,
-            ToastSeverity.ERROR,
-          );
-          return false;
-        }
-
-        // Create passkey with the user's authenticator
-        const credential = await registerPasskey(
-          startResponse.data.creation_options,
-        );
-        const credentialJSON = credentialToJSON(credential);
-
-        // Complete passkey registration
-        const finishResponse = await authService.passkeyRegisterFinish({
-          user_id: startResponse.data.user_id,
-          credential: credentialJSON,
-          device_name: values.deviceName,
-        });
-
-        if (finishResponse.status !== ServerStatus.NO_ERROR) {
-          const errorResponse = finishResponse as ErrorResponse;
-          useToastStore().showTranslationKey(
-            errorResponse.data.translation_key,
-            ToastSeverity.ERROR,
-          );
-          return false;
-        }
-
-        useToastStore().showTranslationKey(
-          finishResponse.data.translation_key,
-          ToastSeverity.SUCCESS,
-        );
-
-        return true;
-      } catch (error) {
-        console.error("Passkey registration error:", error);
-        useToastStore().showTranslationKey(
-          "PASSKEY_REGISTRATION_FAILED",
-          ToastSeverity.ERROR,
-        );
-        return false;
-      }
+      const { registerPasskeyForNewAccount } = usePasskeyRegistration();
+      return await registerPasskeyForNewAccount({
+        username: values.username,
+        email: values.email,
+        captchaToken: values.captchaToken,
+        deviceName: values.deviceName,
+      });
     }
 
     async function loginWithPasskey(values: {

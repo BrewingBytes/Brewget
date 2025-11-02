@@ -48,7 +48,12 @@
     "failed_to_load": "Eșec la încărcarea setărilor",
     "failed_to_update": "Eșec la actualizarea setărilor",
     "select_language": "Selectează o limbă",
-    "select_currency": "Selectează o monedă"
+    "select_currency": "Selectează o monedă",
+    "passkey": "Cheia de acces",
+    "add_passkey": "Adaugă cheie de acces",
+    "remove_passkey": "Șterge",
+    "passkey_device_name": "Nume dispozitiv",
+    "enter_device_name": "Introduceți un nume pentru acest dispozitiv"
   },
   "languages": {
     "en": "English",
@@ -91,11 +96,11 @@
       "password": "Parolă"
     },
     "passkey": {
-      "register_button": "Continuă cu passkey",
-      "login_button": "Autentificare cu passkey",
+      "register_button": "Continuă cu cheia de acces",
+      "login_button": "Autentificare cu cheia de acces",
       "use_password": "Folosește parola în schimb",
       "show_password_option": "Arată opțiunea de parolă",
-      "back_to_passkey": "Înapoi la passkey",
+      "back_to_passkey": "Înapoi la cheia de acces",
       "or_divider": "SAU"
     }
   },
