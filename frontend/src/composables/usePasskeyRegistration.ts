@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
-import { authService } from "@/services/auth";
 import type { ServerResponse } from "@/services/types";
+
+import { authService } from "@/services/auth";
 import { ServerStatus } from "@/services/types";
 import { credentialToJSON, registerPasskey } from "@/services/webauthn";
 import { ToastSeverity, useToastStore } from "@/stores/toast";
