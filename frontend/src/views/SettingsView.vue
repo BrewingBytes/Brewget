@@ -5,16 +5,21 @@ import { useI18n } from "vue-i18n";
 import type { SupportedLocale } from "@/i18n";
 
 import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
-import PasskeyManagementCard from "@/components/PasskeyManagementCard.vue";
+import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { SUPPORTED_LOCALES } from "@/i18n";
+import { authService } from "@/services/auth";
 import { versionService } from "@/services/version";
+import { checkPasskeySupport } from "@/services/webauthn";
 import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
+import { useToast } from "@/stores/toast";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
+const toast = useToast();
 const { t, locale } = useI18n();
+const { addPasskeyToExistingAccount, isRegistering: addingPasskey } = usePasskeyRegistration();
 
 // Form fields
 const language = ref("");
@@ -24,17 +29,28 @@ const alarmTime = ref("");
 const nightMode = ref(false);
 
 // Passkey management
-const showPasskeyManagement = ref(false);
+const hasPasskey = ref(false);
+const passkeySupported = ref(false);
+const loadingPasskey = ref(false);
+const showAddPasskeyDialog = ref(false);
+const deviceName = ref("");
 
 // Version and changelog
 const frontendVersion = ref("");
 const showChangelog = ref(false);
 
-// Load frontend version
+// Load frontend version and check passkey
 onMounted(async () => {
   frontendVersion.value = versionService.getFrontendVersion();
   await settingsStore.loadSettings();
   syncFormFields(settingsStore.settings);
+  
+  // Check passkey support
+  const support = await checkPasskeySupport();
+  passkeySupported.value = support.available;
+  
+  // Check if user has passkey
+  await checkUserPasskey();
 });
 
 // Sync form fields with store settings
@@ -92,14 +108,68 @@ function openChangelog() {
   showChangelog.value = true;
 }
 
-function openPasskeyManagement() {
-  showPasskeyManagement.value = true;
-}
-
 function getLocaleToUtcOffsetMinutes(): number {
   const now = new Date();
   return -now.getTimezoneOffset();
 }
+
+// Passkey management functions
+async function checkUserPasskey() {
+  loadingPasskey.value = true;
+  try {
+    const response = await authService.passkeyList();
+    if (response.status === 200 && response.data) {
+      hasPasskey.value = response.data.length > 0;
+    }
+  } catch (error) {
+    console.error("Failed to check passkey:", error);
+  } finally {
+    loadingPasskey.value = false;
+  }
+}
+
+async function handleCreatePasskey() {
+  deviceName.value = "";
+  showAddPasskeyDialog.value = true;
+}
+
+async function handleAddPasskey() {
+  if (!deviceName.value.trim()) {
+    toast.showError(t("settings.enter_device_name"));
+    return;
+  }
+
+  const success = await addPasskeyToExistingAccount(deviceName.value.trim());
+  
+  if (success) {
+    showAddPasskeyDialog.value = false;
+    await checkUserPasskey();
+  }
+}
+
+async function handleDeletePasskey() {
+  loadingPasskey.value = true;
+  try {
+    const response = await authService.passkeyList();
+    if (response.status === 200 && response.data && response.data.length > 0) {
+      const passkeyId = response.data[0].id;
+      const deleteResponse = await authService.passkeyRemove(passkeyId);
+      if (deleteResponse.status === 200) {
+        toast.showTranslationKey("PASSKEY_REMOVED_SUCCESSFULLY");
+        await checkUserPasskey();
+      } else {
+        const errorKey = deleteResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
+        toast.showTranslationKey(errorKey);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to delete passkey:", error);
+    toast.showTranslationKey("SOMETHING_WENT_WRONG");
+  } finally {
+    loadingPasskey.value = false;
+  }
+}
+
 </script>
 
 <template>
@@ -207,12 +277,28 @@ function getLocaleToUtcOffsetMinutes(): number {
           </div>
 
           <!-- Passkey Management Row -->
-          <div class="flex items-center justify-between">
+          <div v-if="passkeySupported" class="flex items-center justify-between">
             <label class="text-white/90 font-medium">
               <i class="pi pi-key mr-2"></i> {{ t("settings.passkeys") }}
             </label>
-            <Button @click="openPasskeyManagement" :label="t('settings.passkeys')" icon="pi pi-key"
-              class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
+            <Button 
+              v-if="hasPasskey"
+              @click="handleDeletePasskey" 
+              label="DELETE" 
+              icon="pi pi-trash"
+              severity="danger"
+              :loading="loadingPasskey"
+              class="!rounded-3xl" 
+            />
+            <Button 
+              v-else
+              @click="handleCreatePasskey" 
+              label="CREATE" 
+              icon="pi pi-plus"
+              :loading="loadingPasskey"
+              class="!rounded-3xl text-white! hover:text-blue-600!" 
+              :pt="glassButtonsStyles.selectedButtonPt" 
+            />
           </div>
 
           <!-- Buttons and Version Row -->
@@ -237,10 +323,41 @@ function getLocaleToUtcOffsetMinutes(): number {
     <!-- Changelog Modal -->
     <ChangelogModal v-model:visible="showChangelog" />
 
-    <!-- Passkey Management Card -->
-    <div v-if="showPasskeyManagement" 
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <PasskeyManagementCard @close="showPasskeyManagement = false" />
-    </div>
+    <!-- Add Passkey Dialog -->
+    <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"
+      class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!"
+      :pt="{
+        root: {
+          class: 'backdrop-blur-2xl! bg-white/10! border! border-white/80!',
+        },
+        header: {
+          class: 'text-white! bg-transparent!',
+        },
+        content: {
+          class: 'text-white! bg-transparent!',
+        },
+        footer: {
+          class: 'bg-transparent!',
+        },
+      }">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+          <label for="deviceName" class="text-white/90 font-medium">
+            {{ t("settings.passkey_device_name") }}
+          </label>
+          <InputText id="deviceName" v-model="deviceName" :placeholder="t('settings.enter_device_name')"
+            class="w-full bg-transparent! border-white! text-white!" />
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button :label="t('auth.forgot_password.go_back')" @click="showAddPasskeyDialog = false"
+            severity="secondary" class="!rounded-3xl" />
+          <Button :label="t('settings.add_passkey')" @click="handleAddPasskey" :loading="addingPasskey"
+            icon="pi pi-plus" class="!rounded-3xl text-white! hover:text-blue-600!"
+            :pt="glassButtonsStyles.selectedButtonPt" />
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
