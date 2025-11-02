@@ -298,12 +298,14 @@ async function handleDeletePasskey() {
           </div>
 
           <!-- Auth Audit Button -->
-          <div class="flex flex-col gap-2">
-            <label class="text-white/90 font-medium">
-              <i class="pi pi-history mr-2"></i> {{ t("settings.auth_activity") }}
-            </label>
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+              <label class="text-white/90 font-medium">
+                <i class="pi pi-history mr-2"></i> {{ t("settings.auth_activity") }}
+              </label>
+            </div>
             <Button @click="openAuthAudit" :label="t('settings.view_auth_activity')" icon="pi pi-eye"
-              class="!rounded-3xl text-white! hover:text-blue-600! w-full" :pt="glassButtonsStyles.selectedButtonPt" />
+              class="!rounded-3xl text-white! hover:text-blue-600! min-w-[250px]" :pt="glassButtonsStyles.selectedButtonPt" />
           </div>
 
           <!-- Buttons and Version Row -->

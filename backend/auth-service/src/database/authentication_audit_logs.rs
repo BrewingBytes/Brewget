@@ -36,7 +36,7 @@ where
         r#"
         INSERT INTO authentication_audit_log 
             (user_id, auth_method, success, ip_address, user_agent, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4::inet, $5, $6)
         "#,
     )
     .bind(user_id)
