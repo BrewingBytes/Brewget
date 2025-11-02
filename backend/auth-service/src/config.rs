@@ -143,9 +143,9 @@ impl Config {
             .ok()
             .and_then(|limit| limit.parse::<i64>().ok())
             .unwrap_or(3);
-        let rp_id = var("RP_ID").unwrap_or_else(|_| "localhost".to_string());
-        let rp_origin = var("RP_ORIGIN").unwrap_or_else(|_| "http://localhost:5173".to_string());
-        let rp_name = var("RP_NAME").unwrap_or_else(|_| "BrewGet".to_string());
+        let rp_id = var("RP_ID").expect("RP_ID must be provided.");
+        let rp_origin = var("RP_ORIGIN").expect("RP_ORIGIN must be provided.");
+        let rp_name = var("RP_NAME").expect("RP_NAME must be provided");
 
         Self {
             auth_http_port,

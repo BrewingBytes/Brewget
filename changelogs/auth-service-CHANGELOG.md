@@ -2,6 +2,10 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
+## [0.0.14] - 2025-11-02
+### Fixed
+- Small fix to passkey
+
 ## [0.0.13] - 2025-11-02
 ### Added
 - Add passkey support for passwordless authentication

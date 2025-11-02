@@ -19,3 +19,8 @@ data:
 
   # CORS configuration
   CORS_URL: "http://brewget.brewingbytes.com"
+
+  # Passkey configuration
+  RP_ID: "brewget.brewingbytes.com"
+  RP_ORIGIN: "https://brewget.brewingbytes.com"
+  RP_NAME: "BrewGet"

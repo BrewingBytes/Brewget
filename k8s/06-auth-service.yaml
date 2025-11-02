@@ -71,7 +71,7 @@ spec:
         - name: ghcr-login-secret
       containers:
         - name: auth-service
-          image: ghcr.io/brewingbytes/brewget-auth-service:0.0.13
+          image: ghcr.io/brewingbytes/brewget-auth-service:0.0.14
           ports:
             - containerPort: 8000
               name: http
