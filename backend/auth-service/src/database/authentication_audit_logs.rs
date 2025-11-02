@@ -71,7 +71,7 @@ where
 {
     sqlx::query_as::<_, AuthenticationAuditLog>(
         r#"
-        SELECT id, user_id, auth_method, success, ip_address, user_agent, attempted_at, metadata
+        SELECT id, user_id, auth_method, success, ip_address::text, user_agent, attempted_at, metadata
         FROM authentication_audit_log
         WHERE user_id = $1
         ORDER BY attempted_at DESC
