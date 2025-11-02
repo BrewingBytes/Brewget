@@ -4,4 +4,3 @@ app.css
 .DS_Store
 .overmind.sock
 k8s/backups/
-changelogs.json
