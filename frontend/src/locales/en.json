@@ -113,7 +113,8 @@
         "secure": "More secure",
         "no_passwords": "No passwords to remember"
       },
-      "or_divider": "OR"
+      "or_divider": "OR",
+      "back_to_passkey": "Back to passkey"
     }
   },
   "navbar": {

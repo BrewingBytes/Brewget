@@ -65,7 +65,7 @@ function switchLoginRegister() {
     shownPage.value = ShownPage.Login;
   }
   
-  // Reset password option visibility
+  // Reset password option visibility when switching between login/register
   showPasswordOption.value = false;
 }
 
@@ -216,9 +216,6 @@ const showPasskeyUI = computed(() => {
             <i class="pi pi-key"></i>
             <span>{{ t("auth.passkey.register_button") }}</span>
           </Button>
-          <div class="text-center text-sm text-white/60">
-            {{ t("auth.passkey.register_recommended") }}
-          </div>
           
           <div class="relative flex items-center justify-center my-2">
             <div class="border-t border-white/20 w-full absolute"></div>
@@ -247,6 +244,14 @@ const showPasskeyUI = computed(() => {
           <button type="button" @click="showPasswordOption = true"
             class="text-white/80 hover:text-white/90 underline text-sm">
             {{ t("auth.passkey.use_password") }}
+          </button>
+        </div>
+
+        <!-- Back to passkey option when password is shown -->
+        <div v-if="!isForgotPassword && showPasskeyUI && showPasswordOption" class="flex justify-center">
+          <button type="button" @click="showPasswordOption = false"
+            class="text-white/80 hover:text-white/90 underline text-sm">
+            {{ t("auth.passkey.back_to_passkey") }}
           </button>
         </div>
       </div>

@@ -89,6 +89,22 @@
       "email": "E-mail",
       "username": "Nom d'utilisateur",
       "password": "Mot de passe"
+    },
+    "passkey": {
+      "title": "Se connecter avec une clé d'accès",
+      "register_title": "Créer une clé d'accès",
+      "register_button": "Continuer avec une clé d'accès",
+      "register_explanation": "Une clé d'accès offre un accès rapide et sécurisé sans mot de passe",
+      "login_button": "Se connecter avec une clé d'accès",
+      "use_password": "Utiliser un mot de passe à la place",
+      "show_password_option": "Afficher l'option mot de passe",
+      "back_to_passkey": "Retour à la clé d'accès",
+      "benefits": {
+        "faster": "Connexion plus rapide",
+        "secure": "Plus sécurisé",
+        "no_passwords": "Aucun mot de passe à retenir"
+      },
+      "or_divider": "OU"
     }
   },
   "navbar": {
