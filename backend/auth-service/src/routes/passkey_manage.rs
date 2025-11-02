@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
 use axum::{
     extract::State, http::StatusCode, middleware, response::IntoResponse, routing::{delete, get, post}, Json,
@@ -45,9 +45,7 @@ async fn list_passkeys(
     State(state): State<Arc<AppState>>,
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
-    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
-        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
-    })?;
+    let user_id = Uuid::from_str(&user_uuid)?;
     tracing::info!("Listing passkeys for user: {}", user_id);
 
     let pool = state.get_database_pool();
@@ -75,9 +73,7 @@ async fn add_passkey_start(
     State(state): State<Arc<AppState>>,
     Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
-    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
-        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
-    })?;
+    let user_id = Uuid::from_str(&user_uuid)?;
     tracing::info!("Starting passkey addition for user: {}", user_id);
 
     let pool = state.get_database_pool();
@@ -149,9 +145,7 @@ async fn add_passkey_finish(
     Extension(user_uuid): Extension<String>,
     Json(body): Json<PasskeyRegisterFinishRequest>,
 ) -> Result<impl IntoResponse, Error> {
-    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
-        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
-    })?;
+    let user_id = Uuid::from_str(&user_uuid)?;
     tracing::info!("Finishing passkey addition for user: {}", user_id);
 
     // Retrieve stored challenge
@@ -264,9 +258,7 @@ async fn remove_passkey(
     Extension(user_uuid): Extension<String>,
     axum::extract::Path(credential_id): axum::extract::Path<Uuid>,
 ) -> Result<impl IntoResponse, Error> {
-    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
-        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
-    })?;
+    let user_id = Uuid::from_str(&user_uuid)?;
     tracing::info!(
         "Removing passkey {} for user: {}",
         credential_id,
