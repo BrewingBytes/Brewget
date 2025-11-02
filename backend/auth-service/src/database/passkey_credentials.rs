@@ -144,11 +144,7 @@ pub async fn update_counter(
 /// # Returns
 /// * `Ok(())` - Credential deactivated successfully
 /// * `Err(Error)` - Database error or credential not found
-pub async fn delete(
-    credential_id: Uuid,
-    user_id: Uuid,
-    pool: &PgPool,
-) -> Result<(), Error> {
+pub async fn delete(credential_id: Uuid, user_id: Uuid, pool: &PgPool) -> Result<(), Error> {
     let result = sqlx::query(
         r#"
         UPDATE passkey_credentials

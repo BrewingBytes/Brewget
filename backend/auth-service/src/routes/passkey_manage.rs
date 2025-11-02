@@ -1,14 +1,18 @@
 use std::{str::FromStr, sync::Arc};
 
 use axum::{
-    extract::State, http::StatusCode, middleware, response::IntoResponse, routing::{delete, get, post}, Json,
-    Router, Extension,
+    Extension, Json, Router,
+    extract::State,
+    http::StatusCode,
+    middleware,
+    response::IntoResponse,
+    routing::{delete, get, post},
 };
 use uuid::Uuid;
 use webauthn_rs::prelude::*;
 
 use crate::{
-    database,
+    AppState, database,
     models::{
         passkey_credential::{NewPasskeyCredential, PasskeyCredentialResponse},
         request::passkey_register_info::{
@@ -17,7 +21,6 @@ use crate::{
         response::{Error, TranslationKey, TranslationKeyMessage},
     },
     routes::middlewares::auth_guard::auth_guard,
-    AppState,
 };
 
 /// Creates a router for the passkey management routes
@@ -27,10 +30,7 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/add/options", post(add_passkey_start))
         .route("/add/complete", post(add_passkey_finish))
         .route("/:id", delete(remove_passkey))
-        .route_layer(middleware::from_fn_with_state(
-            state.clone(),
-            auth_guard,
-        ))
+        .route_layer(middleware::from_fn_with_state(state.clone(), auth_guard))
         .with_state(state)
 }
 
@@ -82,13 +82,17 @@ async fn add_passkey_start(
     let user = database::users::filter_by_uuid(user_id, pool).await?;
 
     // Get existing credentials
-    let existing_credentials = database::passkey_credentials::find_by_user_id(user_id, pool).await?;
+    let existing_credentials =
+        database::passkey_credentials::find_by_user_id(user_id, pool).await?;
 
     // Convert credentials to Passkey format
     let passkeys: Vec<Passkey> = existing_credentials
         .iter()
         .filter_map(|c| serde_json::from_slice::<Passkey>(&c.public_key).ok())
         .collect();
+
+    // Get credentials ids to exclude
+    let credentials: Vec<CredentialID> = passkeys.iter().map(|pk| pk.cred_id()).cloned().collect();
 
     // Generate WebAuthn challenge
     let webauthn = state.config.build_webauthn().map_err(|e| -> Error {
@@ -103,9 +107,9 @@ async fn add_passkey_start(
     let (creation_challenge_response, passkey_registration) = webauthn
         .start_passkey_registration(
             user_id,
-            user.get_username(),
-            user.get_username(),
-            Some(passkeys),
+            &user.get_username(),
+            &user.get_username(),
+            Some(credentials),
         )
         .map_err(|e| -> Error {
             tracing::error!("WebAuthn challenge generation failed: {}", e);
@@ -149,16 +153,17 @@ async fn add_passkey_finish(
     tracing::info!("Finishing passkey addition for user: {}", user_id);
 
     // Retrieve stored challenge
-    let passkey_registration = state
-        .get_passkey_registration(user_id)
-        .await
-        .ok_or_else(|| -> Error {
-            (
-                StatusCode::BAD_REQUEST,
-                TranslationKey::RegistrationSessionExpired,
-            )
-                .into()
-        })?;
+    let passkey_registration =
+        state
+            .get_passkey_registration(user_id)
+            .await
+            .ok_or_else(|| -> Error {
+                (
+                    StatusCode::BAD_REQUEST,
+                    TranslationKey::RegistrationSessionExpired,
+                )
+                    .into()
+            })?;
 
     // Verify credential
     let webauthn = state.config.build_webauthn().map_err(|e| -> Error {
@@ -259,11 +264,7 @@ async fn remove_passkey(
     axum::extract::Path(credential_id): axum::extract::Path<Uuid>,
 ) -> Result<impl IntoResponse, Error> {
     let user_id = Uuid::from_str(&user_uuid)?;
-    tracing::info!(
-        "Removing passkey {} for user: {}",
-        credential_id,
-        user_id
-    );
+    tracing::info!("Removing passkey {} for user: {}", credential_id, user_id);
 
     let pool = state.get_database_pool();
     database::passkey_credentials::delete(credential_id, user_id, pool).await?;
