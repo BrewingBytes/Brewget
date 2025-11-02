@@ -91,19 +91,11 @@
       "password": "Contraseña"
     },
     "passkey": {
-      "title": "Iniciar sesión con passkey",
-      "register_title": "Crear passkey",
       "register_button": "Continuar con passkey",
-      "register_explanation": "Una passkey proporciona acceso rápido y seguro sin contraseñas",
       "login_button": "Iniciar sesión con passkey",
       "use_password": "Usar contraseña en su lugar",
       "show_password_option": "Mostrar opción de contraseña",
       "back_to_passkey": "Volver a passkey",
-      "benefits": {
-        "faster": "Inicio de sesión más rápido",
-        "secure": "Más seguro",
-        "no_passwords": "Sin contraseñas que recordar"
-      },
       "or_divider": "O"
     }
   },

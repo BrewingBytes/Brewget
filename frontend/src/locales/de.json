@@ -91,19 +91,11 @@
       "password": "Passwort"
     },
     "passkey": {
-      "title": "Mit Passkey anmelden",
-      "register_title": "Passkey erstellen",
       "register_button": "Mit Passkey fortfahren",
-      "register_explanation": "Ein Passkey bietet schnellen und sicheren Zugang ohne Passwörter",
       "login_button": "Mit Passkey anmelden",
       "use_password": "Stattdessen Passwort verwenden",
       "show_password_option": "Passwort-Option anzeigen",
       "back_to_passkey": "Zurück zum Passkey",
-      "benefits": {
-        "faster": "Schnellere Anmeldung",
-        "secure": "Sicherer",
-        "no_passwords": "Keine Passwörter zu merken"
-      },
       "or_divider": "ODER"
     }
   },

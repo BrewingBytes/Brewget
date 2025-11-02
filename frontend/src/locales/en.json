@@ -100,19 +100,10 @@
       "password": "Password"
     },
     "passkey": {
-      "title": "Sign in with Passkey",
-      "register_title": "Create Passkey",
       "register_button": "Continue with Passkey",
-      "register_recommended": "Recommended - More Secure",
-      "register_explanation": "A passkey provides quick and secure access without passwords",
       "login_button": "Sign in with Passkey",
       "use_password": "Use password instead",
       "show_password_option": "Show password option",
-      "benefits": {
-        "faster": "Faster login",
-        "secure": "More secure",
-        "no_passwords": "No passwords to remember"
-      },
       "or_divider": "OR",
       "back_to_passkey": "Back to passkey"
     }

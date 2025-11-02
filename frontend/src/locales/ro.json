@@ -91,19 +91,11 @@
       "password": "Parolă"
     },
     "passkey": {
-      "title": "Autentificare cu passkey",
-      "register_title": "Creează passkey",
       "register_button": "Continuă cu passkey",
-      "register_explanation": "Un passkey oferă acces rapid și securizat fără parole",
       "login_button": "Autentificare cu passkey",
       "use_password": "Folosește parola în schimb",
       "show_password_option": "Arată opțiunea de parolă",
       "back_to_passkey": "Înapoi la passkey",
-      "benefits": {
-        "faster": "Autentificare mai rapidă",
-        "secure": "Mai sigur",
-        "no_passwords": "Fără parole de reținut"
-      },
       "or_divider": "SAU"
     }
   },
