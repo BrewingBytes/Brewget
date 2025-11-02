@@ -7,10 +7,10 @@ import type { PasskeyCredential } from "@/services/auth/types";
 import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { authService } from "@/services/auth";
 import { checkPasskeySupport } from "@/services/webauthn";
-import { useToast } from "@/stores/toast";
+import { useToastStore } from "@/stores/toast";
 import { glassButtonsStyles } from "@/utils/pts/glassButtons";
 
-const toast = useToast();
+const toast = useToastStore();
 const { t, locale } = useI18n();
 const { addPasskeyToExistingAccount, isRegistering: addingPasskey } = usePasskeyRegistration();
 
@@ -31,7 +31,7 @@ onMounted(async () => {
   // Check passkey support
   const support = await checkPasskeySupport();
   passkeySupported.value = support.available;
-  
+
   // Load passkeys
   await loadPasskeys();
 });
@@ -44,11 +44,11 @@ async function loadPasskeys() {
     if (response.status === 200 && response.data) {
       passkeys.value = response.data;
     } else {
-      toast.error(t("settings.failed_to_load"));
+      toast.showError(t("settings.failed_to_load"));
     }
   } catch (error) {
     console.error("Failed to load passkeys:", error);
-    toast.error(t("settings.failed_to_load"));
+    toast.showError(t("settings.failed_to_load"));
   } finally {
     loadingPasskeys.value = false;
   }
@@ -61,12 +61,12 @@ function openAddPasskeyDialog() {
 
 async function handleAddPasskey() {
   if (!deviceName.value.trim()) {
-    toast.error(t("settings.enter_device_name"));
+    toast.showError(t("settings.enter_device_name"));
     return;
   }
 
   const success = await addPasskeyToExistingAccount(deviceName.value.trim());
-  
+
   if (success) {
     showAddPasskeyDialog.value = false;
     await loadPasskeys();
@@ -78,15 +78,15 @@ async function handleRemovePasskey(id: string) {
   try {
     const response = await authService.passkeyRemove(id);
     if (response.status === 200) {
-      toast.success(t("translation_keys.PASSKEY_REMOVED_SUCCESSFULLY"));
+      toast.showSuccess(t("translation_keys.PASSKEY_REMOVED_SUCCESSFULLY"));
       await loadPasskeys();
     } else {
       const errorKey = response.data?.translation_key || "SOMETHING_WENT_WRONG";
-      toast.error(t(`translation_keys.${errorKey}`));
+      toast.showError(t(`translation_keys.${errorKey}`));
     }
   } catch (error) {
     console.error("Failed to remove passkey:", error);
-    toast.error(t("translation_keys.SOMETHING_WENT_WRONG"));
+    toast.showError(t("translation_keys.SOMETHING_WENT_WRONG"));
   } finally {
     removingPasskeyId.value = null;
   }
@@ -113,13 +113,7 @@ function formatDate(dateString: string | null): string {
           <i class="pi pi-key text-2xl"></i>
           <span class="text-2xl font-medium">{{ t("settings.passkeys") }}</span>
         </div>
-        <Button 
-          icon="pi pi-times" 
-          @click="emit('close')" 
-          text 
-          rounded 
-          class="text-white! hover:bg-white/10!"
-        />
+        <Button icon="pi pi-times" @click="emit('close')" text rounded class="text-white! hover:bg-white/10!" />
       </div>
     </template>
     <template #content>
@@ -131,9 +125,8 @@ function formatDate(dateString: string | null): string {
           <div class="flex flex-col">
             <span class="text-white/60 text-sm">{{ t("settings.passkeys_description") }}</span>
           </div>
-          <Button @click="openAddPasskeyDialog" :label="t('settings.add_passkey')" icon="pi pi-plus"
-            size="small" class="!rounded-3xl text-white! hover:text-blue-600!"
-            :pt="glassButtonsStyles.selectedButtonPt" />
+          <Button @click="openAddPasskeyDialog" :label="t('settings.add_passkey')" icon="pi pi-plus" size="small"
+            class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
         </div>
 
         <!-- Passkeys List -->
@@ -158,9 +151,8 @@ function formatDate(dateString: string | null): string {
                 {{ t("settings.passkey_last_used") }}: {{ formatDate(passkey.last_used_at) }}
               </span>
             </div>
-            <Button @click="handleRemovePasskey(passkey.id)" :label="t('settings.remove_passkey')"
-              icon="pi pi-trash" severity="danger" size="small"
-              :loading="removingPasskeyId === passkey.id" class="!rounded-3xl" />
+            <Button @click="handleRemovePasskey(passkey.id)" :label="t('settings.remove_passkey')" icon="pi pi-trash"
+              severity="danger" size="small" :loading="removingPasskeyId === passkey.id" class="!rounded-3xl" />
           </div>
         </div>
       </div>
@@ -169,8 +161,7 @@ function formatDate(dateString: string | null): string {
 
   <!-- Add Passkey Dialog -->
   <Dialog v-model:visible="showAddPasskeyDialog" :header="t('settings.add_passkey')" :modal="true"
-    class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!"
-    :pt="{
+    class="w-full max-w-md backdrop-blur-2xl! bg-transparent! border! border-white/80! shadow-2xl!" :pt="{
       root: {
         class: 'backdrop-blur-2xl! bg-white/10! border! border-white/80!',
       },
@@ -195,11 +186,10 @@ function formatDate(dateString: string | null): string {
     </div>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button :label="t('auth.forgot_password.go_back')" @click="showAddPasskeyDialog = false"
-          severity="secondary" class="!rounded-3xl" />
-        <Button :label="t('settings.add_passkey')" @click="handleAddPasskey" :loading="addingPasskey"
-          icon="pi pi-plus" class="!rounded-3xl text-white! hover:text-blue-600!"
-          :pt="glassButtonsStyles.selectedButtonPt" />
+        <Button :label="t('auth.forgot_password.go_back')" @click="showAddPasskeyDialog = false" severity="secondary"
+          class="!rounded-3xl" />
+        <Button :label="t('settings.add_passkey')" @click="handleAddPasskey" :loading="addingPasskey" icon="pi pi-plus"
+          class="!rounded-3xl text-white! hover:text-blue-600!" :pt="glassButtonsStyles.selectedButtonPt" />
       </div>
     </template>
   </Dialog>
