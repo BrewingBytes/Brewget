@@ -136,6 +136,21 @@ spec:
                 secretKeyRef:
                   name: brewget-secrets
                   key: turnstile-secret
+            - name: RP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: shared-config
+                  key: RP_ID
+            - name: RP_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: shared-config
+                  key: RP_ORIGIN
+            - name: RP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: shared-config
+                  key: RP_NAME
           resources:
             requests:
               memory: "256Mi"
