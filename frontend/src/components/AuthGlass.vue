@@ -150,10 +150,11 @@ async function handlePasskeyAction() {
       }
     } else if (isLogin.value) {
       // Login with passkey
-      if (!await useAuthStore().loginWithPasskey({
+      const success = await useAuthStore().loginWithPasskey({
         username: username.value,
         captchaToken: captchaToken.value,
-      })) {
+      });
+      if (!success) {
         resetTurnstile();
       }
     }

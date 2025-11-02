@@ -78,17 +78,21 @@ export async function authenticateWithPasskey(
   const publicKeyOptions = requestOptions.publicKey as Record<string, unknown>;
   const challenge = base64URLStringToBuffer(publicKeyOptions.challenge as string);
 
-  const allowCredentials = (publicKeyOptions.allowCredentials as Array<Record<string, unknown>>)?.map(
-    (cred) => ({
-      ...cred,
-      id: base64URLStringToBuffer(cred.id as string),
-    }),
-  );
+  // Convert allowCredentials if present
+  let allowCredentials;
+  if (publicKeyOptions.allowCredentials) {
+    allowCredentials = (publicKeyOptions.allowCredentials as Array<Record<string, unknown>>).map(
+      (cred) => ({
+        ...cred,
+        id: base64URLStringToBuffer(cred.id as string),
+      }),
+    );
+  }
 
   const options: PublicKeyCredentialRequestOptions = {
     ...publicKeyOptions,
     challenge,
-    allowCredentials,
+    ...(allowCredentials && { allowCredentials }),
   } as PublicKeyCredentialRequestOptions;
 
   const credential = (await navigator.credentials.get({

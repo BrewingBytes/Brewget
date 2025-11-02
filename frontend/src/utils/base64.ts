@@ -28,10 +28,8 @@ export function bufferToBase64URLString(buffer: ArrayBuffer): string {
   let binary = "";
 
   for (let i = 0; i < bytes.byteLength; i++) {
-    const charCode = bytes[i];
-    if (charCode !== undefined) {
-      binary += String.fromCharCode(charCode);
-    }
+    // TypeScript safety: bytes[i] is guaranteed to exist for i < byteLength
+    binary += String.fromCharCode(bytes[i]!);
   }
 
   // Convert to base64
