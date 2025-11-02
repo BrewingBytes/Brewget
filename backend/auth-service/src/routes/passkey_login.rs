@@ -221,11 +221,14 @@ async fn passkey_login_finish(
     let pool = state.get_database_pool();
     let user = database::users::filter_by_username(&body.username, pool).await?;
 
-    let authentication_result = webauthn
+    // Attempt authentication
+    let authentication_result = match webauthn
         .finish_passkey_authentication(&credential, &passkey_authentication)
-        .map_err(|e| -> Error {
+    {
+        Ok(result) => result,
+        Err(e) => {
             tracing::error!("Passkey authentication failed: {}", e);
-            
+
             // Log failed authentication attempt
             let _ = database::authentication_audit_logs::insert(
                 user.get_uuid(),
@@ -235,14 +238,16 @@ async fn passkey_login_finish(
                 user_agent.clone(),
                 Some(serde_json::json!({"reason": "passkey_verification_failed"})),
                 pool,
-            );
+            )
+            .await;
 
-            (
+            return Err((
                 StatusCode::UNAUTHORIZED,
                 TranslationKey::PasskeyAuthenticationFailed,
             )
-                .into()
-        })?;
+                .into());
+        }
+    };
 
     // Check if account is verified
     if !user.is_account_verified() {
