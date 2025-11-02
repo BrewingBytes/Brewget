@@ -133,3 +133,48 @@ pub async fn update_counter(
         }
     }
 }
+
+/// Delete a passkey credential by marking it as inactive
+///
+/// # Arguments
+/// * `credential_id` - The credential ID to delete
+/// * `user_id` - The user ID to verify ownership
+/// * `pool` - Database connection pool
+///
+/// # Returns
+/// * `Ok(())` - Credential deactivated successfully
+/// * `Err(Error)` - Database error or credential not found
+pub async fn delete(
+    credential_id: Uuid,
+    user_id: Uuid,
+    pool: &PgPool,
+) -> Result<(), Error> {
+    let result = sqlx::query(
+        r#"
+        UPDATE passkey_credentials
+        SET is_active = FALSE
+        WHERE id = $1 AND user_id = $2 AND is_active = TRUE
+        "#,
+    )
+    .bind(credential_id)
+    .bind(user_id)
+    .execute(pool)
+    .await
+    .map_err(|e| {
+        tracing::error!("Failed to delete passkey credential: {}", e);
+        Error::from((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            TranslationKey::SomethingWentWrong,
+        ))
+    })?;
+
+    if result.rows_affected() == 0 {
+        tracing::error!("Passkey credential not found or already deleted");
+        return Err(Error::from((
+            StatusCode::NOT_FOUND,
+            TranslationKey::PasskeyNotFound,
+        )));
+    }
+
+    Ok(())
+}

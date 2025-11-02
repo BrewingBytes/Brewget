@@ -82,6 +82,10 @@ pub enum TranslationKey {
     RegistrationSessionExpired,
     /// Authentication session expired error
     AuthenticationSessionExpired,
+    /// Passkey added successfully message
+    PasskeyAddedSuccessfully,
+    /// Passkey removed successfully message
+    PasskeyRemovedSuccessfully,
 }
 
 /// A message response structure containing a translation key

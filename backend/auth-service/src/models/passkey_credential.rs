@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -56,4 +57,33 @@ pub struct NewPasskeyCredential {
     pub aaguid: Option<Vec<u8>>,
     pub device_name: Option<String>,
     pub user_agent: Option<String>,
+}
+
+/// Represents a passkey credential for API responses
+///
+/// This is a simplified version that only includes information
+/// safe to send to the client
+///
+/// # Fields
+/// * `id` - Unique identifier for this credential record
+/// * `device_name` - User-friendly name for the device (optional)
+/// * `created_at` - When this credential was created
+/// * `last_used_at` - When this credential was last used for authentication
+#[derive(Serialize)]
+pub struct PasskeyCredentialResponse {
+    pub id: Uuid,
+    pub device_name: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub last_used_at: Option<DateTime<Utc>>,
+}
+
+impl From<PasskeyCredential> for PasskeyCredentialResponse {
+    fn from(credential: PasskeyCredential) -> Self {
+        Self {
+            id: credential.id,
+            device_name: credential.device_name,
+            created_at: credential.created_at,
+            last_used_at: credential.last_used_at,
+        }
+    }
 }

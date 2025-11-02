@@ -66,6 +66,36 @@ pub async fn filter_by_username(find_username: &str, pool: &PgPool) -> Result<Us
     })
 }
 
+/// Search for a user by UUID
+///
+/// # Arguments
+/// * `find_uuid` - The user UUID to find
+/// * `pool` - Database connection pool
+///
+/// # Returns
+/// * `Ok(User)` - The `User` object from the database
+/// * `Err(Error)` - Database operation error
+pub async fn filter_by_uuid(find_uuid: Uuid, pool: &PgPool) -> Result<User, Error> {
+    sqlx::query_as::<_, User>(
+        r#"
+        SELECT id, username, password, email, is_verified, is_active, has_passkey
+        FROM users
+        WHERE id = $1
+        "#,
+    )
+    .bind(find_uuid)
+    .fetch_one(pool)
+    .await
+    .map_err(|e: sqlx::Error| -> Error {
+        match e {
+            sqlx::Error::RowNotFound => {
+                (StatusCode::BAD_REQUEST, TranslationKey::UserDoesNotExist).into()
+            }
+            _ => e.into(),
+        }
+    })
+}
+
 /// Search for a user by username or email
 ///
 /// # Arguments
