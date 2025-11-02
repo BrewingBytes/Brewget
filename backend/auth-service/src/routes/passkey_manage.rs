@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::State, http::StatusCode, response::IntoResponse, routing::{delete, get, post}, Json,
-    Router,
+    extract::State, http::StatusCode, middleware, response::IntoResponse, routing::{delete, get, post}, Json,
+    Router, Extension,
 };
 use uuid::Uuid;
 use webauthn_rs::prelude::*;
@@ -16,7 +16,7 @@ use crate::{
         },
         response::{Error, TranslationKey, TranslationKeyMessage},
     },
-    routes::middlewares::require_authentication,
+    routes::middlewares::auth_guard::auth_guard,
     AppState,
 };
 
@@ -27,9 +27,9 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/add/options", post(add_passkey_start))
         .route("/add/complete", post(add_passkey_finish))
         .route("/:id", delete(remove_passkey))
-        .layer(axum::middleware::from_fn_with_state(
+        .route_layer(middleware::from_fn_with_state(
             state.clone(),
-            require_authentication,
+            auth_guard,
         ))
         .with_state(state)
 }
@@ -43,8 +43,11 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
 /// * `Err(Error)` - Database error
 async fn list_passkeys(
     State(state): State<Arc<AppState>>,
-    axum::extract::Extension(user_id): axum::extract::Extension<Uuid>,
+    Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
+    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
+    })?;
     tracing::info!("Listing passkeys for user: {}", user_id);
 
     let pool = state.get_database_pool();
@@ -63,15 +66,18 @@ async fn list_passkeys(
 ///
 /// # Arguments
 /// * `state` - Application state containing config and DB connection
-/// * `user_id` - Authenticated user's ID from middleware
+/// * `user_uuid` - Authenticated user's ID from middleware
 ///
 /// # Returns
 /// * `Ok(Json<PasskeyRegisterStartResponse>)` - Challenge options for the client
 /// * `Err(Error)` - Configuration or database errors
 async fn add_passkey_start(
     State(state): State<Arc<AppState>>,
-    axum::extract::Extension(user_id): axum::extract::Extension<Uuid>,
+    Extension(user_uuid): Extension<String>,
 ) -> Result<impl IntoResponse, Error> {
+    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
+    })?;
     tracing::info!("Starting passkey addition for user: {}", user_id);
 
     let pool = state.get_database_pool();
@@ -132,7 +138,7 @@ async fn add_passkey_start(
 ///
 /// # Arguments
 /// * `state` - Application state containing config and DB connection
-/// * `user_id` - Authenticated user's ID from middleware
+/// * `user_uuid` - Authenticated user's ID from middleware
 /// * `body` - JSON request body containing credential response
 ///
 /// # Returns
@@ -140,9 +146,12 @@ async fn add_passkey_start(
 /// * `Err(Error)` - Verification or database errors
 async fn add_passkey_finish(
     State(state): State<Arc<AppState>>,
-    axum::extract::Extension(user_id): axum::extract::Extension<Uuid>,
+    Extension(user_uuid): Extension<String>,
     Json(body): Json<PasskeyRegisterFinishRequest>,
 ) -> Result<impl IntoResponse, Error> {
+    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
+    })?;
     tracing::info!("Finishing passkey addition for user: {}", user_id);
 
     // Retrieve stored challenge
@@ -244,7 +253,7 @@ async fn add_passkey_finish(
 ///
 /// # Arguments
 /// * `state` - Application state containing DB connection
-/// * `user_id` - Authenticated user's ID from middleware
+/// * `user_uuid` - Authenticated user's ID from middleware
 /// * `credential_id` - ID of the credential to remove
 ///
 /// # Returns
@@ -252,9 +261,12 @@ async fn add_passkey_finish(
 /// * `Err(Error)` - Database error or credential not found
 async fn remove_passkey(
     State(state): State<Arc<AppState>>,
-    axum::extract::Extension(user_id): axum::extract::Extension<Uuid>,
+    Extension(user_uuid): Extension<String>,
     axum::extract::Path(credential_id): axum::extract::Path<Uuid>,
 ) -> Result<impl IntoResponse, Error> {
+    let user_id = Uuid::parse_str(&user_uuid).map_err(|_| -> Error {
+        (StatusCode::UNAUTHORIZED, TranslationKey::TokenInvalid).into()
+    })?;
     tracing::info!(
         "Removing passkey {} for user: {}",
         credential_id,
