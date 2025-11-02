@@ -4,12 +4,7 @@ All notable changes to the Auth Service will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- Add WebAuthn passkey support for passwordless authentication
-  - POST /auth/passkey/register/options - Generate registration challenge
-  - POST /auth/passkey/register/complete - Verify attestation and create passkey-only user
-  - POST /auth/passkey/login/options - Generate authentication challenge
-  - POST /auth/passkey/login/complete - Verify assertion and issue JWT token
-- Use moka caching library for efficient TTL-based challenge management
+- Add passkey support for passwordless authentication
 
 ### Fixed
 - Fix token validation to properly handle invalid tokens and return unauthorized status
