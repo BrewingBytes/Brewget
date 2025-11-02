@@ -2,11 +2,7 @@
 
 All notable changes to the Auth Service will be documented in this file.
 
-## [Unreleased]
-### Fixed
-- Fixed passkey authentication counter validation to handle non-incrementing counters (authenticators that always return counter = 0)
-
-## [0.0.14] - 2025-11-02
+## [0.0.15] - 2025-11-02
 ### Fixed
 - Small fix to passkey
 
