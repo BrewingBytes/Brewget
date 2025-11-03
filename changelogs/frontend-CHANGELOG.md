@@ -2,6 +2,14 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add wallet management feature with CRUD operations
+- Add WalletsView component for managing user wallets
+- Add wallet service and store with Pinia
+- Add wallet translations for all supported languages (en, es, fr, de, ro)
+- Add wallet navigation and routing
+
 ## [0.0.15] - 2025-11-02
 ### Added
 - Add manage passkeys UI to allow users to view and delete their passkeys
