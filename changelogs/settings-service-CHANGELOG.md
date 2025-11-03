@@ -2,6 +2,13 @@
 
 All notable changes to the Settings Service will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add wallet management functionality with CRUD operations
+- Add wallet database migrations
+- Add wallet routes and models
+- Add support for PUT and DELETE HTTP methods in CORS
+
 ## [0.0.6] - 2025-10-31
 ### Added
 - Add i18n support with browser language detection and backend constraints

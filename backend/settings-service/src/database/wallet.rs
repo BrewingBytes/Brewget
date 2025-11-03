@@ -1,0 +1,171 @@
+use sqlx::PgPool;
+use uuid::Uuid;
+
+use crate::models::{
+    response::Error,
+    wallet::{CreateWallet, UpdateWallet, Wallet},
+};
+
+/// Creates a new wallet for a user
+///
+/// # Arguments
+///
+/// * `user_id` - The UUID of the user creating the wallet
+/// * `create_wallet` - The wallet creation data
+/// * `pool` - Database connection pool
+///
+/// # Returns
+///
+/// * `Ok(Wallet)` - The newly created wallet
+/// * `Err(Error)` - Database operation error
+pub async fn create(
+    user_id: Uuid,
+    create_wallet: CreateWallet,
+    pool: &PgPool,
+) -> Result<Wallet, Error> {
+    let wallet = sqlx::query_as::<_, Wallet>(
+        r#"
+        INSERT INTO wallets (user_id, name, balance, currency, wallet_type)
+        VALUES ($1, $2, COALESCE($3, 0.00), COALESCE($4, 'USD'), COALESCE($5, 'general'))
+        RETURNING id, user_id, name, balance, currency, wallet_type, created_at, updated_at
+        "#,
+    )
+    .bind(user_id)
+    .bind(&create_wallet.name)
+    .bind(create_wallet.balance)
+    .bind(&create_wallet.currency)
+    .bind(&create_wallet.wallet_type)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(wallet)
+}
+
+/// Finds all wallets for a user
+///
+/// # Arguments
+///
+/// * `user_id` - The UUID of the user
+/// * `pool` - Database connection pool
+///
+/// # Returns
+///
+/// * `Ok(Vec<Wallet>)` - List of wallets belonging to the user
+/// * `Err(Error)` - Database operation error
+pub async fn find_by_user_id(user_id: Uuid, pool: &PgPool) -> Result<Vec<Wallet>, Error> {
+    let wallets = sqlx::query_as::<_, Wallet>(
+        r#"
+        SELECT id, user_id, name, balance, currency, wallet_type, created_at, updated_at
+        FROM wallets
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        "#,
+    )
+    .bind(user_id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(wallets)
+}
+
+/// Finds a specific wallet by ID
+///
+/// # Arguments
+///
+/// * `wallet_id` - The UUID of the wallet
+/// * `user_id` - The UUID of the user (for authorization)
+/// * `pool` - Database connection pool
+///
+/// # Returns
+///
+/// * `Ok(Wallet)` - The wallet if found and belongs to the user
+/// * `Err(Error)` - Database operation error or not found
+pub async fn find_by_id(
+    wallet_id: Uuid,
+    user_id: Uuid,
+    pool: &PgPool,
+) -> Result<Wallet, Error> {
+    let wallet = sqlx::query_as::<_, Wallet>(
+        r#"
+        SELECT id, user_id, name, balance, currency, wallet_type, created_at, updated_at
+        FROM wallets
+        WHERE id = $1 AND user_id = $2
+        "#,
+    )
+    .bind(wallet_id)
+    .bind(user_id)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(wallet)
+}
+
+/// Updates a wallet
+///
+/// # Arguments
+///
+/// * `wallet_id` - The UUID of the wallet to update
+/// * `user_id` - The UUID of the user (for authorization)
+/// * `update_wallet` - The wallet update data
+/// * `pool` - Database connection pool
+///
+/// # Returns
+///
+/// * `Ok(Wallet)` - The updated wallet
+/// * `Err(Error)` - Database operation error
+pub async fn update(
+    wallet_id: Uuid,
+    user_id: Uuid,
+    update_wallet: UpdateWallet,
+    pool: &PgPool,
+) -> Result<Wallet, Error> {
+    let wallet = sqlx::query_as::<_, Wallet>(
+        r#"
+        UPDATE wallets
+        SET 
+            name = COALESCE($3, name),
+            balance = COALESCE($4, balance),
+            currency = COALESCE($5, currency),
+            wallet_type = COALESCE($6, wallet_type)
+        WHERE id = $1 AND user_id = $2
+        RETURNING id, user_id, name, balance, currency, wallet_type, created_at, updated_at
+        "#,
+    )
+    .bind(wallet_id)
+    .bind(user_id)
+    .bind(update_wallet.name)
+    .bind(update_wallet.balance)
+    .bind(update_wallet.currency)
+    .bind(update_wallet.wallet_type)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(wallet)
+}
+
+/// Deletes a wallet
+///
+/// # Arguments
+///
+/// * `wallet_id` - The UUID of the wallet to delete
+/// * `user_id` - The UUID of the user (for authorization)
+/// * `pool` - Database connection pool
+///
+/// # Returns
+///
+/// * `Ok(usize)` - Number of rows deleted (1 if successful)
+/// * `Err(Error)` - Database operation error
+pub async fn delete(wallet_id: Uuid, user_id: Uuid, pool: &PgPool) -> Result<usize, Error> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM wallets
+        WHERE id = $1 AND user_id = $2
+        "#,
+    )
+    .bind(wallet_id)
+    .bind(user_id)
+    .execute(pool)
+    .await?;
+
+    Ok(result.rows_affected() as usize)
+}
