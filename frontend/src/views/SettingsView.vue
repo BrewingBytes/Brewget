@@ -121,6 +121,30 @@ async function checkUserPasskey() {
     loadingPasskey.value = false;
   }
 }
+
+async function handleAddPasskey(_deviceName: string) {
+  // TODO: Implement passkey addition with WebAuthn
+  console.log("Add passkey not yet implemented");
+  showAddPasskeyDialog.value = false;
+}
+
+async function handleDeletePasskey() {
+  loadingPasskey.value = true;
+  try {
+    const response = await authService.passkeyList();
+    if (response.status === 200 && response.data && response.data.length > 0) {
+      const passkeyId = response.data[0]?.id as string;
+      const deleteResponse = await authService.passkeyRemove(passkeyId);
+      if (deleteResponse.status === 200) {
+        await checkUserPasskey();
+      }
+    }
+  } catch (error) {
+    console.error("Failed to remove passkey:", error);
+  } finally {
+    loadingPasskey.value = false;
+  }
+}
 </script>
 
 <template>
@@ -151,14 +175,14 @@ async function checkUserPasskey() {
                 <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
               </label>
             </div>
-            <GlassButton v-if="hasPasskey" @click="() => { }" :label="t('settings.remove_passkey')" icon="pi pi-trash"
+            <GlassButton v-if="hasPasskey" @click="handleDeletePasskey" :label="t('settings.remove_passkey')" icon="pi pi-trash"
               :loading="loadingPasskey" />
             <GlassButton v-else @click="showAddPasskeyDialog = true" :label="t('settings.add_passkey')"
               icon="pi pi-plus" :loading="loadingPasskey" />
           </div>
 
           <!-- AddPasskey Dialog -->
-          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="loadingPasskey" @add="() => { }" />
+          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="loadingPasskey" @add="handleAddPasskey" />
 
           <!-- Auth Audit Button -->
           <div class="flex items-center justify-between">

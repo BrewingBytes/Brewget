@@ -91,8 +91,8 @@ pub async fn create(
     .bind(user_id)
     .bind(create_wallet.name)
     .bind(balance)
-    .bind(create_wallet.currency)
-    .bind(create_wallet.wallet_type)
+    .bind(create_wallet.currency.as_str())
+    .bind(create_wallet.wallet_type.as_str())
     .fetch_one(pool)
     .await?;
 
@@ -131,8 +131,8 @@ pub async fn update(
         "#,
     )
     .bind(update_wallet.name)
-    .bind(update_wallet.currency)
-    .bind(update_wallet.wallet_type)
+    .bind(update_wallet.currency.map(|c| c.as_str()))
+    .bind(update_wallet.wallet_type.map(|wt| wt.as_str()))
     .bind(wallet_id)
     .bind(user_id)
     .fetch_one(pool)

@@ -58,10 +58,10 @@ pub async fn auth_guard(
 
     tracing::debug!("Auth guard: Token extracted from header");
 
-    // Get auth service client from state (persistent connection)
-    let mut client = state.get_auth_service().await;
+    // Clone auth service client from state (no mutex contention)
+    let mut client = state.get_auth_service();
 
-    tracing::debug!("Auth guard: Using persistent auth service connection, calling verify_token");
+    tracing::debug!("Auth guard: Cloned auth service client, calling verify_token");
 
     // Call verify_token on auth service
     let request = tonic::Request::new(VerifyTokenRequest {

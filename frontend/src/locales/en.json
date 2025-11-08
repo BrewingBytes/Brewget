@@ -177,7 +177,6 @@
       "deposit": "Deposit",
       "credit_card": "Credit Card",
       "loan": "Loan"
-    },
-    "wallet_type": "Wallet Type"
+    }
   }
 }

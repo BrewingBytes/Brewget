@@ -1,5 +1,4 @@
 use sqlx::PgPool;
-use tokio::sync::Mutex;
 
 use crate::{Config, grpc::auth_service::service::auth_service_client::AuthServiceClient};
 
@@ -11,11 +10,11 @@ use crate::{Config, grpc::auth_service::service::auth_service_client::AuthServic
 /// # Fields
 /// * `config` - Application configuration settings
 /// * `db` - PostgreSQL connection pool for async database operations
-/// * `auth_service` - A mutex for the AuthServiceClient gRPC
+/// * `auth_service` - gRPC client for authentication service (cloneable for concurrent access)
 pub struct AppState {
     pub config: Config,
     db: PgPool,
-    auth_service: Mutex<AuthServiceClient<tonic::transport::Channel>>,
+    auth_service: AuthServiceClient<tonic::transport::Channel>,
 }
 
 impl AppState {
@@ -31,7 +30,7 @@ impl AppState {
         Self {
             config,
             db,
-            auth_service: Mutex::new(auth_service),
+            auth_service,
         }
     }
 
@@ -43,13 +42,11 @@ impl AppState {
         &self.db
     }
 
-    /// Gets a lock on the auth service client
+    /// Gets a cloned auth service client for concurrent access
     ///
     /// # Returns
-    /// * `MutexGuard<AuthServiceClient<Channel>>` - A locked auth service client
-    pub async fn get_auth_service(
-        &self,
-    ) -> tokio::sync::MutexGuard<'_, AuthServiceClient<tonic::transport::Channel>> {
-        self.auth_service.lock().await
+    /// * `AuthServiceClient<Channel>` - A cloned auth service client
+    pub fn get_auth_service(&self) -> AuthServiceClient<tonic::transport::Channel> {
+        self.auth_service.clone()
     }
 }
