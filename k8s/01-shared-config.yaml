@@ -10,11 +10,13 @@ data:
   SETTINGS_HTTP_PORT: "8002"
   EMAIL_HTTP_PORT: "8001"
   EMAIL_GRPC_PORT: "9001"
+  TRANSACTION_HTTP_PORT: "8003"
 
   # Service hostnames
   AUTH_HOSTNAME: "http://auth-service"
   EMAIL_HOSTNAME: "http://email-service"
   SETTINGS_HOSTNAME: "http://settings-service"
+  TRANSACTION_HOSTNAME: "http://transaction-service"
   FRONTEND_HOSTNAME: "http://brewget.brewingbytes.com"
 
   # CORS configuration

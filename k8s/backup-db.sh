@@ -74,12 +74,20 @@ else
     echo "  ⚠️  Failed to backup brewget_settings (may not exist yet)"
 fi
 
+# Backup brewget_transactions database
+echo "  📦 Backing up brewget_transactions..."
+if kubectl exec postgres-0 -n brewget -- pg_dump -U "$POSTGRES_USER" brewget_transactions > "$BACKUP_DIR/brewget_transactions.sql" 2>/dev/null; then
+    echo "  ✅ brewget_transactions backed up successfully"
+else
+    echo "  ⚠️  Failed to backup brewget_transactions (may not exist yet)"
+fi
+
 # Create a metadata file
 cat > "$BACKUP_DIR/backup_info.txt" << EOF
 Backup Date: $(date)
 Kubernetes Namespace: brewget
 PostgreSQL User: $POSTGRES_USER
-Databases: brewget_auth, brewget_settings
+Databases: brewget_auth, brewget_settings, brewget_transactions
 EOF
 
 echo ""

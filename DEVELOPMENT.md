@@ -89,11 +89,13 @@ psql -U postgres
 # Create databases
 CREATE DATABASE brewget_auth;
 CREATE DATABASE brewget_settings;
+CREATE DATABASE brewget_transactions;
 
 # Create user (optional, if not using default postgres user)
 CREATE USER brewget WITH PASSWORD 'brewget_dev_password';
 GRANT ALL PRIVILEGES ON DATABASE brewget_auth TO brewget;
 GRANT ALL PRIVILEGES ON DATABASE brewget_settings TO brewget;
+GRANT ALL PRIVILEGES ON DATABASE brewget_transactions TO brewget;
 
 # Exit psql
 \q
@@ -229,6 +231,7 @@ overmind stop
 - **auth-service**: `backend/auth-service/src`, `backend/shared-types/src`, `backend/proto`
 - **email-service**: `backend/email-service/src`, `backend/proto`
 - **settings-service**: `backend/settings-service/src`, `backend/shared-types/src`, `backend/proto`
+- **transaction-service**: `backend/transaction-service/src`, `backend/shared-types/src`, `backend/proto`
 - **frontend**: All files in `frontend/src`
 
 ### Manual Mode (Individual Services)
@@ -282,6 +285,11 @@ The backend uses `cargo-watch` to automatically rebuild when source files change
 - **settings-service**: 
   - HTTP Port: 8001
   - Database: brewget_settings
+  - Dependencies: auth-service (for JWT validation)
+
+- **transaction-service**: 
+  - HTTP Port: 8003
+  - Database: brewget_transactions
   - Dependencies: auth-service (for JWT validation)
 
 ### Frontend

@@ -1,0 +1,37 @@
+[package]
+name = "transaction-service"
+version = "0.0.1"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+axum = "0.8.6"
+chrono = { version = "0.4.42", features = ["serde"] }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "postgres",
+    "uuid",
+    "chrono",
+    "macros",
+    "migrate",
+    "rust_decimal",
+] }
+dotenv = "0.15.0"
+jsonwebtoken = "9.3.1"
+prost = "0.14.1"
+serde = { version = "1.0.228", features = ["derive", "rc"] }
+tokio = { version = "1.48.0", features = ["full"] }
+tonic = "0.14.2"
+tonic-prost = "0.14.2"
+tower-http = { version = "0.6.6", features = ["cors"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+uuid = { version = "1.18.0", features = ["serde", "v4"] }
+rust_decimal = { version = "1.37.0", features = ["serde", "db-postgres"] }
+shared-types = { path = "../shared-types" }
+
+[dev-dependencies]
+serde_json = "1.0"
+
+[build-dependencies]
+tonic-prost-build = "0.14.2"

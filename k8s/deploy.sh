@@ -182,6 +182,9 @@ kubectl apply -f "$SCRIPT_DIR/06-auth-service.yaml"
 echo "⚙️  Deploying settings service..."
 kubectl apply -f "$SCRIPT_DIR/07-settings-service.yaml"
 
+echo "💳 Deploying transaction service..."
+kubectl apply -f "$SCRIPT_DIR/07.5-transaction-service.yaml"
+
 echo "🎨 Deploying frontend..."
 kubectl apply -f "$SCRIPT_DIR/08-frontend.yaml"
 

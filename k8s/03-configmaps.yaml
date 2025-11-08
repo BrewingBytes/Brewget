@@ -42,6 +42,10 @@ data:
             server settings-service:8002;
         }
 
+        upstream transaction_upstream {
+            server transaction-service:8003;
+        }
+
         server {
             listen 80;
 
@@ -84,6 +88,16 @@ data:
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
             }
+
+            # Transaction Service API
+            location /api/transaction/ {
+                proxy_pass http://transaction_upstream/;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+            }
         }
 
 ---
@@ -104,6 +118,9 @@ data:
 
             SELECT 'CREATE DATABASE brewget_settings'
             WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'brewget_settings')\gexec
+
+            SELECT 'CREATE DATABASE brewget_transactions'
+            WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'brewget_transactions')\gexec
         EOSQL
 
         echo "Databases created successfully"

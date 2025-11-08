@@ -16,6 +16,13 @@ export const settingsApi = axios.create({
     baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8002",
 });
 
+// Transaction service axios instance
+// Dev: http://localhost:8003
+// Prod: /api/transaction (proxied by nginx)
+export const transactionApi = axios.create({
+    baseURL: import.meta.env.PROD ? "/api/transaction" : "http://localhost:8003",
+});
+
 // Add response interceptor to handle token expiration globally
 const setupInterceptors = (apiInstance: AxiosInstance) => {
     apiInstance.interceptors.response.use(
@@ -46,9 +53,10 @@ const setupInterceptors = (apiInstance: AxiosInstance) => {
     );
 };
 
-// Setup interceptors for both API instances
+// Setup interceptors for all API instances
 setupInterceptors(authApi);
 setupInterceptors(settingsApi);
+setupInterceptors(transactionApi);
 
 // Default export for backwards compatibility
 export default authApi;
