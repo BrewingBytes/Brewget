@@ -38,14 +38,14 @@ export const useWalletStore = defineStore("wallet", () => {
     try {
       const response = await transactionService.createWallet(wallet);
 
-      if (response.status !== ServerStatus.NO_ERROR) {
-        useToastStore().showError(i18n.global.t("wallets.failed_to_create"));
-        return false;
+      if (response.status === ServerStatus.NO_ERROR || response.status === ServerStatus.CREATED) {
+        wallets.value.unshift(response.data as Wallet);
+        useToastStore().showInfo(i18n.global.t("wallets.wallet_created"));
+        return true;
       }
 
-      wallets.value.unshift(response.data);
-      useToastStore().showInfo(i18n.global.t("wallets.wallet_created"));
-      return true;
+      useToastStore().showError(i18n.global.t("wallets.failed_to_create"));
+      return false;
     } finally {
       loading.value = false;
     }
