@@ -166,6 +166,7 @@
     "wallet_deleted": "Wallet deleted successfully",
     "confirm_delete": "Are you sure you want to delete this wallet?",
     "enter_wallet_name": "Enter wallet name",
-    "enter_balance": "Enter initial balance (optional)"
+    "enter_balance": "Enter initial balance (optional)",
+    "initial_balance": "Initial balance"
   }
 }

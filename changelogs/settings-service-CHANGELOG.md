@@ -2,6 +2,10 @@
 
 All notable changes to the Settings Service will be documented in this file.
 
+## [0.0.7] - 2025-11-08
+### Added
+- Add Transaction service integration for wallet management
+
 ## [0.0.6] - 2025-10-31
 ### Added
 - Add i18n support with browser language detection and backend constraints

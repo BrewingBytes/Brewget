@@ -14,6 +14,9 @@ const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedWallet = ref<Wallet | null>(null);
 
+const newWalletBalance = ref("");
+const editWalletBalance = ref("");
+
 const newWallet = ref<CreateWallet>({
   name: "",
   balance: 0,
@@ -32,16 +35,42 @@ onMounted(async () => {
   await walletStore.loadWallets();
 });
 
+const validateBalanceInput = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+
+  // Remove any non-numeric characters except decimal point
+  value = value.replace(/[^0-9.]/g, "");
+
+  // Ensure only one decimal point
+  const parts = value.split(".");
+  if (parts.length > 2) {
+    value = `${parts[0]}.${parts.slice(1).join("")}`;
+  }
+
+  // Limit to 2 decimal places
+  if (parts.length === 2 && parts[1] && parts[1].length > 2) {
+    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+  }
+
+  input.value = value;
+};
+
 const openCreateDialog = () => {
   newWallet.value = {
     name: "",
     balance: 0,
     currency: "USD",
   };
+  newWalletBalance.value = "";
   showCreateDialog.value = true;
 };
 
 const createWallet = async () => {
+  // Parse balance from string, default to 0 if empty
+  const balance = newWalletBalance.value ? parseFloat(newWalletBalance.value) : 0;
+  newWallet.value.balance = balance;
+  
   const success = await walletStore.createWallet(newWallet.value);
   if (success) {
     showCreateDialog.value = false;
@@ -55,11 +84,16 @@ const openEditDialog = (wallet: Wallet) => {
     balance: wallet.balance,
     currency: wallet.currency,
   };
+  editWalletBalance.value = wallet.balance.toString();
   showEditDialog.value = true;
 };
 
 const updateWallet = async () => {
   if (selectedWallet.value) {
+    // Parse balance from string, default to 0 if empty
+    const balance = editWalletBalance.value ? parseFloat(editWalletBalance.value) : 0;
+    editWallet.value.balance = balance;
+    
     const success = await walletStore.updateWallet(selectedWallet.value.id, editWallet.value);
     if (success) {
       showEditDialog.value = false;
@@ -169,19 +203,16 @@ const formatCurrency = (amount: number, currency: string) => {
       }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <div class="space-y-4">
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-tag pl-2 mr-2"></i>{{ t("wallets.wallet_name")
+          <label class="block mb-2 text-white/90"><i class="pi pi-tag mr-2"></i>{{ t("wallets.wallet_name")
             }}</label>
-          <InputText v-model="newWallet.name" class="w-full bg-transparent! border-white! text-white!" />
+          <InputText v-model="newWallet.name" :placeholder="t('wallets.enter_wallet_name')"
+            class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.balance")
+          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.initial_balance")
             }}</label>
-          <InputNumber v-model="newWallet.balance" :placeholder="t('wallets.enter_balance')" class="w-full"
-            mode="decimal" :minFractionDigits="2" :maxFractionDigits="2" :pt="{
-              input: {
-                class: 'bg-transparent! border-white! text-white!',
-              },
-            }" />
+          <InputText v-model="newWalletBalance" :placeholder="t('wallets.enter_balance')" @input="validateBalanceInput"
+            class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
@@ -233,13 +264,9 @@ const formatCurrency = (amount: number, currency: string) => {
             class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.balance") }}</label>
-          <InputNumber v-model="editWallet.balance" :placeholder="t('wallets.enter_balance')" class="w-full"
-            mode="decimal" :minFractionDigits="2" :maxFractionDigits="2" :pt="{
-              pcInputText: {
-                root: { class: 'bg-transparent! border-white! text-white!' },
-              },
-            }" />
+          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.initial_balance") }}</label>
+          <InputText v-model="editWalletBalance" :placeholder="t('wallets.enter_balance')" @input="validateBalanceInput"
+            class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
