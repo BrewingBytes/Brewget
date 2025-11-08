@@ -4,13 +4,13 @@ import { useI18n } from "vue-i18n";
 
 import type { CreateWallet, UpdateWallet, Wallet } from "@/services/transaction/types";
 
-import { useWalletStore } from "@/stores/wallet";
-import WalletCreateDialog from "@/components/wallets/WalletCreateDialog.vue";
-import WalletEditDialog from "@/components/wallets/WalletEditDialog.vue";
-import WalletDeleteDialog from "@/components/wallets/WalletDeleteDialog.vue";
-import WalletTypeGroup from "@/components/wallets/WalletTypeGroup.vue";
-import GlassCard from "@/components/glass/GlassCard.vue";
 import GlassButton from "@/components/glass/GlassButton.vue";
+import GlassCard from "@/components/glass/GlassCard.vue";
+import WalletCreateDialog from "@/components/wallets/WalletCreateDialog.vue";
+import WalletDeleteDialog from "@/components/wallets/WalletDeleteDialog.vue";
+import WalletEditDialog from "@/components/wallets/WalletEditDialog.vue";
+import WalletTypeGroup from "@/components/wallets/WalletTypeGroup.vue";
+import { useWalletStore } from "@/stores/wallet";
 
 const { t } = useI18n();
 const walletStore = useWalletStore();
@@ -77,7 +77,7 @@ const openEditDialog = (wallet: Wallet) => {
   showEditDialog.value = true;
 };
 
-const updateWallet = async (id: number, wallet: UpdateWallet) => {
+const updateWallet = async (id: string, wallet: UpdateWallet) => {
   const success = await walletStore.updateWallet(id, wallet);
   if (success) {
     showEditDialog.value = false;
@@ -90,7 +90,7 @@ const openDeleteDialog = (wallet: Wallet) => {
   showDeleteDialog.value = true;
 };
 
-const deleteWallet = async (id: number) => {
+const deleteWallet = async (id: string) => {
   const success = await walletStore.deleteWallet(id);
   if (success) {
     showDeleteDialog.value = false;

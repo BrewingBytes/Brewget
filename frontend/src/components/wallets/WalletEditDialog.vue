@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Wallet, UpdateWallet } from "@/services/transaction/types";
-import { useToastStore } from "@/stores/toast";
-import GlassDialog from "@/components/glass/GlassDialog.vue";
-import GlassInput from "@/components/glass/GlassInput.vue";
-import GlassDropdown from "@/components/glass/GlassDropdown.vue";
+
+import type { UpdateWallet, Wallet } from "@/services/transaction/types";
+
 import GlassButton from "@/components/glass/GlassButton.vue";
+import GlassDialog from "@/components/glass/GlassDialog.vue";
+import GlassDropdown from "@/components/glass/GlassDropdown.vue";
+import GlassInput from "@/components/glass/GlassInput.vue";
+import { useToastStore } from "@/stores/toast";
 
 interface Props {
   visible: boolean;
@@ -16,7 +18,7 @@ interface Props {
 
 interface Emits {
   (event: "update:visible", value: boolean): void;
-  (event: "update", id: number, wallet: UpdateWallet): void;
+  (event: "update", id: string, wallet: UpdateWallet): void;
 }
 
 const props = defineProps<Props>();
@@ -48,7 +50,7 @@ watch(
 );
 
 const handleUpdate = () => {
-  if (!props.wallet) return;
+  if (!props.wallet) {return;}
 
   // Validate name is required
   if (!editWallet.value.name || editWallet.value.name.trim() === "") {

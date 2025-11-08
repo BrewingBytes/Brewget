@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+
 import type { Wallet } from "@/services/transaction/types";
+
 import GlassDialog from "@/components/glass/GlassDialog.vue";
-import GlassButton from "@/components/glass/GlassButton.vue";
 
 interface Props {
   visible: boolean;
@@ -12,7 +13,7 @@ interface Props {
 
 interface Emits {
   (event: "update:visible", value: boolean): void;
-  (event: "delete", id: number): void;
+  (event: "delete", id: string): void;
 }
 
 const props = defineProps<Props>();

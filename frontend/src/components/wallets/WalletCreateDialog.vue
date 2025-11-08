@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+
 import type { CreateWallet } from "@/services/transaction/types";
-import { useToastStore } from "@/stores/toast";
-import GlassDialog from "@/components/glass/GlassDialog.vue";
-import GlassInput from "@/components/glass/GlassInput.vue";
-import GlassDropdown from "@/components/glass/GlassDropdown.vue";
+
 import GlassButton from "@/components/glass/GlassButton.vue";
+import GlassDialog from "@/components/glass/GlassDialog.vue";
+import GlassDropdown from "@/components/glass/GlassDropdown.vue";
+import GlassInput from "@/components/glass/GlassInput.vue";
+import { useToastStore } from "@/stores/toast";
 
 interface Props {
   visible: boolean;
@@ -18,7 +20,7 @@ interface Emits {
   (event: "create", wallet: CreateWallet): void;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const emit = defineEmits<Emits>();
 const { t } = useI18n();
 

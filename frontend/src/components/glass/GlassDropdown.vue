@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Props {
-  modelValue: string;
+  modelValue: string | undefined;
   options: string[] | { label: string; value: string }[];
   optionLabel?: string;
   optionValue?: string;

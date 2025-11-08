@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { Wallet } from "@/services/transaction/types";
 import WalletCard from "./WalletCard.vue";
+
+import type { Wallet } from "@/services/transaction/types";
 
 interface Props {
   walletType: string;
