@@ -1,3 +1,4 @@
+mod custom_category;
 mod health;
 mod middlewares;
 mod transaction;
@@ -62,6 +63,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
         .nest("/health", health::get_router(state.clone()))
         .nest("/wallet", wallet::get_router(state.clone()))
         .nest("/transaction", transaction::get_router(state.clone()))
+        .nest("/category", custom_category::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)
