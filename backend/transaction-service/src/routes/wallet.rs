@@ -41,8 +41,8 @@ pub fn get_router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .route("/", get(get_all_wallets))
         .route("/", post(create_wallet))
-        .route("/:id", put(update_wallet))
-        .route("/:id", delete(delete_wallet))
+        .route("/{id}", put(update_wallet))
+        .route("/{id}", delete(delete_wallet))
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
             auth_guard::auth_guard,
@@ -75,7 +75,11 @@ async fn get_all_wallets(
             tracing::error!("Failed to fetch wallets for user {}", user_id);
         })?;
 
-    tracing::info!("Successfully fetched {} wallets for user {}", wallets.len(), user_id);
+    tracing::info!(
+        "Successfully fetched {} wallets for user {}",
+        wallets.len(),
+        user_id
+    );
     Ok(Json(wallets))
 }
 
@@ -111,7 +115,11 @@ async fn create_wallet(
             tracing::error!("Failed to create wallet for user {}", user_id);
         })?;
 
-    tracing::info!("Successfully created wallet {} for user {}", wallet.id, user_id);
+    tracing::info!(
+        "Successfully created wallet {} for user {}",
+        wallet.id,
+        user_id
+    );
     Ok((StatusCode::CREATED, Json(wallet)))
 }
 
@@ -134,7 +142,11 @@ async fn update_wallet(
     State(state): State<Arc<AppState>>,
     Json(update_wallet): Json<UpdateWallet>,
 ) -> Result<impl IntoResponse, Error> {
-    tracing::info!("PUT /wallet/{} - Updating wallet for user {}", wallet_id, user_id);
+    tracing::info!(
+        "PUT /wallet/{} - Updating wallet for user {}",
+        wallet_id,
+        user_id
+    );
     tracing::debug!(
         "Update payload: name={:?}, balance={:?}, currency={:?}",
         update_wallet.name,
@@ -150,7 +162,11 @@ async fn update_wallet(
             tracing::error!("Failed to update wallet {} for user {}", wallet_id, user_id);
         })?;
 
-    tracing::info!("Successfully updated wallet {} for user {}", wallet_id, user_id);
+    tracing::info!(
+        "Successfully updated wallet {} for user {}",
+        wallet_id,
+        user_id
+    );
     Ok(Json(wallet))
 }
 
@@ -171,7 +187,11 @@ async fn delete_wallet(
     Path(wallet_id): Path<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    tracing::info!("DELETE /wallet/{} - Deleting wallet for user {}", wallet_id, user_id);
+    tracing::info!(
+        "DELETE /wallet/{} - Deleting wallet for user {}",
+        wallet_id,
+        user_id
+    );
 
     let pool = state.get_database_pool();
 
@@ -181,6 +201,10 @@ async fn delete_wallet(
             tracing::error!("Failed to delete wallet {} for user {}", wallet_id, user_id);
         })?;
 
-    tracing::info!("Successfully deleted wallet {} for user {}", wallet_id, user_id);
+    tracing::info!(
+        "Successfully deleted wallet {} for user {}",
+        wallet_id,
+        user_id
+    );
     Ok(StatusCode::NO_CONTENT)
 }

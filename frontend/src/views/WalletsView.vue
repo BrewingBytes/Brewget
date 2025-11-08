@@ -90,10 +90,6 @@ const formatCurrency = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString();
-};
-
 </script>
 
 <template>
@@ -106,12 +102,8 @@ const formatDate = (dateString: string) => {
               <i class="pi pi-wallet text-2xl"></i>
               <span class="text-2xl font-medium">{{ t("wallets.title") }}</span>
             </div>
-            <Button
-              :label="t('wallets.create_wallet')"
-              icon="pi pi-plus"
-              @click="openCreateDialog"
-              class="bg-white/10! border-white! text-white! hover:bg-white/20!"
-            />
+            <Button :label="t('wallets.create_wallet')" icon="pi pi-plus" @click="openCreateDialog"
+              class="bg-white/10! border-white! text-white! hover:bg-white/20!" />
           </div>
         </template>
         <template #content>
@@ -123,39 +115,24 @@ const formatDate = (dateString: string) => {
           <div v-else-if="walletStore.wallets.length === 0" class="text-center py-12 text-white">
             <i class="pi pi-wallet text-6xl mb-4 opacity-50"></i>
             <p class="text-xl mb-6 opacity-80">{{ t("wallets.no_wallets") }}</p>
-            <Button
-              :label="t('wallets.create_wallet')"
-              icon="pi pi-plus"
-              @click="openCreateDialog"
-              class="bg-white/10! border-white! text-white! hover:bg-white/20!"
-            />
+            <Button :label="t('wallets.create_wallet')" icon="pi pi-plus" @click="openCreateDialog"
+              class="bg-white/10! border-white! text-white! hover:bg-white/20!" />
           </div>
 
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="wallet in walletStore.wallets" :key="wallet.id" 
+            <Card v-for="wallet in walletStore.wallets" :key="wallet.id"
               class="backdrop-blur-xl! bg-white/10! border! border-white/30! shadow-xl!">
               <template #title>
                 <div class="flex justify-between items-center text-white">
                   <div class="flex items-center gap-2">
-                    <i class="pi pi-wallet"></i>
+                    <i class="pi pi-wallet pr-2"></i>
                     <span>{{ wallet.name }}</span>
                   </div>
                   <div class="flex gap-2">
-                    <Button
-                      icon="pi pi-pencil"
-                      text
-                      rounded
-                      @click="openEditDialog(wallet)"
-                      class="text-white! hover:bg-white/20!"
-                    />
-                    <Button
-                      icon="pi pi-trash"
-                      text
-                      rounded
-                      severity="danger"
-                      @click="openDeleteDialog(wallet)"
-                      class="text-red-300! hover:bg-red-500/20!"
-                    />
+                    <Button icon="pi pi-pencil" text rounded @click="openEditDialog(wallet)"
+                      class="text-white! hover:bg-white/20!" />
+                    <Button icon="pi pi-trash" text rounded severity="danger" @click="openDeleteDialog(wallet)"
+                      class="text-red-300! hover:bg-red-500/20!" />
                   </div>
                 </div>
               </template>
@@ -165,11 +142,6 @@ const formatDate = (dateString: string) => {
                     <p class="text-3xl font-bold">
                       {{ formatCurrency(wallet.balance, wallet.currency) }}
                     </p>
-                    <p class="text-sm opacity-70">{{ wallet.currency }}</p>
-                  </div>
-                  <div class="text-sm opacity-70 border-t border-white/20 pt-3">
-                    <p><i class="pi pi-calendar mr-2"></i>{{ t("wallets.created_at") }}: {{ formatDate(wallet.created_at) }}</p>
-                    <p><i class="pi pi-clock mr-2"></i>{{ t("wallets.updated_at") }}: {{ formatDate(wallet.updated_at) }}</p>
                   </div>
                 </div>
               </template>
@@ -180,13 +152,8 @@ const formatDate = (dateString: string) => {
     </div>
 
     <!-- Create Wallet Dialog -->
-    <Dialog
-      v-model:visible="showCreateDialog"
-      :header="t('wallets.create_wallet')"
-      :modal="true"
-      :closable="true"
-      class="w-full max-w-md"
-      :pt="{
+    <Dialog v-model:visible="showCreateDialog" :header="t('wallets.create_wallet')" :modal="true" :closable="true"
+      class="w-full max-w-md" :pt="{
         root: {
           class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
         },
@@ -199,39 +166,27 @@ const formatDate = (dateString: string) => {
         footer: {
           class: 'bg-transparent!',
         },
-      }" pt:mask:class="backdrop-blur-xs! bg-transparent!"
-    >
+      }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <div class="space-y-4">
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-tag mr-2"></i>{{ t("wallets.wallet_name") }}</label>
-          <InputText
-            v-model="newWallet.name"
-            :placeholder="t('wallets.enter_wallet_name')"
-            class="w-full bg-transparent! border-white! text-white!"
-          />
+          <label class="block mb-2 text-white/90"><i class="pi pi-tag pl-2 mr-2"></i>{{ t("wallets.wallet_name")
+            }}</label>
+          <InputText v-model="newWallet.name" class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.balance") }}</label>
-          <InputNumber
-            v-model="newWallet.balance"
-            :placeholder="t('wallets.enter_balance')"
-            class="w-full"
-            mode="decimal"
-            :minFractionDigits="2"
-            :maxFractionDigits="2"
-            :pt="{
+          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.balance")
+            }}</label>
+          <InputNumber v-model="newWallet.balance" :placeholder="t('wallets.enter_balance')" class="w-full"
+            mode="decimal" :minFractionDigits="2" :maxFractionDigits="2" :pt="{
               input: {
                 class: 'bg-transparent! border-white! text-white!',
               },
-            }"
-          />
+            }" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency") }}</label>
-          <Select
-            v-model="newWallet.currency"
-            :options="currencyOptions"
-            class="w-full bg-transparent! border-white!"
+          <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
+            }}</label>
+          <Select v-model="newWallet.currency" :options="currencyOptions" class="w-full bg-transparent! border-white!"
             :pt="{
               label: {
                 class: 'text-white/90!',
@@ -242,8 +197,7 @@ const formatDate = (dateString: string) => {
               option: {
                 class: 'text-white/90! bg-transparent! hover:bg-white/10!',
               },
-            }"
-          >
+            }">
             <template #dropdownicon>
               <i class="pi pi-chevron-down text-white" />
             </template>
@@ -251,24 +205,14 @@ const formatDate = (dateString: string) => {
         </div>
       </div>
       <template #footer>
-        <Button
-          :label="t('settings.save_settings')"
-          icon="pi pi-check"
-          @click="createWallet"
-          :loading="walletStore.loading"
-          class="bg-white/10! border-white! text-white! hover:bg-white/20!"
-        />
+        <Button :label="t('settings.save_settings')" icon="pi pi-check" @click="createWallet"
+          :loading="walletStore.loading" class="bg-white/10! border-white! text-white! hover:bg-white/20!" />
       </template>
     </Dialog>
 
     <!-- Edit Wallet Dialog -->
-    <Dialog
-      v-model:visible="showEditDialog"
-      :header="t('wallets.edit_wallet')"
-      :modal="true"
-      :closable="true"
-      class="w-full max-w-md"
-      :pt="{
+    <Dialog v-model:visible="showEditDialog" :header="t('wallets.edit_wallet')" :modal="true" :closable="true"
+      class="w-full max-w-md" :pt="{
         root: {
           class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
         },
@@ -281,39 +225,26 @@ const formatDate = (dateString: string) => {
         footer: {
           class: 'bg-transparent!',
         },
-      }" pt:mask:class="backdrop-blur-xs! bg-transparent!"
-    >
+      }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <div class="space-y-4">
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-tag mr-2"></i>{{ t("wallets.wallet_name") }}</label>
-          <InputText
-            v-model="editWallet.name"
-            :placeholder="t('wallets.enter_wallet_name')"
-            class="w-full bg-transparent! border-white! text-white!"
-          />
+          <InputText v-model="editWallet.name" :placeholder="t('wallets.enter_wallet_name')"
+            class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.balance") }}</label>
-          <InputNumber
-            v-model="editWallet.balance"
-            :placeholder="t('wallets.enter_balance')"
-            class="w-full"
-            mode="decimal"
-            :minFractionDigits="2"
-            :maxFractionDigits="2"
-            :pt="{
-              input: {
-                class: 'bg-transparent! border-white! text-white!',
+          <InputNumber v-model="editWallet.balance" :placeholder="t('wallets.enter_balance')" class="w-full"
+            mode="decimal" :minFractionDigits="2" :maxFractionDigits="2" :pt="{
+              pcInputText: {
+                root: { class: 'bg-transparent! border-white! text-white!' },
               },
-            }"
-          />
+            }" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency") }}</label>
-          <Select
-            v-model="editWallet.currency"
-            :options="currencyOptions"
-            class="w-full bg-transparent! border-white!"
+          <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
+            }}</label>
+          <Select v-model="editWallet.currency" :options="currencyOptions" class="w-full bg-transparent! border-white!"
             :pt="{
               label: {
                 class: 'text-white/90!',
@@ -324,8 +255,7 @@ const formatDate = (dateString: string) => {
               option: {
                 class: 'text-white/90! bg-transparent! hover:bg-white/10!',
               },
-            }"
-          >
+            }">
             <template #dropdownicon>
               <i class="pi pi-chevron-down text-white" />
             </template>
@@ -333,24 +263,14 @@ const formatDate = (dateString: string) => {
         </div>
       </div>
       <template #footer>
-        <Button
-          :label="t('settings.save_settings')"
-          icon="pi pi-check"
-          @click="updateWallet"
-          :loading="walletStore.loading"
-          class="bg-white/10! border-white! text-white! hover:bg-white/20!"
-        />
+        <Button :label="t('settings.save_settings')" icon="pi pi-check" @click="updateWallet"
+          :loading="walletStore.loading" class="bg-white/10! border-white! text-white! hover:bg-white/20!" />
       </template>
     </Dialog>
 
     <!-- Delete Wallet Dialog -->
-    <Dialog
-      v-model:visible="showDeleteDialog"
-      :header="t('wallets.delete_wallet')"
-      :modal="true"
-      :closable="true"
-      class="w-full max-w-md"
-      :pt="{
+    <Dialog v-model:visible="showDeleteDialog" :header="t('wallets.delete_wallet')" :modal="true" :closable="true"
+      class="w-full max-w-md" :pt="{
         root: {
           class: 'backdrop-blur-2xl! bg-transparent! border! border-white/20! shadow-2xl!',
         },
@@ -363,25 +283,13 @@ const formatDate = (dateString: string) => {
         footer: {
           class: 'bg-transparent!',
         },
-      }" pt:mask:class="backdrop-blur-xs! bg-transparent!"
-    >
+      }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <p class="text-white/90">{{ t("wallets.confirm_delete") }}</p>
       <template #footer>
-        <Button
-          :label="t('auth.cancel')"
-          icon="pi pi-times"
-          text
-          @click="showDeleteDialog = false"
-          class="text-white! hover:bg-white/10!"
-        />
-        <Button
-          :label="t('wallets.delete_wallet')"
-          icon="pi pi-trash"
-          severity="danger"
-          @click="deleteWallet"
-          :loading="walletStore.loading"
-          class="bg-red-500/20! border-red-300! text-red-300! hover:bg-red-500/30!"
-        />
+        <Button :label="t('auth.cancel')" icon="pi pi-times" text @click="showDeleteDialog = false"
+          class="text-white! hover:bg-white/10!" />
+        <Button :label="t('wallets.delete_wallet')" icon="pi pi-trash" severity="danger" @click="deleteWallet"
+          :loading="walletStore.loading" class="bg-red-500/20! border-red-300! text-red-300! hover:bg-red-500/30!" />
       </template>
     </Dialog>
   </div>
