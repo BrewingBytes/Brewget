@@ -20,7 +20,7 @@ use crate::models::{
 pub async fn find_all_by_user(user_id: Uuid, pool: &PgPool) -> Result<Vec<Wallet>, Error> {
     let wallets = sqlx::query_as::<_, Wallet>(
         r#"
-        SELECT id, user_id, name, balance, currency, category, created_at, updated_at
+        SELECT id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
         FROM wallets
         WHERE user_id = $1
         ORDER BY category NULLS LAST, created_at DESC
@@ -52,7 +52,7 @@ pub async fn find_by_id(
 ) -> Result<Wallet, Error> {
     let wallet = sqlx::query_as::<_, Wallet>(
         r#"
-        SELECT id, user_id, name, balance, currency, category, created_at, updated_at
+        SELECT id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
         FROM wallets
         WHERE id = $1 AND user_id = $2
         "#,
@@ -86,9 +86,9 @@ pub async fn create(
     
     let wallet = sqlx::query_as::<_, Wallet>(
         r#"
-        INSERT INTO wallets (user_id, name, balance, currency, category)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, user_id, name, balance, currency, category, created_at, updated_at
+        INSERT INTO wallets (user_id, name, balance, currency, category, wallet_type)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
         "#,
     )
     .bind(user_id)
@@ -96,6 +96,7 @@ pub async fn create(
     .bind(balance)
     .bind(create_wallet.currency)
     .bind(create_wallet.category)
+    .bind(create_wallet.wallet_type)
     .fetch_one(pool)
     .await?;
 
@@ -128,14 +129,16 @@ pub async fn update(
             name = COALESCE($1, name),
             currency = COALESCE($2, currency),
             category = COALESCE($3, category),
+            wallet_type = COALESCE($4, wallet_type),
             updated_at = NOW()
-        WHERE id = $4 AND user_id = $5
-        RETURNING id, user_id, name, balance, currency, category, created_at, updated_at
+        WHERE id = $5 AND user_id = $6
+        RETURNING id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
         "#,
     )
     .bind(update_wallet.name)
     .bind(update_wallet.currency)
     .bind(update_wallet.category)
+    .bind(update_wallet.wallet_type)
     .bind(wallet_id)
     .bind(user_id)
     .fetch_one(pool)

@@ -107,6 +107,57 @@ impl std::fmt::Display for Language {
     }
 }
 
+/// Supported wallet types in the application
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum WalletType {
+    /// Regular account wallet
+    Account,
+    /// Savings account
+    Savings,
+    /// Deposit account
+    Deposit,
+    /// Credit card
+    CreditCard,
+    /// Loan account
+    Loan,
+}
+
+impl WalletType {
+    /// Returns the wallet type as a string
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            WalletType::Account => "Account",
+            WalletType::Savings => "Savings",
+            WalletType::Deposit => "Deposit",
+            WalletType::CreditCard => "CreditCard",
+            WalletType::Loan => "Loan",
+        }
+    }
+
+    /// Returns all supported wallet types
+    pub fn all() -> &'static [WalletType] {
+        &[
+            WalletType::Account,
+            WalletType::Savings,
+            WalletType::Deposit,
+            WalletType::CreditCard,
+            WalletType::Loan,
+        ]
+    }
+}
+
+impl std::fmt::Display for WalletType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl Default for WalletType {
+    fn default() -> Self {
+        WalletType::Account
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -183,5 +234,48 @@ mod tests {
         assert_eq!(all.len(), 5);
         assert!(all.contains(&Language::En));
         assert!(all.contains(&Language::Es));
+    }
+
+    #[test]
+    fn test_wallet_type_serialization() {
+        let account = WalletType::Account;
+        let json = serde_json::to_string(&account).unwrap();
+        assert_eq!(json, r#""Account""#);
+
+        let savings = WalletType::Savings;
+        let json = serde_json::to_string(&savings).unwrap();
+        assert_eq!(json, r#""Savings""#);
+    }
+
+    #[test]
+    fn test_wallet_type_deserialization() {
+        let json = r#""Account""#;
+        let wallet_type: WalletType = serde_json::from_str(json).unwrap();
+        assert_eq!(wallet_type, WalletType::Account);
+
+        let json = r#""CreditCard""#;
+        let wallet_type: WalletType = serde_json::from_str(json).unwrap();
+        assert_eq!(wallet_type, WalletType::CreditCard);
+    }
+
+    #[test]
+    fn test_wallet_type_display() {
+        assert_eq!(WalletType::Account.to_string(), "Account");
+        assert_eq!(WalletType::Savings.to_string(), "Savings");
+        assert_eq!(WalletType::CreditCard.to_string(), "CreditCard");
+    }
+
+    #[test]
+    fn test_wallet_type_all() {
+        let all = WalletType::all();
+        assert_eq!(all.len(), 5);
+        assert!(all.contains(&WalletType::Account));
+        assert!(all.contains(&WalletType::Savings));
+    }
+
+    #[test]
+    fn test_wallet_type_default() {
+        let default = WalletType::default();
+        assert_eq!(default, WalletType::Account);
     }
 }

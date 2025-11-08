@@ -22,15 +22,18 @@ const newWallet = ref<CreateWallet>({
   balance: 0,
   currency: "USD",
   category: "",
+  wallet_type: "Account",
 });
 
 const editWallet = ref<UpdateWallet>({
   name: "",
   currency: "USD",
   category: "",
+  wallet_type: "Account",
 });
 
 const currencyOptions = ["USD", "EUR", "GBP", "CAD", "JPY", "RON"];
+const walletTypeOptions = ["Account", "Savings", "Deposit", "CreditCard", "Loan"];
 
 // Get unique categories from existing wallets
 const existingCategories = computed(() => {
@@ -120,6 +123,7 @@ const openEditDialog = (wallet: Wallet) => {
     name: wallet.name,
     currency: wallet.currency,
     category: wallet.category || "",
+    wallet_type: wallet.wallet_type || "Account",
   };
   showEditDialog.value = true;
 };
@@ -304,6 +308,26 @@ const formatCurrency = (amount: number, currency: string) => {
             </template>
           </Select>
         </div>
+        <div>
+          <label class="block mb-2 text-white/90"><i class="pi pi-wallet mr-2"></i>{{ t("wallets.wallet_type")
+            }}</label>
+          <Select v-model="newWallet.wallet_type" :options="walletTypeOptions" class="w-full bg-transparent! border-white!"
+            :pt="{
+              label: {
+                class: 'text-white/90!',
+              },
+              overlay: {
+                class: 'bg-transparent! border-white! backdrop-blur-xs!',
+              },
+              option: {
+                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
+              },
+            }">
+            <template #dropdownicon>
+              <i class="pi pi-chevron-down text-white" />
+            </template>
+          </Select>
+        </div>
       </div>
       <template #footer>
         <Button :label="t('settings.save_settings')" icon="pi pi-check" @click="createWallet"
@@ -370,6 +394,26 @@ const formatCurrency = (amount: number, currency: string) => {
               },
               input: {
                 class: 'bg-transparent! text-white!',
+              },
+            }">
+            <template #dropdownicon>
+              <i class="pi pi-chevron-down text-white" />
+            </template>
+          </Select>
+        </div>
+        <div>
+          <label class="block mb-2 text-white/90"><i class="pi pi-wallet mr-2"></i>{{ t("wallets.wallet_type")
+            }}</label>
+          <Select v-model="editWallet.wallet_type" :options="walletTypeOptions" class="w-full bg-transparent! border-white!"
+            :pt="{
+              label: {
+                class: 'text-white/90!',
+              },
+              overlay: {
+                class: 'bg-transparent! border-white! backdrop-blur-xs!',
+              },
+              option: {
+                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
               },
             }">
             <template #dropdownicon>

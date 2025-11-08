@@ -16,6 +16,7 @@ use uuid::Uuid;
 /// * `balance` - Current balance of the wallet
 /// * `currency` - Currency code for the wallet (e.g., "USD", "EUR", "GBP")
 /// * `category` - Optional category for grouping wallets (e.g., "Personal", "Business")
+/// * `wallet_type` - Type of wallet (Account, Savings, Deposit, CreditCard, Loan)
 /// * `created_at` - Timestamp when the wallet was created
 /// * `updated_at` - Timestamp when the wallet was last updated
 #[derive(FromRow, Clone, Serialize)]
@@ -26,6 +27,7 @@ pub struct Wallet {
     pub balance: rust_decimal::Decimal,
     pub currency: String,
     pub category: Option<String>,
+    pub wallet_type: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -40,6 +42,7 @@ pub struct Wallet {
 /// * `balance` - Optional initial balance (defaults to 0.00)
 /// * `currency` - Currency code for the wallet
 /// * `category` - Optional category for grouping wallets
+/// * `wallet_type` - Type of wallet (defaults to Account)
 #[derive(Deserialize)]
 pub struct CreateWallet {
     pub name: String,
@@ -47,6 +50,12 @@ pub struct CreateWallet {
     pub balance: Option<rust_decimal::Decimal>,
     pub currency: String,
     pub category: Option<String>,
+    #[serde(default = "default_wallet_type")]
+    pub wallet_type: String,
+}
+
+fn default_wallet_type() -> String {
+    "Account".to_string()
 }
 
 /// Represents updates to a wallet
@@ -59,11 +68,13 @@ pub struct CreateWallet {
 /// * `name` - Optional new name for the wallet
 /// * `currency` - Optional new currency code
 /// * `category` - Optional new category
+/// * `wallet_type` - Optional new wallet type
 #[derive(Deserialize)]
 pub struct UpdateWallet {
     pub name: Option<String>,
     pub currency: Option<String>,
     pub category: Option<String>,
+    pub wallet_type: Option<String>,
 }
 
 #[cfg(test)]
