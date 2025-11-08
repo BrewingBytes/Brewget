@@ -2,6 +2,19 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add transactions feature with full CRUD operations
+- Add custom categories management for transactions
+- Add transaction filtering by wallet
+- Add i18n translations for transactions and categories
+- Add transaction types (Income, Expense, Transfer) with built-in categories
+- Add transaction list view with date grouping
+- Add "View Transactions" button to wallet cards
+- Add transaction service layer for API communication
+- Add transaction and custom category stores
+- Add `/transactions` route with support for wallet filtering
+
 ## [0.0.16] - 2025-11-08
 ### Added
 - Add wallets feature

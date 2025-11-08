@@ -1,7 +1,10 @@
 import type {
+  CreateCustomCategory,
   CreateTransaction,
   CreateWallet,
+  CustomCategory,
   Transaction,
+  UpdateCustomCategory,
   UpdateTransaction,
   UpdateWallet,
   Wallet,
@@ -146,6 +149,59 @@ async function deleteTransaction(id: string): Promise<ServerResponse<void>> {
   }
 }
 
+async function getCategories(): Promise<ServerResponse<CustomCategory[]>> {
+  try {
+    return await transactionApi.get("/category", {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function createCategory(
+  category: CreateCustomCategory,
+): Promise<ServerResponse<CustomCategory>> {
+  try {
+    return await transactionApi.post("/category", category, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function updateCategory(
+  id: string,
+  category: UpdateCustomCategory,
+): Promise<ServerResponse<CustomCategory>> {
+  try {
+    return await transactionApi.put(`/category/${id}`, category, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function deleteCategory(id: string): Promise<ServerResponse<void>> {
+  try {
+    return await transactionApi.delete(`/category/${id}`, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
 export const transactionService = {
   getWallets,
   createWallet,
@@ -157,4 +213,8 @@ export const transactionService = {
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 };

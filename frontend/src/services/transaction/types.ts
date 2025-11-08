@@ -52,3 +52,22 @@ export interface UpdateTransaction {
   transaction_date?: string;
 }
 
+export interface CustomCategory {
+  id: string;
+  user_id: string;
+  name: string;
+  transaction_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateCustomCategory {
+  name: string;
+  transaction_type: string;
+}
+
+export interface UpdateCustomCategory {
+  name?: string;
+  transaction_type?: string;
+}
+
