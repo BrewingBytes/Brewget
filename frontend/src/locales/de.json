@@ -126,6 +126,37 @@
     "analytics": "Analytik",
     "settings": "Einstellungen"
   },
+  "wallets": {
+    "title": "Geldbörsen",
+    "create_wallet": "Geldbörse erstellen",
+    "edit_wallet": "Geldbörse bearbeiten",
+    "delete_wallet": "Geldbörse löschen",
+    "wallet_name": "Name der Geldbörse",
+    "balance": "Guthaben",
+    "currency": "Währung",
+    "wallet_type": "Geldbörsentyp",
+    "created_at": "Erstellt",
+    "updated_at": "Aktualisiert",
+    "no_wallets": "Keine Geldbörsen gefunden. Erstellen Sie Ihre erste Geldbörse, um zu beginnen!",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "confirm_delete": "Sind Sie sicher, dass Sie diese Geldbörse löschen möchten?",
+    "wallet_created": "Geldbörse erfolgreich erstellt",
+    "wallet_updated": "Geldbörse erfolgreich aktualisiert",
+    "wallet_deleted": "Geldbörse erfolgreich gelöscht",
+    "failed_to_load": "Fehler beim Laden der Geldbörsen",
+    "failed_to_create": "Fehler beim Erstellen der Geldbörse",
+    "failed_to_update": "Fehler beim Aktualisieren der Geldbörse",
+    "failed_to_delete": "Fehler beim Löschen der Geldbörse",
+    "types": {
+      "general": "Allgemein",
+      "savings": "Ersparnisse",
+      "business": "Geschäft",
+      "personal": "Persönlich"
+    }
+  },
   "toast": {
     "error": "Fehler",
     "success": "Erfolg",

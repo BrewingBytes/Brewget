@@ -126,6 +126,37 @@
     "analytics": "Analytique",
     "settings": "Paramètres"
   },
+  "wallets": {
+    "title": "Portefeuilles",
+    "create_wallet": "Créer un portefeuille",
+    "edit_wallet": "Modifier le portefeuille",
+    "delete_wallet": "Supprimer le portefeuille",
+    "wallet_name": "Nom du portefeuille",
+    "balance": "Solde",
+    "currency": "Devise",
+    "wallet_type": "Type de portefeuille",
+    "created_at": "Créé",
+    "updated_at": "Mis à jour",
+    "no_wallets": "Aucun portefeuille trouvé. Créez votre premier portefeuille pour commencer!",
+    "create": "Créer",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce portefeuille?",
+    "wallet_created": "Portefeuille créé avec succès",
+    "wallet_updated": "Portefeuille mis à jour avec succès",
+    "wallet_deleted": "Portefeuille supprimé avec succès",
+    "failed_to_load": "Échec du chargement des portefeuilles",
+    "failed_to_create": "Échec de la création du portefeuille",
+    "failed_to_update": "Échec de la mise à jour du portefeuille",
+    "failed_to_delete": "Échec de la suppression du portefeuille",
+    "types": {
+      "general": "Général",
+      "savings": "Épargne",
+      "business": "Entreprise",
+      "personal": "Personnel"
+    }
+  },
   "toast": {
     "error": "Erreur",
     "success": "Succès",

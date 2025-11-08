@@ -126,6 +126,37 @@
     "analytics": "Análisis",
     "settings": "Configuración"
   },
+  "wallets": {
+    "title": "Carteras",
+    "create_wallet": "Crear Cartera",
+    "edit_wallet": "Editar Cartera",
+    "delete_wallet": "Eliminar Cartera",
+    "wallet_name": "Nombre de la Cartera",
+    "balance": "Saldo",
+    "currency": "Moneda",
+    "wallet_type": "Tipo de Cartera",
+    "created_at": "Creado",
+    "updated_at": "Actualizado",
+    "no_wallets": "No se encontraron carteras. ¡Crea tu primera cartera para comenzar!",
+    "create": "Crear",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "confirm_delete": "¿Estás seguro de que quieres eliminar esta cartera?",
+    "wallet_created": "Cartera creada exitosamente",
+    "wallet_updated": "Cartera actualizada exitosamente",
+    "wallet_deleted": "Cartera eliminada exitosamente",
+    "failed_to_load": "Error al cargar las carteras",
+    "failed_to_create": "Error al crear la cartera",
+    "failed_to_update": "Error al actualizar la cartera",
+    "failed_to_delete": "Error al eliminar la cartera",
+    "types": {
+      "general": "General",
+      "savings": "Ahorros",
+      "business": "Negocios",
+      "personal": "Personal"
+    }
+  },
   "toast": {
     "error": "Error",
     "success": "Éxito",

@@ -126,6 +126,37 @@
     "analytics": "Statistici",
     "settings": "Setări"
   },
+  "wallets": {
+    "title": "Portofele",
+    "create_wallet": "Creează portofel",
+    "edit_wallet": "Editează portofel",
+    "delete_wallet": "Șterge portofel",
+    "wallet_name": "Nume portofel",
+    "balance": "Sold",
+    "currency": "Monedă",
+    "wallet_type": "Tip portofel",
+    "created_at": "Creat",
+    "updated_at": "Actualizat",
+    "no_wallets": "Nu s-au găsit portofele. Creează primul tău portofel pentru a începe!",
+    "create": "Creează",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "confirm_delete": "Ești sigur că vrei să ștergi acest portofel?",
+    "wallet_created": "Portofel creat cu succes",
+    "wallet_updated": "Portofel actualizat cu succes",
+    "wallet_deleted": "Portofel șters cu succes",
+    "failed_to_load": "Eroare la încărcarea portofelelor",
+    "failed_to_create": "Eroare la crearea portofelului",
+    "failed_to_update": "Eroare la actualizarea portofelului",
+    "failed_to_delete": "Eroare la ștergerea portofelului",
+    "types": {
+      "general": "General",
+      "savings": "Economii",
+      "business": "Afaceri",
+      "personal": "Personal"
+    }
+  },
   "toast": {
     "error": "Eroare",
     "success": "Succes",
