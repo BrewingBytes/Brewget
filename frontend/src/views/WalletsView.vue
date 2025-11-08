@@ -32,6 +32,17 @@ const editWallet = ref<UpdateWallet>({
 
 const currencyOptions = ["USD", "EUR", "GBP", "CAD", "JPY", "RON"];
 
+// Get unique categories from existing wallets
+const existingCategories = computed(() => {
+  const categories = new Set<string>();
+  walletStore.wallets.forEach((wallet) => {
+    if (wallet.category && wallet.category.trim() !== "") {
+      categories.add(wallet.category);
+    }
+  });
+  return Array.from(categories).sort();
+});
+
 // Group wallets by category
 const walletsByCategory = computed(() => {
   const grouped = new Map<string, Wallet[]>();
@@ -272,8 +283,26 @@ const formatCurrency = (amount: number, currency: string) => {
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
             }}</label>
-          <InputText v-model="newWallet.category" :placeholder="t('wallets.enter_category')"
-            class="w-full bg-transparent! border-white! text-white!" />
+          <Select v-model="newWallet.category" :options="existingCategories" :editable="true" 
+            :placeholder="t('wallets.enter_category')" class="w-full bg-transparent! border-white!"
+            :pt="{
+              label: {
+                class: 'text-white/90!',
+              },
+              overlay: {
+                class: 'bg-transparent! border-white! backdrop-blur-xs!',
+              },
+              option: {
+                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
+              },
+              input: {
+                class: 'bg-transparent! text-white!',
+              },
+            }">
+            <template #dropdownicon>
+              <i class="pi pi-chevron-down text-white" />
+            </template>
+          </Select>
         </div>
       </div>
       <template #footer>
@@ -327,8 +356,26 @@ const formatCurrency = (amount: number, currency: string) => {
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
             }}</label>
-          <InputText v-model="editWallet.category" :placeholder="t('wallets.enter_category')"
-            class="w-full bg-transparent! border-white! text-white!" />
+          <Select v-model="editWallet.category" :options="existingCategories" :editable="true"
+            :placeholder="t('wallets.enter_category')" class="w-full bg-transparent! border-white!"
+            :pt="{
+              label: {
+                class: 'text-white/90!',
+              },
+              overlay: {
+                class: 'bg-transparent! border-white! backdrop-blur-xs!',
+              },
+              option: {
+                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
+              },
+              input: {
+                class: 'bg-transparent! text-white!',
+              },
+            }">
+            <template #dropdownicon>
+              <i class="pi pi-chevron-down text-white" />
+            </template>
+          </Select>
         </div>
       </div>
       <template #footer>
