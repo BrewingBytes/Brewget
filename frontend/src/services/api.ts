@@ -10,10 +10,18 @@ export const authApi = axios.create({
 });
 
 // Settings service axios instance
-// Dev: http://localhost:8002
+// Dev: http://localhost:8001
 // Prod: /api/settings (proxied by nginx)
 export const settingsApi = axios.create({
-    baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8002",
+    baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8001",
+});
+
+// Wallet service axios instance  
+// Dev: http://localhost:8002 (currently proxied to settings-service)
+// Prod: /api/wallets (proxied by nginx)
+// Note: Wallet functionality is temporarily in settings-service, will be extracted to separate service
+export const walletApi = axios.create({
+    baseURL: import.meta.env.PROD ? "/api/wallets" : "http://localhost:8001/wallets",
 });
 
 // Add response interceptor to handle token expiration globally
@@ -46,9 +54,10 @@ const setupInterceptors = (apiInstance: AxiosInstance) => {
     );
 };
 
-// Setup interceptors for both API instances
+// Setup interceptors for all API instances
 setupInterceptors(authApi);
 setupInterceptors(settingsApi);
+setupInterceptors(walletApi);
 
 // Default export for backwards compatibility
 export default authApi;

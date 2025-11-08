@@ -2,6 +2,14 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add Wallets feature with full CRUD operations
+- Add WalletsView component with create, edit, and delete functionality
+- Add wallet service API client
+- Add wallet-related translations (en)
+- Add walletApi axios instance for wallet service communication
+
 ## [0.0.15] - 2025-11-02
 ### Added
 - Add manage passkeys UI to allow users to view and delete their passkeys
