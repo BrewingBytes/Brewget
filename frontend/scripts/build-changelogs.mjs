@@ -94,6 +94,7 @@ const services = [
   { file: "frontend-CHANGELOG.md", name: "Frontend" },
   { file: "auth-service-CHANGELOG.md", name: "Auth Service" },
   { file: "settings-service-CHANGELOG.md", name: "Settings Service" },
+  { file: "transaction-service-CHANGELOG.md", name: "Transaction Service" },
   { file: "email-service-CHANGELOG.md", name: "Email Service" },
 ];
 

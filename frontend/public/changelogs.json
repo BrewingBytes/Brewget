@@ -3,11 +3,27 @@
     "service": "Frontend",
     "entries": [
       {
-        "version": "0.0.14",
+        "version": "0.0.16",
+        "date": "2025-11-08",
+        "changes": {
+          "added": [
+            "Add wallets feature with CRUD operations",
+            "Add WalletsView component for managing wallets",
+            "Add wallet store for state management",
+            "Add transaction service API integration",
+            "Add i18n translations for wallets"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
+      {
+        "version": "0.0.15",
         "date": "2025-11-02",
         "changes": {
           "added": [
-            "Add manage passkeys UI to allow users to view and delete their passkeys"
+            "Add manage passkeys UI to allow users to view and delete their passkeys",
+            "Add authentication activity audit viewer in the settings page"
           ],
           "changed": [],
           "fixed": [
@@ -160,12 +176,13 @@
     "service": "Auth Service",
     "entries": [
       {
-        "version": "0.0.16",
+        "version": "0.0.17",
         "date": "2025-11-02",
         "changes": {
           "added": [
             "Add passkey support for passwordless authentication",
-            "Add manage passkeys endpoint to allow users to view and delete their passkeys"
+            "Add manage passkeys endpoint to allow users to view and delete their passkeys",
+            "Add authentication audit log tracking for password and passkey login attempts"
           ],
           "changed": [],
           "fixed": [
@@ -322,6 +339,17 @@
   {
     "service": "Settings Service",
     "entries": [
+      {
+        "version": "0.0.7",
+        "date": "2025-11-08",
+        "changes": {
+          "added": [
+            "Add Transaction service integration for wallet management"
+          ],
+          "changed": [],
+          "fixed": []
+        }
+      },
       {
         "version": "0.0.6",
         "date": "2025-10-31",

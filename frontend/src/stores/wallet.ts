@@ -80,7 +80,7 @@ export const useWalletStore = defineStore("wallet", () => {
     try {
       const response = await transactionService.deleteWallet(id);
 
-      if (response.status !== ServerStatus.NO_ERROR) {
+      if (response.status !== ServerStatus.NO_ERROR && response.status !== ServerStatus.NO_CONTENT) {
         useToastStore().showError(i18n.global.t("wallets.failed_to_delete"));
         return false;
       }
