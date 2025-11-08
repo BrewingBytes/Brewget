@@ -1,3 +1,3 @@
 [workspace]
 resolver = "3"
-members = ["auth-service", "email-service", "settings-service", "shared-types"]
+members = ["auth-service", "email-service", "settings-service", "shared-types", "transaction-service"]

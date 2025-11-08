@@ -7,8 +7,11 @@ All notable changes to the Frontend will be documented in this file.
 - Add Wallets feature with full CRUD operations
 - Add WalletsView component with create, edit, and delete functionality
 - Add wallet service API client
-- Add wallet-related translations (en)
-- Add walletApi axios instance for wallet service communication
+- Add wallet-related translations (en, es, fr, de, ro)
+- Add walletApi axios instance for transaction service communication
+
+### Changed
+- Wallet API now points to transaction-service (port 8003) instead of settings-service
 
 ## [0.0.15] - 2025-11-02
 ### Added

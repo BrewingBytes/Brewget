@@ -16,12 +16,11 @@ export const settingsApi = axios.create({
     baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8002",
 });
 
-// Wallet service axios instance  
-// Dev: http://localhost:8002/wallets (currently in settings-service)
+// Wallet/Transaction service axios instance  
+// Dev: http://localhost:8003
 // Prod: /api/wallets (proxied by nginx)
-// Note: Wallet functionality is temporarily in settings-service, will be extracted to separate service
 export const walletApi = axios.create({
-    baseURL: import.meta.env.PROD ? "/api/wallets" : "http://localhost:8002/wallets",
+    baseURL: import.meta.env.PROD ? "/api/wallets" : "http://localhost:8003",
 });
 
 // Add response interceptor to handle token expiration globally

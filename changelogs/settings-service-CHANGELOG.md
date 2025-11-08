@@ -3,15 +3,8 @@
 All notable changes to the Settings Service will be documented in this file.
 
 ## [Unreleased]
-### Added
-- Add wallets feature with CRUD operations
-- Add Currency and WalletType enums in shared-types
-- Add wallet database migration with constraints
-- Add wallet API endpoints (GET, POST, PUT, DELETE)
-- Add support for PUT and DELETE methods in CORS
-
-### Changed
-- Wallet functionality temporarily hosted in settings-service (planned to be extracted to separate wallet-service microservice)
+### Removed
+- Wallet functionality moved to separate transaction-service
 
 ## [0.0.6] - 2025-10-31
 ### Added

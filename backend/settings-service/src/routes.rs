@@ -1,7 +1,6 @@
 mod health;
 mod middlewares;
 mod user;
-mod wallet;
 
 use std::sync::Arc;
 
@@ -54,14 +53,13 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
 
     let cors = CorsLayer::new()
         .allow_origin(cors)
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_methods([Method::GET, Method::POST])
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
 
     let router = Router::new()
         .nest("/health", health::get_router(state.clone()))
         .nest("/user", user::get_router(state.clone()))
-        .nest("/wallets", wallet::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)
