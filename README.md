@@ -1,6 +1,14 @@
 # BrewGet
 
-A microservices-based application for managing your budgets.
+A microservices-based application for managing your budgets and wallets.
+
+## Features
+
+- **User Authentication**: Secure login with password and passkey support
+- **Settings Management**: Personalize language, currency, and preferences
+- **Wallet Management**: Create and manage multiple wallets with different currencies
+- **Budget Tracking**: Track expenses across different wallets (coming soon)
+- **Analytics**: Visualize spending patterns (coming soon)
 
 ## Architecture
 
@@ -8,7 +16,7 @@ BrewGet consists of the following services:
 
 - **frontend**: Vue.js web application
 - **auth-service**: Authentication and authorization (Rust)
-- **settings-service**: User settings management (Rust)
+- **settings-service**: User settings and wallet management (Rust)
 - **email-service**: Email notifications (Rust)
 - **nginx**: Reverse proxy and API gateway
 - **postgres**: PostgreSQL database
