@@ -4,10 +4,7 @@ All notable changes to the Frontend will be documented in this file.
 
 ## [0.0.16] - 2025-11-08
 ### Added
-- Add wallets feature with CRUD operations
-- Add WalletsView component for managing wallets
-- Add wallet store for state management
-- Add transaction service API integration
+- Add wallets feature
 - Add i18n translations for wallets
 
 ## [0.0.15] - 2025-11-02
