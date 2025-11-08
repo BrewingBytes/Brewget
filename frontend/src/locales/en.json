@@ -145,5 +145,27 @@
     "title": "Cookie Consent",
     "message": "We use cookies to enhance your experience on our website. You must accept cookies to use this site.",
     "accept": "Accept"
+  },
+  "wallets": {
+    "title": "Wallets",
+    "no_wallets": "No wallets yet",
+    "create_wallet": "Create Wallet",
+    "edit_wallet": "Edit Wallet",
+    "delete_wallet": "Delete Wallet",
+    "wallet_name": "Wallet Name",
+    "balance": "Balance",
+    "currency": "Currency",
+    "created_at": "Created",
+    "updated_at": "Updated",
+    "failed_to_load": "Failed to load wallets",
+    "failed_to_create": "Failed to create wallet",
+    "failed_to_update": "Failed to update wallet",
+    "failed_to_delete": "Failed to delete wallet",
+    "wallet_created": "Wallet created successfully",
+    "wallet_updated": "Wallet updated successfully",
+    "wallet_deleted": "Wallet deleted successfully",
+    "confirm_delete": "Are you sure you want to delete this wallet?",
+    "enter_wallet_name": "Enter wallet name",
+    "enter_balance": "Enter initial balance (optional)"
   }
 }

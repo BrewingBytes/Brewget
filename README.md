@@ -9,6 +9,7 @@ BrewGet consists of the following services:
 - **frontend**: Vue.js web application
 - **auth-service**: Authentication and authorization (Rust)
 - **settings-service**: User settings management (Rust)
+- **transaction-service**: Transaction and wallet management (Rust)
 - **email-service**: Email notifications (Rust)
 - **nginx**: Reverse proxy and API gateway
 - **postgres**: PostgreSQL database
@@ -49,5 +50,6 @@ See [k8s/README.md](k8s/README.md) for detailed instructions.
 - [Frontend Changelog](changelogs/frontend-CHANGELOG.md)
 - [Auth Service Changelog](changelogs/auth-service-CHANGELOG.md)
 - [Settings Service Changelog](changelogs/settings-service-CHANGELOG.md)
+- [Transaction Service Changelog](changelogs/transaction-service-CHANGELOG.md)
 - [Email Service Changelog](changelogs/email-service-CHANGELOG.md)
 - [Infrastructure Changelog](changelogs/infrastructure-CHANGELOG.md)
