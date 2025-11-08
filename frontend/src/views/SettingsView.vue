@@ -13,16 +13,20 @@ import AlarmSettings from "@/components/settings/AlarmSettings.vue";
 import CurrencySelector from "@/components/settings/CurrencySelector.vue";
 import LanguageSelector from "@/components/settings/LanguageSelector.vue";
 import NightModeToggle from "@/components/settings/NightModeToggle.vue";
+import { usePasskeyRegistration } from "@/composables/usePasskeyRegistration";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
 import { versionService } from "@/services/version";
 import { checkPasskeySupport } from "@/services/webauthn";
 import { useAuthStore } from "@/stores/auth";
 import { useSettingsStore } from "@/stores/settings";
+import { useToastStore } from "@/stores/toast";
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
+const toast = useToastStore();
 const { t, locale } = useI18n();
+const { addPasskeyToExistingAccount, isRegistering: addingPasskey } = usePasskeyRegistration();
 
 // Form fields
 const language = ref("");
@@ -122,10 +126,18 @@ async function checkUserPasskey() {
   }
 }
 
-async function handleAddPasskey(_deviceName: string) {
-  // TODO: Implement passkey addition with WebAuthn
-  console.log("Add passkey not yet implemented");
-  showAddPasskeyDialog.value = false;
+async function handleAddPasskey(deviceName: string) {
+  if (!deviceName.trim()) {
+    toast.showError(t("settings.enter_device_name"));
+    return;
+  }
+
+  const success = await addPasskeyToExistingAccount(deviceName.trim());
+
+  if (success) {
+    showAddPasskeyDialog.value = false;
+    await checkUserPasskey();
+  }
 }
 
 async function handleDeletePasskey() {
@@ -136,11 +148,16 @@ async function handleDeletePasskey() {
       const passkeyId = response.data[0]?.id as string;
       const deleteResponse = await authService.passkeyRemove(passkeyId);
       if (deleteResponse.status === 200) {
+        toast.showTranslationKey("PASSKEY_REMOVED_SUCCESSFULLY");
         await checkUserPasskey();
+      } else {
+        const errorKey = deleteResponse.data?.translation_key || "SOMETHING_WENT_WRONG";
+        toast.showTranslationKey(errorKey);
       }
     }
   } catch (error) {
-    console.error("Failed to remove passkey:", error);
+    console.error("Failed to delete passkey:", error);
+    toast.showTranslationKey("SOMETHING_WENT_WRONG");
   } finally {
     loadingPasskey.value = false;
   }
@@ -182,7 +199,7 @@ async function handleDeletePasskey() {
           </div>
 
           <!-- AddPasskey Dialog -->
-          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="loadingPasskey" @add="handleAddPasskey" />
+          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="addingPasskey" @add="handleAddPasskey" />
 
           <!-- Auth Audit Button -->
           <div class="flex items-center justify-between">

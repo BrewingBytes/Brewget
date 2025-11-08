@@ -1,8 +1,8 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
+use shared_types::enums::{Currency, WalletType};
 use sqlx::FromRow;
 use uuid::Uuid;
-use shared_types::enums::{Currency, WalletType};
 
 /// Represents a wallet stored in the database
 ///
