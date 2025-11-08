@@ -29,10 +29,12 @@ jobs:
                 - 'backend/email-service/Cargo.toml'
               settings:
                 - 'backend/settings-service/Cargo.toml'
+              transaction:
+                - 'backend/transaction-service/Cargo.toml'
               base-image:
                 - 'backend/Dockerfile'
         - name: Cache
-          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.base-image == 'true'
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
           uses: actions/cache@v4
           with:
             path: |
@@ -41,10 +43,10 @@ jobs:
               target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         - name: Build base-image
-          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.base-image == 'true'
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
           run: docker build -t base-image .
         - name: Get services version
-          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.base-image == 'true'
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
           id: get_version
           run: |
             VERSION=$(grep '^version = ' ./auth-service/Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p')
@@ -53,8 +55,10 @@ jobs:
             echo "email_version=$VERSION" >> "$GITHUB_OUTPUT"
             VERSION=$(grep '^version = ' ./settings-service/Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p')
             echo "settings_version=$VERSION" >> "$GITHUB_OUTPUT"
+            VERSION=$(grep '^version = ' ./transaction-service/Cargo.toml | sed -n 's/^version = "\(.*\)"/\1/p')
+            echo "transaction_version=$VERSION" >> "$GITHUB_OUTPUT"
         - name: Log in to Docker Hub
-          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.base-image == 'true'
+          if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
           uses: docker/login-action@v3
           with:
             registry: ghcr.io
@@ -99,6 +103,19 @@ jobs:
               docker tag settings-service ghcr.io/brewingbytes/brewget-settings-service:latest
               echo "build=true" >> "$GITHUB_OUTPUT"
             fi
+        - name: Build transaction-service image
+          id: transaction_service
+          if: steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
+          run: |
+            if docker manifest inspect ghcr.io/brewingbytes/brewget-transaction-service:${{ steps.get_version.outputs.transaction_version }}; then
+              echo "Tag already exists."
+              echo "build=false" >> "$GITHUB_OUTPUT"
+            else
+              docker build -t transaction-service transaction-service
+              docker tag transaction-service ghcr.io/brewingbytes/brewget-transaction-service:${{ steps.get_version.outputs.transaction_version }}
+              docker tag transaction-service ghcr.io/brewingbytes/brewget-transaction-service:latest
+              echo "build=true" >> "$GITHUB_OUTPUT"
+            fi
         - name: Push auth-service
           if: steps.auth_service.outputs.build == 'true'
           run: |
@@ -114,3 +131,8 @@ jobs:
           run: |
             docker push ghcr.io/brewingbytes/brewget-settings-service:${{ steps.get_version.outputs.settings_version }}
             docker push ghcr.io/brewingbytes/brewget-settings-service:latest
+        - name: Push transaction-service
+          if: steps.transaction_service.outputs.build == 'true'
+          run: |
+            docker push ghcr.io/brewingbytes/brewget-transaction-service:${{ steps.get_version.outputs.transaction_version }}
+            docker push ghcr.io/brewingbytes/brewget-transaction-service:latest

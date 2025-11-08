@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-service
+  namespace: brewget
+  labels:
+    app: transaction-service
+spec:
+  ports:
+    - port: 8003
+      targetPort: 8003
+      name: http
+  selector:
+    app: transaction-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-service
+  namespace: brewget
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-service
+  template:
+    metadata:
+      labels:
+        app: transaction-service
+    spec:
+      initContainers:
+      - name: wait-for-db
+        image: postgres:17-alpine
+        command:
+          - sh
+          - -c
+          - |
+            until pg_isready -h db -U $POSTGRES_USER; do
+              echo "Waiting for database..."
+              sleep 2
+            done
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: postgres-user
+      - name: wait-for-auth-service
+        image: busybox:1.37
+        command:
+          - sh
+          - -c
+          - |
+            until nc -z auth-service 9000; do
+              echo "Waiting for auth service..."
+              sleep 2
+            done
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      imagePullSecrets:
+      - name: ghcr-login-secret
+      containers:
+      - name: transaction-service
+        image: ghcr.io/brewingbytes/brewget-transaction-service:0.0.1
+        ports:
+        - containerPort: 8003
+          name: http
+        env:
+        - name: PG_URL
+          value: db
+        - name: PG_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: postgres-user
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: brewget-secrets
+              key: postgres-password
+        - name: TRANSACTION_PG_DATABASE
+          value: brewget_transactions
+        - name: CORS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: CORS_URL
+        - name: TRANSACTION_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: TRANSACTION_HTTP_PORT
+        - name: AUTH_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_HOSTNAME
+        - name: AUTH_GRPC_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: shared-config
+              key: AUTH_GRPC_PORT
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 10
+          periodSeconds: 5
