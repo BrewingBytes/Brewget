@@ -402,7 +402,7 @@ const formatCurrency = (amount: number, currency: string) => {
       }" pt:mask:class="backdrop-blur-xs! bg-transparent!">
       <p class="text-white/90">{{ t("wallets.confirm_delete") }}</p>
       <template #footer>
-        <Button :label="t('auth.cancel')" icon="pi pi-times" text @click="showDeleteDialog = false"
+        <Button :label="t('wallets.cancel')" icon="pi pi-times" text @click="showDeleteDialog = false"
           class="text-white! hover:bg-white/10!" />
         <Button :label="t('wallets.delete_wallet')" icon="pi pi-trash" severity="danger" @click="deleteWallet"
           :loading="walletStore.loading" class="bg-red-500/20! border-red-300! text-red-300! hover:bg-red-500/30!" />

@@ -171,6 +171,7 @@
     "category": "Category",
     "enter_category": "Enter category (optional)",
     "uncategorized": "Uncategorized",
-    "name_required": "Wallet name is required"
+    "name_required": "Wallet name is required",
+    "cancel": "Cancel"
   }
 }
