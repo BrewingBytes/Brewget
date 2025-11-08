@@ -19,6 +19,11 @@ const settingsHealthApi = axios.create({
   baseURL: import.meta.env.PROD ? "/api/settings" : "http://localhost:8002",
 });
 
+// Transaction service axios instance for health endpoint
+const transactionHealthApi = axios.create({
+  baseURL: import.meta.env.PROD ? "/api/transaction" : "http://localhost:8003",
+});
+
 export const versionService = {
   /**
    * Get version information from auth service
@@ -42,6 +47,19 @@ export const versionService = {
       return response.data.version;
     } catch (error) {
       console.error("Failed to fetch settings version:", error);
+      return "unknown";
+    }
+  },
+
+  /**
+   * Get version information from transaction service
+   */
+  async getTransactionVersion(): Promise<string> {
+    try {
+      const response = await transactionHealthApi.get<HealthResponse>("/health");
+      return response.data.version;
+    } catch (error) {
+      console.error("Failed to fetch transaction version:", error);
       return "unknown";
     }
   },

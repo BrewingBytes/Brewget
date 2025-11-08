@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { CreateWallet, UpdateWallet, Wallet } from "@/services/transaction/types";
 
+import { useToastStore } from "@/stores/toast";
 import { useWalletStore } from "@/stores/wallet";
 
 const { t } = useI18n();
@@ -15,21 +16,39 @@ const showDeleteDialog = ref(false);
 const selectedWallet = ref<Wallet | null>(null);
 
 const newWalletBalance = ref("");
-const editWalletBalance = ref("");
 
 const newWallet = ref<CreateWallet>({
   name: "",
   balance: 0,
   currency: "USD",
+  category: "",
 });
 
 const editWallet = ref<UpdateWallet>({
   name: "",
-  balance: 0,
   currency: "USD",
+  category: "",
 });
 
 const currencyOptions = ["USD", "EUR", "GBP", "CAD", "JPY", "RON"];
+
+// Group wallets by category
+const walletsByCategory = computed(() => {
+  const grouped = new Map<string, Wallet[]>();
+  
+  walletStore.wallets.forEach((wallet) => {
+    const category = wallet.category || t("wallets.uncategorized");
+    if (!grouped.has(category)) {
+      grouped.set(category, []);
+    }
+    grouped.get(category)!.push(wallet);
+  });
+  
+  return Array.from(grouped.entries()).map(([category, wallets]) => ({
+    category,
+    wallets,
+  }));
+});
 
 onMounted(async () => {
   await walletStore.loadWallets();
@@ -61,12 +80,19 @@ const openCreateDialog = () => {
     name: "",
     balance: 0,
     currency: "USD",
+    category: "",
   };
   newWalletBalance.value = "";
   showCreateDialog.value = true;
 };
 
 const createWallet = async () => {
+  // Validate name is required
+  if (!newWallet.value.name || newWallet.value.name.trim() === "") {
+    useToastStore().showError(t("wallets.name_required"));
+    return;
+  }
+
   // Parse balance from string, default to 0 if empty
   const balance = newWalletBalance.value ? parseFloat(newWalletBalance.value) : 0;
   newWallet.value.balance = balance;
@@ -81,18 +107,19 @@ const openEditDialog = (wallet: Wallet) => {
   selectedWallet.value = wallet;
   editWallet.value = {
     name: wallet.name,
-    balance: wallet.balance,
     currency: wallet.currency,
+    category: wallet.category || "",
   };
-  editWalletBalance.value = wallet.balance.toString();
   showEditDialog.value = true;
 };
 
 const updateWallet = async () => {
   if (selectedWallet.value) {
-    // Parse balance from string, default to 0 if empty
-    const balance = editWalletBalance.value ? parseFloat(editWalletBalance.value) : 0;
-    editWallet.value.balance = balance;
+    // Validate name is required
+    if (!editWallet.value.name || editWallet.value.name.trim() === "") {
+      useToastStore().showError(t("wallets.name_required"));
+      return;
+    }
     
     const success = await walletStore.updateWallet(selectedWallet.value.id, editWallet.value);
     if (success) {
@@ -153,33 +180,41 @@ const formatCurrency = (amount: number, currency: string) => {
               class="bg-white/10! border-white! text-white! hover:bg-white/20!" />
           </div>
 
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card v-for="wallet in walletStore.wallets" :key="wallet.id"
-              class="backdrop-blur-xl! bg-white/10! border! border-white/30! shadow-xl!">
-              <template #title>
-                <div class="flex justify-between items-center text-white">
-                  <div class="flex items-center gap-2">
-                    <i class="pi pi-wallet pr-2"></i>
-                    <span>{{ wallet.name }}</span>
-                  </div>
-                  <div class="flex gap-2">
-                    <Button icon="pi pi-pencil" text rounded @click="openEditDialog(wallet)"
-                      class="text-white! hover:bg-white/20!" />
-                    <Button icon="pi pi-trash" text rounded severity="danger" @click="openDeleteDialog(wallet)"
-                      class="text-red-300! hover:bg-red-500/20!" />
-                  </div>
-                </div>
-              </template>
-              <template #content>
-                <div class="space-y-3 text-white">
-                  <div>
-                    <p class="text-3xl font-bold">
-                      {{ formatCurrency(wallet.balance, wallet.currency) }}
-                    </p>
-                  </div>
-                </div>
-              </template>
-            </Card>
+          <div v-else class="space-y-6">
+            <div v-for="group in walletsByCategory" :key="group.category" class="space-y-3">
+              <h3 class="text-xl font-semibold text-white/90 flex items-center gap-2">
+                <i class="pi pi-folder"></i>
+                {{ group.category }}
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card v-for="wallet in group.wallets" :key="wallet.id"
+                  class="backdrop-blur-xl! bg-white/10! border! border-white/30! shadow-xl!">
+                  <template #title>
+                    <div class="flex justify-between items-center text-white">
+                      <div class="flex items-center gap-2">
+                        <i class="pi pi-wallet pr-2"></i>
+                        <span>{{ wallet.name }}</span>
+                      </div>
+                      <div class="flex gap-2">
+                        <Button icon="pi pi-pencil" text rounded @click="openEditDialog(wallet)"
+                          class="text-white! hover:bg-white/20!" />
+                        <Button icon="pi pi-trash" text rounded severity="danger" @click="openDeleteDialog(wallet)"
+                          class="text-red-300! hover:bg-red-500/20!" />
+                      </div>
+                    </div>
+                  </template>
+                  <template #content>
+                    <div class="space-y-3 text-white">
+                      <div>
+                        <p class="text-3xl font-bold">
+                          {{ formatCurrency(wallet.balance, wallet.currency) }}
+                        </p>
+                      </div>
+                    </div>
+                  </template>
+                </Card>
+              </div>
+            </div>
           </div>
         </template>
       </Card>
@@ -234,6 +269,12 @@ const formatCurrency = (amount: number, currency: string) => {
             </template>
           </Select>
         </div>
+        <div>
+          <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
+            }}</label>
+          <InputText v-model="newWallet.category" :placeholder="t('wallets.enter_category')"
+            class="w-full bg-transparent! border-white! text-white!" />
+        </div>
       </div>
       <template #footer>
         <Button :label="t('settings.save_settings')" icon="pi pi-check" @click="createWallet"
@@ -264,11 +305,6 @@ const formatCurrency = (amount: number, currency: string) => {
             class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.initial_balance") }}</label>
-          <InputText v-model="editWalletBalance" :placeholder="t('wallets.enter_balance')" @input="validateBalanceInput"
-            class="w-full bg-transparent! border-white! text-white!" />
-        </div>
-        <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
             }}</label>
           <Select v-model="editWallet.currency" :options="currencyOptions" class="w-full bg-transparent! border-white!"
@@ -287,6 +323,12 @@ const formatCurrency = (amount: number, currency: string) => {
               <i class="pi pi-chevron-down text-white" />
             </template>
           </Select>
+        </div>
+        <div>
+          <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
+            }}</label>
+          <InputText v-model="editWallet.category" :placeholder="t('wallets.enter_category')"
+            class="w-full bg-transparent! border-white! text-white!" />
         </div>
       </div>
       <template #footer>

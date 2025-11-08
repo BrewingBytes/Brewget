@@ -43,10 +43,11 @@ onMounted(async () => {
 async function loadVersions() {
   loading.value = true;
   try {
-    const [frontendVersion, authVersion, settingsVersion, emailVersion] = await Promise.all([
+    const [frontendVersion, authVersion, settingsVersion, transactionVersion, emailVersion] = await Promise.all([
       Promise.resolve(versionService.getFrontendVersion()),
       versionService.getAuthVersion(),
       versionService.getSettingsVersion(),
+      versionService.getTransactionVersion(),
       versionService.getEmailVersion(),
     ]);
 
@@ -58,6 +59,7 @@ async function loadVersions() {
       "Frontend": frontendVersion,
       "Auth Service": authVersion,
       "Settings Service": settingsVersion,
+      "Transaction Service": transactionVersion,
       "Email Service": emailVersion,
     };
 
