@@ -108,6 +108,18 @@ else
     echo "  ⚠️  brewget_settings.sql not found in backup directory"
 fi
 
+# Restore brewget_transactions database
+if [ -f "$BACKUP_DIR/brewget_transactions.sql" ]; then
+    echo "  📦 Restoring brewget_transactions..."
+    if kubectl exec -i postgres-0 -n brewget -- psql -U "$POSTGRES_USER" -d brewget_transactions < "$BACKUP_DIR/brewget_transactions.sql" > /dev/null 2>&1; then
+        echo "  ✅ brewget_transactions restored successfully"
+    else
+        echo "  ⚠️  Failed to restore brewget_transactions"
+    fi
+else
+    echo "  ⚠️  brewget_transactions.sql not found in backup directory"
+fi
+
 echo ""
 echo "✅ Restore complete!"
 

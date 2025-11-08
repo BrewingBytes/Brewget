@@ -57,6 +57,10 @@ echo "⚙️  Restarting settings service..."
 kubectl apply -f "$SCRIPT_DIR/07-settings-service.yaml"
 restart_deployment settings-service
 
+echo "💳 Restarting transaction service..."
+kubectl apply -f "$SCRIPT_DIR/07.5-transaction-service.yaml"
+restart_deployment transaction-service
+
 echo "🎨 Restarting frontend..."
 kubectl apply -f "$SCRIPT_DIR/08-frontend.yaml"
 restart_deployment frontend
@@ -72,6 +76,7 @@ echo "⏳ Waiting for rollouts to complete..."
 kubectl rollout status deployment/email-service -n brewget --timeout=300s
 kubectl rollout status deployment/auth-service -n brewget --timeout=300s
 kubectl rollout status deployment/settings-service -n brewget --timeout=300s
+kubectl rollout status deployment/transaction-service -n brewget --timeout=300s
 kubectl rollout status deployment/frontend -n brewget --timeout=300s
 kubectl rollout status deployment/nginx -n brewget --timeout=300s
 

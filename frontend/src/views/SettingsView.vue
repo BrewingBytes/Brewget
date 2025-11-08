@@ -8,12 +8,11 @@ import AuthAuditModal from "@/components/AuthAuditModal.vue";
 import ChangelogModal from "@/components/changelog/ChangelogModal.vue";
 import GlassButton from "@/components/glass/GlassButton.vue";
 import GlassCard from "@/components/glass/GlassCard.vue";
+import AddPasskeyDialog from "@/components/settings/AddPasskeyDialog.vue";
 import AlarmSettings from "@/components/settings/AlarmSettings.vue";
 import CurrencySelector from "@/components/settings/CurrencySelector.vue";
 import LanguageSelector from "@/components/settings/LanguageSelector.vue";
 import NightModeToggle from "@/components/settings/NightModeToggle.vue";
-import PasskeyManagement from "@/components/settings/PasskeyManagement.vue";
-import AddPasskeyDialog from "@/components/settings/AddPasskeyDialog.vue";
 import { SUPPORTED_LOCALES } from "@/i18n";
 import { authService } from "@/services/auth";
 import { versionService } from "@/services/version";
@@ -152,14 +151,14 @@ async function checkUserPasskey() {
                 <i class="pi pi-key mr-2"></i> {{ t("settings.passkey") }}
               </label>
             </div>
-            <GlassButton v-if="hasPasskey" @click="() => {}" :label="t('settings.remove_passkey')" icon="pi pi-trash"
+            <GlassButton v-if="hasPasskey" @click="() => { }" :label="t('settings.remove_passkey')" icon="pi pi-trash"
               :loading="loadingPasskey" />
             <GlassButton v-else @click="showAddPasskeyDialog = true" :label="t('settings.add_passkey')"
               icon="pi pi-plus" :loading="loadingPasskey" />
           </div>
 
           <!-- AddPasskey Dialog -->
-          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="loadingPasskey" @add="() => {}" />
+          <AddPasskeyDialog v-model:visible="showAddPasskeyDialog" :loading="loadingPasskey" @add="() => { }" />
 
           <!-- Auth Audit Button -->
           <div class="flex items-center justify-between">
