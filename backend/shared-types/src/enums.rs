@@ -274,3 +274,122 @@ mod tests {
         assert_eq!(default, WalletType::Account);
     }
 }
+
+/// Supported transaction types in the application
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TransactionType {
+    /// Income transaction
+    Income,
+    /// Expense transaction
+    Expense,
+    /// Transfer between wallets
+    Transfer,
+}
+
+impl TransactionType {
+    /// Returns the transaction type as a string
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TransactionType::Income => "Income",
+            TransactionType::Expense => "Expense",
+            TransactionType::Transfer => "Transfer",
+        }
+    }
+
+    /// Returns all supported transaction types
+    pub fn all() -> &'static [TransactionType] {
+        &[
+            TransactionType::Income,
+            TransactionType::Expense,
+            TransactionType::Transfer,
+        ]
+    }
+}
+
+impl std::fmt::Display for TransactionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+/// Supported transaction categories in the application
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TransactionCategory {
+    // Income categories
+    /// Salary income
+    Salary,
+    /// Freelance income
+    Freelance,
+    /// Investment returns
+    Investment,
+    /// Gift received
+    Gift,
+    
+    // Expense categories
+    /// Food and dining
+    Food,
+    /// Transportation
+    Transport,
+    /// Housing and utilities
+    Housing,
+    /// Entertainment
+    Entertainment,
+    /// Healthcare
+    Healthcare,
+    /// Shopping
+    Shopping,
+    /// Education
+    Education,
+    
+    // Other
+    /// Transfer between accounts
+    Transfer,
+    /// Other uncategorized
+    Other,
+}
+
+impl TransactionCategory {
+    /// Returns the transaction category as a string
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TransactionCategory::Salary => "Salary",
+            TransactionCategory::Freelance => "Freelance",
+            TransactionCategory::Investment => "Investment",
+            TransactionCategory::Gift => "Gift",
+            TransactionCategory::Food => "Food",
+            TransactionCategory::Transport => "Transport",
+            TransactionCategory::Housing => "Housing",
+            TransactionCategory::Entertainment => "Entertainment",
+            TransactionCategory::Healthcare => "Healthcare",
+            TransactionCategory::Shopping => "Shopping",
+            TransactionCategory::Education => "Education",
+            TransactionCategory::Transfer => "Transfer",
+            TransactionCategory::Other => "Other",
+        }
+    }
+
+    /// Returns all supported transaction categories
+    pub fn all() -> &'static [TransactionCategory] {
+        &[
+            TransactionCategory::Salary,
+            TransactionCategory::Freelance,
+            TransactionCategory::Investment,
+            TransactionCategory::Gift,
+            TransactionCategory::Food,
+            TransactionCategory::Transport,
+            TransactionCategory::Housing,
+            TransactionCategory::Entertainment,
+            TransactionCategory::Healthcare,
+            TransactionCategory::Shopping,
+            TransactionCategory::Education,
+            TransactionCategory::Transfer,
+            TransactionCategory::Other,
+        ]
+    }
+}
+
+impl std::fmt::Display for TransactionCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
