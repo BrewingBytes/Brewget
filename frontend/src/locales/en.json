@@ -168,11 +168,16 @@
     "enter_wallet_name": "Enter wallet name",
     "enter_balance": "Enter initial balance (optional)",
     "initial_balance": "Initial balance",
-    "category": "Category",
-    "enter_category": "Enter category (optional)",
-    "uncategorized": "Uncategorized",
     "name_required": "Wallet name is required",
     "cancel": "Cancel",
+    "wallet_type": "Wallet Type",
+    "types": {
+      "account": "Account",
+      "savings": "Savings",
+      "deposit": "Deposit",
+      "credit_card": "Credit Card",
+      "loan": "Loan"
+    },
     "wallet_type": "Wallet Type"
   }
 }

@@ -108,9 +108,10 @@ impl std::fmt::Display for Language {
 }
 
 /// Supported wallet types in the application
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum WalletType {
     /// Regular account wallet
+    #[default]
     Account,
     /// Savings account
     Savings,
@@ -149,12 +150,6 @@ impl WalletType {
 impl std::fmt::Display for WalletType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_str())
-    }
-}
-
-impl Default for WalletType {
-    fn default() -> Self {
-        WalletType::Account
     }
 }
 

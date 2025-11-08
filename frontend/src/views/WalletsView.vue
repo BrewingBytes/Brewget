@@ -15,51 +15,57 @@ const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
 const selectedWallet = ref<Wallet | null>(null);
 
-const newWalletBalance = ref("");
+const newWalletBalance = ref("0");
 
 const newWallet = ref<CreateWallet>({
   name: "",
   balance: 0,
   currency: "USD",
-  category: "",
   wallet_type: "Account",
 });
 
 const editWallet = ref<UpdateWallet>({
   name: "",
   currency: "USD",
-  category: "",
   wallet_type: "Account",
 });
 
 const currencyOptions = ["USD", "EUR", "GBP", "CAD", "JPY", "RON"];
 const walletTypeOptions = ["Account", "Savings", "Deposit", "CreditCard", "Loan"];
 
-// Get unique categories from existing wallets
-const existingCategories = computed(() => {
-  const categories = new Set<string>();
-  walletStore.wallets.forEach((wallet) => {
-    if (wallet.category && wallet.category.trim() !== "") {
-      categories.add(wallet.category);
-    }
-  });
-  return Array.from(categories).sort();
-});
+// Helper to get wallet type display name
+const getWalletTypeLabel = (walletType: string) => {
+  const labels: Record<string, string> = {
+    Account: t("wallets.types.account"),
+    Savings: t("wallets.types.savings"),
+    Deposit: t("wallets.types.deposit"),
+    CreditCard: t("wallets.types.credit_card"),
+    Loan: t("wallets.types.loan"),
+  };
+  return labels[walletType] || walletType;
+};
 
-// Group wallets by category
-const walletsByCategory = computed(() => {
+// Group wallets by wallet type
+const walletsByType = computed(() => {
   const grouped = new Map<string, Wallet[]>();
-  
+
   walletStore.wallets.forEach((wallet) => {
-    const category = wallet.category || t("wallets.uncategorized");
-    if (!grouped.has(category)) {
-      grouped.set(category, []);
+    const walletType = wallet.wallet_type || "Account";
+    if (!grouped.has(walletType)) {
+      grouped.set(walletType, []);
     }
-    grouped.get(category)!.push(wallet);
+    grouped.get(walletType)!.push(wallet);
   });
-  
-  return Array.from(grouped.entries()).map(([category, wallets]) => ({
-    category,
+
+  // Sort by wallet type order
+  const typeOrder = ["Account", "Savings", "Deposit", "CreditCard", "Loan"];
+  const sortedEntries = Array.from(grouped.entries()).sort(
+    ([a], [b]) => typeOrder.indexOf(a) - typeOrder.indexOf(b),
+  );
+
+  return sortedEntries.map(([walletType, wallets]) => ({
+    walletType,
+    label: getWalletTypeLabel(walletType),
     wallets,
   }));
 });
@@ -91,12 +97,12 @@ const validateBalanceInput = (event: Event) => {
 
 const openCreateDialog = () => {
   newWallet.value = {
-    name: "",
+    name: "Account",
     balance: 0,
     currency: "USD",
-    category: "",
+    wallet_type: "Account",
   };
-  newWalletBalance.value = "";
+  newWalletBalance.value = "0";
   showCreateDialog.value = true;
 };
 
@@ -110,7 +116,7 @@ const createWallet = async () => {
   // Parse balance from string, default to 0 if empty
   const balance = newWalletBalance.value ? parseFloat(newWalletBalance.value) : 0;
   newWallet.value.balance = balance;
-  
+
   const success = await walletStore.createWallet(newWallet.value);
   if (success) {
     showCreateDialog.value = false;
@@ -122,7 +128,6 @@ const openEditDialog = (wallet: Wallet) => {
   editWallet.value = {
     name: wallet.name,
     currency: wallet.currency,
-    category: wallet.category || "",
     wallet_type: wallet.wallet_type || "Account",
   };
   showEditDialog.value = true;
@@ -135,7 +140,7 @@ const updateWallet = async () => {
       useToastStore().showError(t("wallets.name_required"));
       return;
     }
-    
+
     const success = await walletStore.updateWallet(selectedWallet.value.id, editWallet.value);
     if (success) {
       showEditDialog.value = false;
@@ -196,10 +201,10 @@ const formatCurrency = (amount: number, currency: string) => {
           </div>
 
           <div v-else class="space-y-6">
-            <div v-for="group in walletsByCategory" :key="group.category" class="space-y-3">
+            <div v-for="group in walletsByType" :key="group.walletType" class="space-y-3">
               <h3 class="text-xl font-semibold text-white/90 flex items-center gap-2">
-                <i class="pi pi-folder"></i>
-                {{ group.category }}
+                <i class="pi pi-wallet"></i>
+                {{ group.label }}
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Card v-for="wallet in group.wallets" :key="wallet.id"
@@ -254,19 +259,18 @@ const formatCurrency = (amount: number, currency: string) => {
       <div class="space-y-4">
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-tag mr-2"></i>{{ t("wallets.wallet_name")
-            }}</label>
-          <InputText v-model="newWallet.name" :placeholder="t('wallets.enter_wallet_name')"
-            class="w-full bg-transparent! border-white! text-white!" />
+          }}</label>
+          <InputText v-model="newWallet.name" class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-dollar mr-2"></i>{{ t("wallets.initial_balance")
-            }}</label>
-          <InputText v-model="newWalletBalance" :placeholder="t('wallets.enter_balance')" @input="validateBalanceInput"
+          }}</label>
+          <InputText v-model="newWalletBalance" @input="validateBalanceInput"
             class="w-full bg-transparent! border-white! text-white!" />
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
-            }}</label>
+          }}</label>
           <Select v-model="newWallet.currency" :options="currencyOptions" class="w-full bg-transparent! border-white!"
             :pt="{
               label: {
@@ -285,34 +289,10 @@ const formatCurrency = (amount: number, currency: string) => {
           </Select>
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
-            }}</label>
-          <Select v-model="newWallet.category" :options="existingCategories" :editable="true" 
-            :placeholder="t('wallets.enter_category')" class="w-full bg-transparent! border-white!"
-            :pt="{
-              label: {
-                class: 'text-white/90!',
-              },
-              overlay: {
-                class: 'bg-transparent! border-white! backdrop-blur-xs!',
-              },
-              option: {
-                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
-              },
-              input: {
-                class: 'bg-transparent! text-white!',
-              },
-            }">
-            <template #dropdownicon>
-              <i class="pi pi-chevron-down text-white" />
-            </template>
-          </Select>
-        </div>
-        <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-wallet mr-2"></i>{{ t("wallets.wallet_type")
-            }}</label>
-          <Select v-model="newWallet.wallet_type" :options="walletTypeOptions" class="w-full bg-transparent! border-white!"
-            :pt="{
+          }}</label>
+          <Select v-model="newWallet.wallet_type" :options="walletTypeOptions"
+            class="w-full bg-transparent! border-white!" :pt="{
               label: {
                 class: 'text-white/90!',
               },
@@ -359,7 +339,7 @@ const formatCurrency = (amount: number, currency: string) => {
         </div>
         <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-money-bill mr-2"></i>{{ t("wallets.currency")
-            }}</label>
+          }}</label>
           <Select v-model="editWallet.currency" :options="currencyOptions" class="w-full bg-transparent! border-white!"
             :pt="{
               label: {
@@ -378,34 +358,10 @@ const formatCurrency = (amount: number, currency: string) => {
           </Select>
         </div>
         <div>
-          <label class="block mb-2 text-white/90"><i class="pi pi-folder mr-2"></i>{{ t("wallets.category")
-            }}</label>
-          <Select v-model="editWallet.category" :options="existingCategories" :editable="true"
-            :placeholder="t('wallets.enter_category')" class="w-full bg-transparent! border-white!"
-            :pt="{
-              label: {
-                class: 'text-white/90!',
-              },
-              overlay: {
-                class: 'bg-transparent! border-white! backdrop-blur-xs!',
-              },
-              option: {
-                class: 'text-white/90! bg-transparent! hover:bg-white/10!',
-              },
-              input: {
-                class: 'bg-transparent! text-white!',
-              },
-            }">
-            <template #dropdownicon>
-              <i class="pi pi-chevron-down text-white" />
-            </template>
-          </Select>
-        </div>
-        <div>
           <label class="block mb-2 text-white/90"><i class="pi pi-wallet mr-2"></i>{{ t("wallets.wallet_type")
-            }}</label>
-          <Select v-model="editWallet.wallet_type" :options="walletTypeOptions" class="w-full bg-transparent! border-white!"
-            :pt="{
+          }}</label>
+          <Select v-model="editWallet.wallet_type" :options="walletTypeOptions"
+            class="w-full bg-transparent! border-white!" :pt="{
               label: {
                 class: 'text-white/90!',
               },

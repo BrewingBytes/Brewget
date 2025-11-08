@@ -14,9 +14,8 @@ use uuid::Uuid;
 /// * `user_id` - Unique identifier of the user who owns this wallet
 /// * `name` - Name of the wallet (e.g., "Savings", "Checking")
 /// * `balance` - Current balance of the wallet
-/// * `currency` - Currency code for the wallet (e.g., "USD", "EUR", "GBP")
-/// * `category` - Optional category for grouping wallets (e.g., "Personal", "Business")
-/// * `wallet_type` - Type of wallet (Account, Savings, Deposit, CreditCard, Loan)
+/// * `currency` - Currency code for the wallet matching shared-types Currency enum (USD, EUR, GBP, CAD, JPY, RON)
+/// * `wallet_type` - Type of wallet matching shared-types WalletType enum (Account, Savings, Deposit, CreditCard, Loan)
 /// * `created_at` - Timestamp when the wallet was created
 /// * `updated_at` - Timestamp when the wallet was last updated
 #[derive(FromRow, Clone, Serialize)]
@@ -26,7 +25,6 @@ pub struct Wallet {
     pub name: String,
     pub balance: rust_decimal::Decimal,
     pub currency: String,
-    pub category: Option<String>,
     pub wallet_type: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -40,16 +38,14 @@ pub struct Wallet {
 ///
 /// * `name` - Name of the wallet
 /// * `balance` - Optional initial balance (defaults to 0.00)
-/// * `currency` - Currency code for the wallet
-/// * `category` - Optional category for grouping wallets
-/// * `wallet_type` - Type of wallet (defaults to Account)
+/// * `currency` - Currency code for the wallet matching shared-types Currency enum
+/// * `wallet_type` - Type of wallet matching shared-types WalletType enum (defaults to Account)
 #[derive(Deserialize)]
 pub struct CreateWallet {
     pub name: String,
     #[serde(default)]
     pub balance: Option<rust_decimal::Decimal>,
     pub currency: String,
-    pub category: Option<String>,
     #[serde(default = "default_wallet_type")]
     pub wallet_type: String,
 }
@@ -66,14 +62,12 @@ fn default_wallet_type() -> String {
 /// # Fields
 ///
 /// * `name` - Optional new name for the wallet
-/// * `currency` - Optional new currency code
-/// * `category` - Optional new category
-/// * `wallet_type` - Optional new wallet type
+/// * `currency` - Optional new currency code matching shared-types Currency enum
+/// * `wallet_type` - Optional new wallet type matching shared-types WalletType enum
 #[derive(Deserialize)]
 pub struct UpdateWallet {
     pub name: Option<String>,
     pub currency: Option<String>,
-    pub category: Option<String>,
     pub wallet_type: Option<String>,
 }
 
@@ -96,6 +90,7 @@ mod tests {
             name: "Main Wallet".to_string(),
             balance: Decimal::from_str("1000.50").unwrap(),
             currency: "USD".to_string(),
+            wallet_type: "Account".to_string(),
             created_at: now,
             updated_at: now,
         };
@@ -141,8 +136,8 @@ mod tests {
 
         let update: UpdateWallet = serde_json::from_str(json).unwrap();
         assert_eq!(update.name, Some("Updated Name".to_string()));
-        assert_eq!(update.balance, None);
         assert_eq!(update.currency, None);
+        assert_eq!(update.wallet_type, None);
     }
 
     #[test]
@@ -157,6 +152,7 @@ mod tests {
             name: "Test Wallet".to_string(),
             balance: Decimal::from_str("750.25").unwrap(),
             currency: "CAD".to_string(),
+            wallet_type: "Account".to_string(),
             created_at: now,
             updated_at: now,
         };

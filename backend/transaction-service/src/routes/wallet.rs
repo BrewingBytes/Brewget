@@ -148,10 +148,10 @@ async fn update_wallet(
         user_id
     );
     tracing::debug!(
-        "Update payload: name={:?}, currency={:?}, category={:?}",
+        "Update payload: name={:?}, currency={:?}, wallet_type={:?}",
         update_wallet.name,
         update_wallet.currency,
-        update_wallet.category
+        update_wallet.wallet_type
     );
 
     let pool = state.get_database_pool();

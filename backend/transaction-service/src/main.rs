@@ -35,9 +35,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Bind TCP listener to the configured port
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.transaction_http_port))
-        .await
-        .expect("Could not bind TcpListener.");
+    let listener =
+        tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.transaction_http_port))
+            .await
+            .expect("Could not bind TcpListener.");
     tracing::info!(
         "✅ HTTP listener bound to port {}",
         config.transaction_http_port

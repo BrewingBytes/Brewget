@@ -20,10 +20,10 @@ use crate::models::{
 pub async fn find_all_by_user(user_id: Uuid, pool: &PgPool) -> Result<Vec<Wallet>, Error> {
     let wallets = sqlx::query_as::<_, Wallet>(
         r#"
-        SELECT id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
+        SELECT id, user_id, name, balance, currency, wallet_type, created_at, updated_at
         FROM wallets
         WHERE user_id = $1
-        ORDER BY category NULLS LAST, created_at DESC
+        ORDER BY wallet_type, created_at DESC
         "#,
     )
     .bind(user_id)
@@ -45,14 +45,11 @@ pub async fn find_all_by_user(user_id: Uuid, pool: &PgPool) -> Result<Vec<Wallet
 ///
 /// * `Ok(Wallet)` - The wallet
 /// * `Err(Error)` - Database operation error or wallet not found
-pub async fn find_by_id(
-    wallet_id: Uuid,
-    user_id: Uuid,
-    pool: &PgPool,
-) -> Result<Wallet, Error> {
+#[allow(dead_code)]
+pub async fn find_by_id(wallet_id: Uuid, user_id: Uuid, pool: &PgPool) -> Result<Wallet, Error> {
     let wallet = sqlx::query_as::<_, Wallet>(
         r#"
-        SELECT id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
+        SELECT id, user_id, name, balance, currency, wallet_type, created_at, updated_at
         FROM wallets
         WHERE id = $1 AND user_id = $2
         "#,
@@ -83,19 +80,18 @@ pub async fn create(
     pool: &PgPool,
 ) -> Result<Wallet, Error> {
     let balance = create_wallet.balance.unwrap_or_default();
-    
+
     let wallet = sqlx::query_as::<_, Wallet>(
         r#"
-        INSERT INTO wallets (user_id, name, balance, currency, category, wallet_type)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
+        INSERT INTO wallets (user_id, name, balance, currency, wallet_type)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, user_id, name, balance, currency, wallet_type, created_at, updated_at
         "#,
     )
     .bind(user_id)
     .bind(create_wallet.name)
     .bind(balance)
     .bind(create_wallet.currency)
-    .bind(create_wallet.category)
     .bind(create_wallet.wallet_type)
     .fetch_one(pool)
     .await?;
@@ -128,16 +124,14 @@ pub async fn update(
         SET 
             name = COALESCE($1, name),
             currency = COALESCE($2, currency),
-            category = COALESCE($3, category),
-            wallet_type = COALESCE($4, wallet_type),
+            wallet_type = COALESCE($3, wallet_type),
             updated_at = NOW()
-        WHERE id = $5 AND user_id = $6
-        RETURNING id, user_id, name, balance, currency, category, wallet_type, created_at, updated_at
+        WHERE id = $4 AND user_id = $5
+        RETURNING id, user_id, name, balance, currency, wallet_type, created_at, updated_at
         "#,
     )
     .bind(update_wallet.name)
     .bind(update_wallet.currency)
-    .bind(update_wallet.category)
     .bind(update_wallet.wallet_type)
     .bind(wallet_id)
     .bind(user_id)
