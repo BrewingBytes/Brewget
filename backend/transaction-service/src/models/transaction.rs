@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use shared_types::enums::{TransactionCategory, TransactionType};
+use shared_types::enums::TransactionType;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -46,7 +46,7 @@ pub struct Transaction {
 /// * `wallet_id` - ID of the wallet this transaction belongs to
 /// * `amount` - Transaction amount
 /// * `transaction_type` - Type of transaction (enum type-safe)
-/// * `category` - Category of the transaction (enum type-safe)
+/// * `category` - Category of the transaction (can be predefined or custom string)
 /// * `description` - Optional description
 /// * `transaction_date` - Optional date (defaults to now)
 /// * `destination_wallet_id` - For transfers, the destination wallet ID
@@ -55,7 +55,7 @@ pub struct CreateTransaction {
     pub wallet_id: Uuid,
     pub amount: rust_decimal::Decimal,
     pub transaction_type: TransactionType,
-    pub category: TransactionCategory,
+    pub category: String,
     pub description: Option<String>,
     pub transaction_date: Option<NaiveDateTime>,
     pub destination_wallet_id: Option<Uuid>,
@@ -69,13 +69,13 @@ pub struct CreateTransaction {
 /// # Fields
 ///
 /// * `amount` - Optional new amount
-/// * `category` - Optional new category (enum type-safe)
+/// * `category` - Optional new category (can be predefined or custom string)
 /// * `description` - Optional new description
 /// * `transaction_date` - Optional new transaction date
 #[derive(Deserialize)]
 pub struct UpdateTransaction {
     pub amount: Option<rust_decimal::Decimal>,
-    pub category: Option<TransactionCategory>,
+    pub category: Option<String>,
     pub description: Option<String>,
     pub transaction_date: Option<NaiveDateTime>,
 }
@@ -98,7 +98,7 @@ mod tests {
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
         assert_eq!(create_transaction.amount.to_string(), "100.5");
         assert_eq!(create_transaction.transaction_type, TransactionType::Income);
-        assert_eq!(create_transaction.category, TransactionCategory::Salary);
+        assert_eq!(create_transaction.category, "Salary");
         assert_eq!(
             create_transaction.description,
             Some("Monthly salary".to_string())
@@ -116,7 +116,7 @@ mod tests {
 
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
         assert_eq!(create_transaction.transaction_type, TransactionType::Expense);
-        assert_eq!(create_transaction.category, TransactionCategory::Food);
+        assert_eq!(create_transaction.category, "Food");
         assert_eq!(create_transaction.description, None);
     }
 
@@ -133,6 +133,21 @@ mod tests {
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
         assert_eq!(create_transaction.transaction_type, TransactionType::Transfer);
         assert!(create_transaction.destination_wallet_id.is_some());
+    }
+
+    #[test]
+    fn test_create_transaction_deserialization_custom_category() {
+        let json = r#"{
+            "wallet_id": "550e8400-e29b-41d4-a716-446655440000",
+            "amount": 25.00,
+            "transaction_type": "Expense",
+            "category": "Custom Category Name"
+        }"#;
+
+        let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
+        assert_eq!(create_transaction.transaction_type, TransactionType::Expense);
+        assert_eq!(create_transaction.category, "Custom Category Name");
+        assert_eq!(create_transaction.description, None);
     }
 
     #[test]

@@ -172,7 +172,7 @@ pub async fn create(
     .bind(create_transaction.wallet_id)
     .bind(create_transaction.amount)
     .bind(create_transaction.transaction_type.as_str())
-    .bind(create_transaction.category.as_str())
+    .bind(create_transaction.category)
     .bind(create_transaction.description)
     .bind(transaction_date)
     .bind(create_transaction.destination_wallet_id)
@@ -289,7 +289,7 @@ pub async fn update(
         "#,
     )
     .bind(update_transaction.amount)
-    .bind(update_transaction.category.map(|c| c.as_str()))
+    .bind(update_transaction.category)
     .bind(update_transaction.description)
     .bind(update_transaction.transaction_date)
     .bind(transaction_id)

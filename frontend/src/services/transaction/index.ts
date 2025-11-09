@@ -1,5 +1,8 @@
 import type {
+  CreateTransaction,
   CreateWallet,
+  Transaction,
+  UpdateTransaction,
   UpdateWallet,
   Wallet,
 } from "./types";
@@ -62,9 +65,96 @@ async function deleteWallet(id: string): Promise<ServerResponse<void>> {
   }
 }
 
+async function getTransactions(): Promise<ServerResponse<Transaction[]>> {
+  try {
+    return await transactionApi.get("/transaction", {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function getWalletTransactions(
+  walletId: string,
+): Promise<ServerResponse<Transaction[]>> {
+  try {
+    return await transactionApi.get(`/transaction/wallet/${walletId}`, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function getTransaction(
+  id: string,
+): Promise<ServerResponse<Transaction>> {
+  try {
+    return await transactionApi.get(`/transaction/${id}`, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function createTransaction(
+  transaction: CreateTransaction,
+): Promise<ServerResponse<Transaction>> {
+  try {
+    return await transactionApi.post("/transaction", transaction, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function updateTransaction(
+  id: string,
+  transaction: UpdateTransaction,
+): Promise<ServerResponse<Transaction>> {
+  try {
+    return await transactionApi.put(`/transaction/${id}`, transaction, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
+async function deleteTransaction(id: string): Promise<ServerResponse<void>> {
+  try {
+    return await transactionApi.delete(`/transaction/${id}`, {
+      headers: {
+        Authorization: useAuthStore().bearerToken,
+      },
+    });
+  } catch (error) {
+    return (error as AxiosError).response as ErrorResponse;
+  }
+}
+
 export const transactionService = {
   getWallets,
   createWallet,
   updateWallet,
   deleteWallet,
+  getTransactions,
+  getWalletTransactions,
+  getTransaction,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
 };

@@ -2,6 +2,17 @@
 
 All notable changes to the Frontend will be documented in this file.
 
+## [Unreleased]
+### Added
+- Add complete transactions feature UI with glass design pattern
+- Add TransactionCard component to display individual transactions
+- Add TransactionCreateDialog for creating new transactions
+- Add TransactionEditDialog for editing existing transactions  
+- Add TransactionDeleteDialog for transaction deletion confirmation
+- Add TransactionsView with date-grouped transaction list
+- Add /transactions route in router
+- Update /add route to use TransactionsView
+
 ## [0.0.16] - 2025-11-08
 ### Added
 - Add wallets feature
