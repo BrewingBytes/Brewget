@@ -167,7 +167,14 @@ const handleCreate = () => {
 
   newTransaction.value.amount = amount;
   newTransaction.value.category = finalCategory;
-  newTransaction.value.transaction_date = transactionDate.value.toISOString();
+  // Format date as "YYYY-MM-DD HH:MM:SS" for backend NaiveDateTime
+  const year = transactionDate.value.getFullYear();
+  const month = String(transactionDate.value.getMonth() + 1).padStart(2, '0');
+  const day = String(transactionDate.value.getDate()).padStart(2, '0');
+  const hours = String(transactionDate.value.getHours()).padStart(2, '0');
+  const minutes = String(transactionDate.value.getMinutes()).padStart(2, '0');
+  const seconds = String(transactionDate.value.getSeconds()).padStart(2, '0');
+  newTransaction.value.transaction_date = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   emit("create", { ...newTransaction.value });
 };
 

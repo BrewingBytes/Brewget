@@ -137,7 +137,14 @@ const handleUpdate = () => {
 
   editTransaction.value.amount = amount;
   editTransaction.value.category = finalCategory;
-  editTransaction.value.transaction_date = editTransactionDate.value.toISOString();
+  // Format date as "YYYY-MM-DD HH:MM:SS" for backend NaiveDateTime
+  const year = editTransactionDate.value.getFullYear();
+  const month = String(editTransactionDate.value.getMonth() + 1).padStart(2, '0');
+  const day = String(editTransactionDate.value.getDate()).padStart(2, '0');
+  const hours = String(editTransactionDate.value.getHours()).padStart(2, '0');
+  const minutes = String(editTransactionDate.value.getMinutes()).padStart(2, '0');
+  const seconds = String(editTransactionDate.value.getSeconds()).padStart(2, '0');
+  editTransaction.value.transaction_date = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   emit("update", props.transaction.id, { ...editTransaction.value });
 };
 </script>
