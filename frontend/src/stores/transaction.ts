@@ -121,6 +121,6 @@ export const useTransactionStore = defineStore("transaction", () => {
     loadWalletTransactions,
     createTransaction, 
     updateTransaction, 
-    deleteTransaction 
+    deleteTransaction, 
   };
 });

@@ -455,6 +455,9 @@ mod tests {
     fn test_transaction_category_display() {
         assert_eq!(TransactionCategory::Food.to_string(), "Food");
         assert_eq!(TransactionCategory::Salary.to_string(), "Salary");
-        assert_eq!(TransactionCategory::Entertainment.to_string(), "Entertainment");
+        assert_eq!(
+            TransactionCategory::Entertainment.to_string(),
+            "Entertainment"
+        );
     }
 }

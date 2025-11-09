@@ -140,7 +140,7 @@ const resetForm = () => {
 
 const handleCreate = () => {
   if (!newTransaction.value.wallet_id) {
-    useToastStore().showError(t("transactions.wallet") + " is required");
+    useToastStore().showError(`${t("transactions.wallet")  } is required`);
     return;
   }
 
@@ -151,7 +151,7 @@ const handleCreate = () => {
   }
 
   if (newTransaction.value.transaction_type === "Transfer" && !newTransaction.value.destination_wallet_id) {
-    useToastStore().showError(t("transactions.destination_wallet") + " is required");
+    useToastStore().showError(`${t("transactions.destination_wallet")  } is required`);
     return;
   }
 
@@ -161,7 +161,7 @@ const handleCreate = () => {
     : newTransaction.value.category;
 
   if (!finalCategory || (isCustomCategory.value && !customCategory.value)) {
-    useToastStore().showError(t("transactions.category") + " is required");
+    useToastStore().showError(`${t("transactions.category")  } is required`);
     return;
   }
 

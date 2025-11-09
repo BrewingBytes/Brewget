@@ -115,7 +115,10 @@ mod tests {
         }"#;
 
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
-        assert_eq!(create_transaction.transaction_type, TransactionType::Expense);
+        assert_eq!(
+            create_transaction.transaction_type,
+            TransactionType::Expense
+        );
         assert_eq!(create_transaction.category, "Food");
         assert_eq!(create_transaction.description, None);
     }
@@ -131,7 +134,10 @@ mod tests {
         }"#;
 
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
-        assert_eq!(create_transaction.transaction_type, TransactionType::Transfer);
+        assert_eq!(
+            create_transaction.transaction_type,
+            TransactionType::Transfer
+        );
         assert!(create_transaction.destination_wallet_id.is_some());
     }
 
@@ -145,7 +151,10 @@ mod tests {
         }"#;
 
         let create_transaction: CreateTransaction = serde_json::from_str(json).unwrap();
-        assert_eq!(create_transaction.transaction_type, TransactionType::Expense);
+        assert_eq!(
+            create_transaction.transaction_type,
+            TransactionType::Expense
+        );
         assert_eq!(create_transaction.category, "Custom Category Name");
         assert_eq!(create_transaction.description, None);
     }
@@ -160,10 +169,7 @@ mod tests {
         let update: UpdateTransaction = serde_json::from_str(json).unwrap();
         assert!(update.amount.is_some());
         assert_eq!(update.amount.unwrap().to_string(), "75.5");
-        assert_eq!(
-            update.description,
-            Some("Updated description".to_string())
-        );
+        assert_eq!(update.description, Some("Updated description".to_string()));
         assert_eq!(update.category, None);
     }
 }

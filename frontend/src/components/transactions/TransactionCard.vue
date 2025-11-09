@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import type { Transaction } from "@/services/transaction/types";
-import { useWalletStore } from "@/stores/wallet";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+
+import type { Transaction } from "@/services/transaction/types";
+
+import { useWalletStore } from "@/stores/wallet";
 
 interface Props {
   transaction: Transaction;

@@ -69,7 +69,10 @@ async fn get_all_transactions(
     Extension(user_id): Extension<Uuid>,
     State(state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, Error> {
-    tracing::info!("GET /transaction - Fetching all transactions for user {}", user_id);
+    tracing::info!(
+        "GET /transaction - Fetching all transactions for user {}",
+        user_id
+    );
 
     let pool = state.get_database_pool();
 
@@ -191,7 +194,10 @@ async fn create_transaction(
     State(state): State<Arc<AppState>>,
     Json(create_transaction): Json<CreateTransaction>,
 ) -> Result<impl IntoResponse, Error> {
-    tracing::info!("POST /transaction - Creating transaction for user {}", user_id);
+    tracing::info!(
+        "POST /transaction - Creating transaction for user {}",
+        user_id
+    );
     tracing::debug!(
         "Create payload: wallet_id={}, amount={}, type={}",
         create_transaction.wallet_id,
@@ -247,15 +253,16 @@ async fn update_transaction(
 
     let pool = state.get_database_pool();
 
-    let transaction = database::transaction::update(transaction_id, user_id, update_transaction, pool)
-        .await
-        .inspect_err(|_| {
-            tracing::error!(
-                "Failed to update transaction {} for user {}",
-                transaction_id,
-                user_id
-            );
-        })?;
+    let transaction =
+        database::transaction::update(transaction_id, user_id, update_transaction, pool)
+            .await
+            .inspect_err(|_| {
+                tracing::error!(
+                    "Failed to update transaction {} for user {}",
+                    transaction_id,
+                    user_id
+                );
+            })?;
 
     tracing::info!(
         "Successfully updated transaction {} for user {}",

@@ -312,11 +312,7 @@ pub async fn update(
 ///
 /// * `Ok(usize)` - Number of rows deleted (1 if successful)
 /// * `Err(Error)` - Database operation error
-pub async fn delete(
-    transaction_id: Uuid,
-    user_id: Uuid,
-    pool: &PgPool,
-) -> Result<usize, Error> {
+pub async fn delete(transaction_id: Uuid, user_id: Uuid, pool: &PgPool) -> Result<usize, Error> {
     // Start a transaction for atomic operations
     let mut tx = pool.begin().await?;
 

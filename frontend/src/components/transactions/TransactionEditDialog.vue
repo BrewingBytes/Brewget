@@ -131,7 +131,7 @@ const handleUpdate = () => {
     : editTransaction.value.category;
 
   if (!finalCategory || (isCustomCategory.value && !customCategory.value)) {
-    useToastStore().showError(t("transactions.category") + " is required");
+    useToastStore().showError(`${t("transactions.category")  } is required`);
     return;
   }
 
