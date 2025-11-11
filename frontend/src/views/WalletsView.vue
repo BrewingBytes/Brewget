@@ -8,6 +8,7 @@ import GlassButton from "@/components/glass/GlassButton.vue";
 import GlassCard from "@/components/glass/GlassCard.vue";
 import WalletCreateDialog from "@/components/wallets/WalletCreateDialog.vue";
 import WalletDeleteDialog from "@/components/wallets/WalletDeleteDialog.vue";
+import WalletDetailDialog from "@/components/wallets/WalletDetailDialog.vue";
 import WalletEditDialog from "@/components/wallets/WalletEditDialog.vue";
 import WalletTypeGroup from "@/components/wallets/WalletTypeGroup.vue";
 import { useWalletStore } from "@/stores/wallet";
@@ -18,6 +19,7 @@ const walletStore = useWalletStore();
 const showCreateDialog = ref(false);
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
+const showDetailDialog = ref(false);
 const selectedWallet = ref<Wallet | null>(null);
 
 // Helper to get wallet type display name
@@ -97,6 +99,11 @@ const deleteWallet = async (id: string) => {
     selectedWallet.value = null;
   }
 };
+
+const openDetailDialog = (wallet: Wallet) => {
+  selectedWallet.value = wallet;
+  showDetailDialog.value = true;
+};
 </script>
 
 <template>
@@ -126,7 +133,8 @@ const deleteWallet = async (id: string) => {
 
           <div v-else class="space-y-6">
             <WalletTypeGroup v-for="group in walletsByType" :key="group.walletType" :walletType="group.walletType"
-              :label="group.label" :wallets="group.wallets" @edit="openEditDialog" @delete="openDeleteDialog" />
+              :label="group.label" :wallets="group.wallets" @edit="openEditDialog" @delete="openDeleteDialog" 
+              @click="openDetailDialog" />
           </div>
         </template>
       </GlassCard>
@@ -138,5 +146,6 @@ const deleteWallet = async (id: string) => {
       @update="updateWallet" />
     <WalletDeleteDialog v-model:visible="showDeleteDialog" :loading="walletStore.loading" :wallet="selectedWallet"
       @delete="deleteWallet" />
+    <WalletDetailDialog v-model:visible="showDetailDialog" :wallet="selectedWallet" />
   </div>
 </template>
