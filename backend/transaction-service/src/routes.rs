@@ -1,5 +1,6 @@
 mod health;
 mod middlewares;
+mod transaction;
 mod wallet;
 
 use std::sync::Arc;
@@ -60,6 +61,7 @@ pub async fn make_app(config: Config) -> Result<Router, Box<dyn std::error::Erro
     let router = Router::new()
         .nest("/health", health::get_router(state.clone()))
         .nest("/wallet", wallet::get_router(state.clone()))
+        .nest("/transaction", transaction::get_router(state.clone()))
         .with_state(state)
         .layer(cors);
     Ok(router)
