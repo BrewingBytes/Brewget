@@ -14,7 +14,7 @@
     "format": "eslint . --fix"
   },
   "dependencies": {
-    "@primeuix/themes": "^1.2.3",
+    "@primeuix/themes": "^2.0.1",
     "axios": "^1.12.2",
     "eslint-plugin-import": "^2.32.0",
     "jwt-decode": "^4.0.0",
