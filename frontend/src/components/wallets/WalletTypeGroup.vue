@@ -12,6 +12,7 @@ interface Props {
 interface Emits {
   (event: "edit", wallet: Wallet): void;
   (event: "delete", wallet: Wallet): void;
+  (event: "click", wallet: Wallet): void;
 }
 
 defineProps<Props>();
@@ -26,7 +27,7 @@ const emit = defineEmits<Emits>();
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <WalletCard v-for="wallet in wallets" :key="wallet.id" :wallet="wallet" @edit="emit('edit', wallet)"
-        @delete="emit('delete', wallet)" />
+        @delete="emit('delete', wallet)" @click="emit('click', wallet)" />
     </div>
   </div>
 </template>

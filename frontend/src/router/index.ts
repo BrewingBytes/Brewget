@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import AuthView from "@/views/AuthView.vue";
 import HomeView from "@/views/HomeView.vue";
 import SettingsView from "@/views/SettingsView.vue";
+import TransactionsView from "@/views/TransactionsView.vue";
 import WalletsView from "@/views/WalletsView.vue";
 
 const router = createRouter({
@@ -22,7 +23,12 @@ const router = createRouter({
     {
       path: "/add",
       name: "add",
-      component: HomeView,
+      component: TransactionsView,
+    },
+    {
+      path: "/transactions",
+      name: "transactions",
+      component: TransactionsView,
     },
     {
       path: "/analytics",
