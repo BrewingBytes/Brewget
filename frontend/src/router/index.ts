@@ -1,10 +1,12 @@
 import { type RouteRecordNameGeneric, createRouter, createWebHistory } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
-import AuthView from "@/views/AuthView.vue";
-import HomeView from "@/views/HomeView.vue";
-import SettingsView from "@/views/SettingsView.vue";
-import WalletsView from "@/views/WalletsView.vue";
+
+// Lazy load views for better initial page load performance
+const AuthView = () => import("@/views/AuthView.vue");
+const HomeView = () => import("@/views/HomeView.vue");
+const SettingsView = () => import("@/views/SettingsView.vue");
+const WalletsView = () => import("@/views/WalletsView.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
