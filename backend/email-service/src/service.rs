@@ -64,9 +64,11 @@ impl std::error::Error for EmailError {}
 ///
 /// * `config` - Shared configuration containing SMTP settings
 /// * `mailer` - SMTP transport for sending emails
+/// * `handlebars` - Pre-configured Handlebars template engine with registered templates
 pub struct Service {
     config: Arc<Config>,
     mailer: SmtpTransport,
+    handlebars: Handlebars<'static>,
 }
 
 impl Service {
@@ -112,8 +114,27 @@ impl Service {
             .credentials(creds)
             .build();
 
+        // Initialize Handlebars template engine with registered templates
+        let mut handlebars = Handlebars::new();
+        handlebars
+            .register_template_string("activate_account", ACTIVATE_ACCOUNT_TEMPLATE)
+            .map_err(|e| {
+                error!(error = %e, "Failed to register activate_account template");
+                e
+            })?;
+        handlebars
+            .register_template_string("forgot_password", FORGOT_PASSWORD_TEMPLATE)
+            .map_err(|e| {
+                error!(error = %e, "Failed to register forgot_password template");
+                e
+            })?;
+
         info!("Email service initialized successfully");
-        Ok(Self { config, mailer })
+        Ok(Self {
+            config,
+            mailer,
+            handlebars,
+        })
     }
 
     /// Creates an account activation email message
@@ -158,9 +179,10 @@ impl Service {
             request.link
         );
 
-        let html = Handlebars::new()
-            .render_template(
-                ACTIVATE_ACCOUNT_TEMPLATE,
+        let html = self
+            .handlebars
+            .render(
+                "activate_account",
                 &json!({"activation_link": request.link}),
             )
             .map_err(|e| {
@@ -218,9 +240,10 @@ impl Service {
             request.link
         );
 
-        let html = Handlebars::new()
-            .render_template(
-                FORGOT_PASSWORD_TEMPLATE,
+        let html = self
+            .handlebars
+            .render(
+                "forgot_password",
                 &json!({"forgot_password_link": request.link}),
             )
             .map_err(|e| {
