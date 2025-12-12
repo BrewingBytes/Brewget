@@ -35,7 +35,7 @@ jobs:
                 - 'backend/Dockerfile'
         - name: Cache
           if: steps.changes.outputs.auth == 'true' || steps.changes.outputs.email == 'true' || steps.changes.outputs.settings == 'true' || steps.changes.outputs.transaction == 'true' || steps.changes.outputs.base-image == 'true'
-          uses: actions/cache@v4
+          uses: actions/cache@v5
           with:
             path: |
               ~/.cargo/registry
